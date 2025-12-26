@@ -215,7 +215,7 @@ router.get("/sale-receipt/:id", async (req, res, next) => {
     const lineHeight = 12;
     const fontSize = 10;
     const boldFontSize = 10;
-    const maxCharsPerLine = 14;
+    const maxCharsPerLine = 16;
 
     // Column positions - better distributed
     const col = {

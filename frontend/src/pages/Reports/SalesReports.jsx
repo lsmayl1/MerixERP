@@ -18,6 +18,7 @@ import TrashBin from "../../assets/TrashBin";
 import { Cash } from "../../assets/Cash";
 import { CreditCard } from "../../assets/CreditCard";
 import { PrintIcon } from "../../assets/PrintIcon";
+import { toast, ToastContainer } from "react-toastify";
 
 export const SalesReports = () => {
   const { t } = useTranslation();
@@ -116,9 +117,12 @@ export const SalesReports = () => {
   const handlePrintReceipt = async (id) => {
     try {
       await triggerPrintReceipt(id).unwrap();
+      toast.success(
+        t("receiptPrintedSuccessfully") || "Receipt printed successfully"
+      );
     } catch (error) {
       console.error("Failed to print receipt:", error);
-      alert("Failed to print receipt. Please try again.");
+      toast.error(t("failedToPrintReceipt") || "Failed to print receipt");
     }
   };
 
@@ -168,6 +172,7 @@ export const SalesReports = () => {
 
   return (
     <div className="flex flex-col gap-2  w-full h-full relative">
+      <ToastContainer />
       <DateRange handleRange={setRange} />
       <KPI
         data={[

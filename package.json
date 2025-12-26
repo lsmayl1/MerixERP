@@ -6,7 +6,7 @@
     "start": "electron .",
     "build": "electron-builder",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+    "install:all": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "build": {
     "appId": "com.ismayil.merix",
