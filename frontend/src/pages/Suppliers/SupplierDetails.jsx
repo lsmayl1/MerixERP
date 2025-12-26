@@ -116,9 +116,6 @@ export const SupplierDetails = () => {
   };
 
   const handleDeleteTransaction = async (id) => {
-    if (!window.confirm("Silinsin")) {
-      return;
-    }
     try {
       await deleteTransaction(id);
       refetch();
@@ -158,7 +155,7 @@ export const SupplierDetails = () => {
   };
 
   return (
-    <div className="p-4 flex flex-col gap-4 w-full h-full">
+    <div className="p-4 flex flex-col gap-4 w-full h-full relative">
       <div className="items-center flex gap-12  w-full  justify-between ">
         <h1 className="text-3xl font-semibold text-nowrap">{data?.name}</h1>
         <div className="bg-white w-1/5  h-full justify-between px-4 py-4  rounded-lg flex flex-col gap-2">
@@ -170,7 +167,7 @@ export const SupplierDetails = () => {
           </span>
         </div>
       </div>
-      <div className="flex flex-col bg-white w-full h-full  rounded-lg  relative">
+      <div className="flex flex-col bg-white w-full h-full  rounded-lg  ">
         {showInvoice && (
           <InvoiceView
             handleClose={() => {

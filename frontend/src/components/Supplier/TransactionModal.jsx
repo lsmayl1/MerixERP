@@ -18,15 +18,14 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [date, setDate] = useState(null);
   const [columns, setColumns] = useState([
-    { label: "Name", key: "name" },
-    { label: "Barcode", key: "barcode" },
-    { label: "Unit", key: "unit" },
-    { label: "Buy Price", key: "buyPrice" },
-    { label: "Quantity", key: "quantity" },
-    { label: "Sell Price", key: "sellPrice" },
-
-    { label: "Amount", key: "amount" },
-    { label: "Delete", key: "delete" },
+    { label: t("product"), key: "name" },
+    { label: t("barcode"), key: "barcode" },
+    { label: t("unit"), key: "unit" },
+    { label: t("buyPrice"), key: "buyPrice" },
+    { label: t("quantity"), key: "quantity" },
+    { label: t("sellPrice"), key: "sellPrice" },
+    { label: t("amount"), key: "amount" },
+    { label: t("delete"), key: "delete" },
   ]);
   const [query, setQuery] = useState("");
   const { data } = useGetProductsByQueryQuery(query, {
@@ -197,7 +196,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
   return (
     <div className="absolute right-0 top-0 w-full flex-col gap-4 h-full flex bg-white border border-mainBorder rounded-lg p-4">
       <div className="w-full flex gap-4 items-center justify-between">
-        <div className="flex flex-col gap-4 w-1/6">
+        <div className="flex  gap-4 w-1/6">
           <div className="flex gap-4 items-center">
             <h1>Tarix: </h1>
             <input
@@ -205,6 +204,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
               className="border border-mainBorder rounded-lg px-4 py-2 w-full"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              lang="EN-US"
             />
           </div>
           <div className="flex justify-between items-center gap-4">
@@ -285,7 +285,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
           </button>
         </div>
       </div>
-      <div className="flex gap-4 overflow-auto flex-col  bg-white  w-full h-full ">
+      <div className="flex gap-4 flex-col  bg-white  w-full h-full  overflow-auto">
         <div className="flex justify-between items-center">
           <SearchModal
             query={query}
@@ -294,10 +294,19 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
             handleAdd={AddProductFromSearch}
           />
           <BarcodeField handleBarcode={handleBarcode} />
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              onClick={addProduct}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              + {t("addProduct")}
+            </button>
+          </div>
         </div>{" "}
-        <div className="w-full h-full">
+        <div className="w-full max-h-full  ">
           {/* Tablo Başlıkları */}
-          <div className="grid grid-cols-8 font-bold text-sm bg-gray-100 ">
+          <div className="grid grid-cols-8 font-bold text-sm   bg-gray-100 ">
             {columns.map((col, idx) => (
               <div key={idx} className="p-2 text-lg font-light">
                 {col.label}
@@ -417,29 +426,18 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
               </button>
             </div>
           ))}
-
-          {/* Satır Ekle Butonu */}
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              onClick={addProduct}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-            >
-              + Add Product
-            </button>
-          </div>
         </div>
-        <div className=" flex gap-2 justify-end items-center text-mainText font-semibold">
-          Toplam:{" "}
-          <span className="text-black text-xl">
-            {productList
-              ?.reduce(
-                (total, p) => total + (p.buyPrice || 0) * (p.quantity || 0),
-                0
-              )
-              .toFixed(2)}
-          </span>
-        </div>
+      </div>
+      <div className=" flex gap-2 justify-end items-center text-mainText font-semibold">
+        Toplam:{" "}
+        <span className="text-black text-xl">
+          {productList
+            ?.reduce(
+              (total, p) => total + (p.buyPrice || 0) * (p.quantity || 0),
+              0
+            )
+            .toFixed(2)}
+        </span>
       </div>
     </div>
   );
