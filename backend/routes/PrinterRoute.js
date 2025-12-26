@@ -124,7 +124,7 @@ router.post("/label-print", async (req, res) => {
       try {
         // Print using pdf-to-printer with exact size settings
         const options = {
-          printer: "Xprinter XP-350B", // Your thermal printer
+          printer: "Barkod", // Your thermal printer
           pages: "1",
           orientation: "landscape",
           scale: "noscale", // Critical: No scaling
@@ -138,18 +138,18 @@ router.post("/label-print", async (req, res) => {
         };
 
         console.log("Printing with options:", options);
-        await pdf2printer.print(tempPath, options);
+        await pdf2printer.print(labelsDir, options);
 
         // Clean up temp file
-        // fs.unlinkSync(tempPath);
+        fs.unlinkSync(labelsDir);
 
         console.log("PDF printed successfully");
         res.json({ success: true, message: "PDF printed successfully" });
       } catch (printError) {
         console.error("Print error:", printError);
         // Clean up temp file even on error
-        if (fs.existsSync(tempPath)) {
-          fs.unlinkSync(tempPath);
+        if (fs.existsSync(labelsDir)) {
+          fs.unlinkSync(labelsDir);
         }
         res.status(500).json({
           error: "Print failed",
@@ -376,7 +376,7 @@ router.get("/sale-receipt/:id", async (req, res, next) => {
         // Print using pdf-to-printer
 
         const options = {
-          printer: "XP-80C", // kendi yazıcınızın adı
+          printer: "POS-80C", // kendi yazıcınızın adı
           pages: "1",
           orientation: "portrait", // fiş yatay
           scale: "noscale", // Ölçeklendirme
