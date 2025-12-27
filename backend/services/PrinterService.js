@@ -97,7 +97,7 @@ const PrintReceipt = (data) => {
     doc.text("Məhsul", col.name, currentY);
     doc.text("Qiymət", col.price - 46, currentY);
     doc.text("Miqdar", col.qty - 36, currentY);
-    doc.text("Məbləğ", col.total - 35, currentY);
+    doc.text("Məbləğ", col.total - 40, currentY);
     currentY += lineHeight + 4;
 
     // doc
@@ -134,7 +134,7 @@ const PrintReceipt = (data) => {
 
           doc.text(priceText, col.price - priceWidth - 10, itemStartY);
           doc.text(qtyText, col.qty - qtyWidth - 10, itemStartY);
-          doc.text(totalText, col.total - totalWidth, itemStartY);
+          doc.text(totalText, col.total - totalWidth - 4, itemStartY);
         }
 
         currentY += lineHeight;
@@ -180,7 +180,7 @@ const PrintReceipt = (data) => {
         // Print using pdf-to-printer
 
         const options = {
-          printer: "XP-80C", // kendi yazıcınızın adı
+          printer: "POS-80C", // kendi yazıcınızın adı
           pages: "1",
           orientation: "portrait", // fiş yatay
           scale: "noscale", // Ölçeklendirme
