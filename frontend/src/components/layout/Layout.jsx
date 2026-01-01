@@ -15,11 +15,11 @@ export const Layout = () => {
         {showSideBar && (
           <Sidebar
             handleClose={() => setShowSidebar(false)}
-            className={"flex-[1] h-full"}
+            className={" h-full"}
           />
         )}
 
-        <div className="flex-[6]  px-2  w-full h-full overflow-hidden max-md:overflow-auto min-h-0 ">
+        <div className="px-2  w-full h-full overflow-hidden max-md:overflow-auto min-h-0 ">
           <Outlet />
         </div>
       </div>

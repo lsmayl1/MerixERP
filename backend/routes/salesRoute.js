@@ -444,14 +444,23 @@ router.post("/create", async (req, res) => {
       discountAmount: discountedAmount.toFixed(2),
     });
 
-    // await SyncQueue.create({
-    //   entity: "sale",
-    //   record_id: result.sale_id,
-    //   action: "create",
-    //   payload: { products, payment_method, type, totalAmount },
-    //   record_id: result.sale_id,
-    //   status: "pending",
-    // });
+    await SyncQueue.create({
+      entity: "sale",
+      record_id: result.sale_id,
+      action: "create",
+      payload: {
+        products,
+        payment_method,
+        type,
+        totalAmount,
+        discount,
+        subtotalAmount,
+        discountedAmount,
+        userId: "85568a71-d681-405e-9077-6e3a09258586",
+      },
+      record_id: result.sale_id,
+      status: "pending",
+    });
 
     return res.status(201).json(response);
   } catch (error) {

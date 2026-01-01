@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LogoMain from "../../assets/Logo/LogoMain";
-export const Login = ({ data = [], handleBack, value = 40 }) => {
+import { useNavigate } from "react-router-dom";
+export const Login = () => {
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState("");
   const buttons = ["7", "8", "9", "4", "5", "6", "1", "2", "3", "", "0", "⌫"];
-
+  const [error, setError] = useState(false);
+  const navigate = useNavigate();
   const applyValue = (btn) => {
     if (btn === "⌫") {
       setInputValue((prev) => prev.slice(0, -1));
@@ -15,23 +17,50 @@ export const Login = ({ data = [], handleBack, value = 40 }) => {
       setInputValue((prev) => prev + btn);
     }
   };
+
+  useEffect(() => {
+    if (inputValue.length === 4) {
+      if (inputValue === "2006") {
+        navigate("/pos");
+      } else {
+        setError(true);
+        setTimeout(() => {
+          setInputValue("");
+          setError(false);
+        }, 500);
+      }
+    }
+  }, [inputValue, navigate]);
+
   return (
     <div className="flex flex-col h-screen justify-center gap-24 items-center ">
       <LogoMain />
       <div className="flex items-center justify-center  gap-4 font-medium flex-col">
         <ul className="flex gap-8 text-3xl">
-          <li className="rounded-full border-gray-200 border p-8 size-26 flex items-center justify-center">
-            {inputValue.slice(0, 1)}
-          </li>
-          <li className="rounded-full border-gray-200 border p-8 size-26 flex items-center justify-center">
-            {inputValue.slice(1, 2)}
-          </li>
-          <li className="rounded-full border-gray-200 border p-8 size-26 flex items-center justify-center">
-            {inputValue.slice(2, 3)}
-          </li>
-          <li className="rounded-full border-gray-200 border p-8 size-26 flex items-center justify-center">
-            {inputValue.slice(3, 4)}
-          </li>
+          {inputValue.split("").map((char, index) => (
+            <li
+              key={index}
+              className={`rounded-full
+                ${error ? "border-red-500" : "border-gray-200"}
+                border p-8 size-18 flex items-center justify-center`}
+            >
+              {char}
+            </li>
+          ))}
+          {Array.from({ length: 4 - inputValue.length }).map((_, index) => (
+            <li
+              className={`rounded-full ${
+                error ? "border-red-500" : "border-gray-200"
+              }  border p-8 size-18 flex items-center justify-center`}
+            >
+              {inputValue.slice(_, index + inputValue.length + 1).length ===
+              0 ? (
+                <span className="text-gray-300"></span>
+              ) : (
+                ""
+              )}
+            </li>
+          ))}
         </ul>
       </div>
 

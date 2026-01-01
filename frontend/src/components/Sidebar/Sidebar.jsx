@@ -49,21 +49,16 @@ export const Sidebar = ({ className, handleClose }) => {
     { name: t("supplier"), blank: true, path: "suppliers", icon: <Supplier /> },
 
     { name: t("pos"), blank: true, path: "pos", icon: <Kart /> },
+    { name: t("KASSA 2"), blank: true, path: "pos-2", icon: <Kart /> },
   ];
   return (
     <div
-      className={`w-full max-md:absolute z-50 max-md:left-0 max-md:bg-white items-center flex py-12 flex-col ${className}
+      className={`max-md:absolute z-50 max-md:left-0 max-md:bg-white  flex pt-8 flex-col px-4 ${className}
       `}
     >
       <ul className="flex flex-col  gap-2">
-        <button
-          onClick={handleClose}
-          className="w-full  md:hidden  justify-end flex"
-        >
-          <CloseIcon className="size-4" />
-        </button>
         {links.map((link, index) => (
-          <div className="flex flex-col gap-1 " key={index}>
+          <div className="flex flex-col gap-1  " key={index}>
             <NavLink
               to={link.path}
               className={({ isActive }) =>

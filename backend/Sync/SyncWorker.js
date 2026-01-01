@@ -1,6 +1,7 @@
 const axios = require("axios");
 const { checkHealth } = require("./HealthCheck");
 const { SyncQueue } = require("../models");
+const { Op } = require("sequelize");
 async function SyncWorker() {
   const online = await checkHealth();
   if (!online) {
@@ -11,19 +12,18 @@ async function SyncWorker() {
   console.log("✅ Online, SyncQueue işlənir...");
 
   const items = await SyncQueue.findAll({
-    where: { status: "pending" || "failed" },
+    where: { status: { [Op.in]: ["pending", "failed"] } },
     limit: 20, // batch göndərmək üçün
   });
 
   for (const item of items) {
     try {
-      const response = await axios.post("http://8.222.237.126:3000/sync", {
+      const response = await axios.post("http://8.222.237.126:3000/api/sync", {
         entity: item.entity,
         action: item.action,
         record_id: item.record_id,
         payload: item.payload,
       });
-
       if (response.status === 200) {
         await item.update({ status: "success" });
         console.log(`✔️ Sync edildi: ${item.id}`);

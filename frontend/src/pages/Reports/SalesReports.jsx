@@ -89,7 +89,7 @@ export const SalesReports = () => {
     }),
     columnHelper.accessor("details", {
       header: t("details"),
-      headerClassName: "text-center bg-gray-100 rounded-e-lg",
+      headerClassName: "text-center bg-gray-100",
       cell: ({ row }) => (
         <button
           onClick={() => handleDetails(row?.original?.sale_id)}
