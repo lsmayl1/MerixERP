@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../database/database");
+const sequelize = require("../../database/database");
 
 const Sales = sequelize.define(
   "Sales",
@@ -30,10 +30,6 @@ const Sales = sequelize.define(
     discounted_amount: {
       type: DataTypes.DECIMAL(10, 2), // İndirimli tutar
       defaultValue: 0.0,
-    },
-    payment_method: {
-      type: DataTypes.ENUM("cash", "card"), // Ödeme yöntemi: nakit, kart, kredi
-      allowNull: false,
     },
     transaction_type: {
       type: DataTypes.ENUM("sale", "return"), // İşlem türü:

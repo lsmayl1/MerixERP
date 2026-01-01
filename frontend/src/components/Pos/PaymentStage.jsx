@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Cash } from "../../assets/Cash";
 import { CreditCard } from "../../assets/CreditCard";
@@ -11,6 +11,7 @@ export const PaymentStage = ({
   value = 0,
   setDiscount,
   discount = 0,
+  submitSale,
 }) => {
   const { t } = useTranslation();
   const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -36,8 +37,6 @@ export const PaymentStage = ({
     },
   ];
 
-  const buttons = ["7", "8", "9", "4", "5", "6", "1", "2", "3", ".", "0", "⌫"];
-
   // derived values
   const subtotal = Number(data?.subtotal ?? value ?? 0);
   const activeDiscount =
@@ -47,44 +46,51 @@ export const PaymentStage = ({
   );
   const finalTotal = Number((subtotal - computedDiscountAmount).toFixed(2));
   const paid = Number(cash) + Number(card);
-  const change =
-    Number(cash) > finalTotal ? (Number(cash) - finalTotal).toFixed(2) : "0.00";
+  const change = paid > finalTotal ? (paid - finalTotal).toFixed(2) : "0.00";
+
+  const payments = useMemo(() => {
+    const list = [];
+
+    if (Number(cash) > 0) {
+      list.push({ payment_type: "cash", amount: Number(cash) });
+    }
+
+    if (Number(card) > 0) {
+      list.push({ payment_type: "card", amount: Number(card) });
+    }
+
+    return list;
+  }, [cash, card]);
 
   const applyValue = (key) => {
-    let value = paymentMethod === "cash" ? cash : card;
+    const value = paymentMethod === "cash" ? cash : card;
+    const setValue = paymentMethod === "cash" ? setCash : setCard;
 
-    // Təmizlə
+    // Clear
     if (key === "C") {
-      paymentMethod === "cash" ? setCash("0") : setCard("0");
+      setValue("0");
       return;
     }
 
     // Backspace
     if (key === "⌫") {
-      if (value.length <= 1) {
-        paymentMethod === "cash" ? setCash("0") : setCard("0");
-      } else {
-        paymentMethod === "cash"
-          ? setCash(value.slice(0, -1))
-          : setCard(value.slice(0, -1));
-      }
+      setValue(value.length <= 1 ? "0" : value.slice(0, -1));
       return;
     }
 
-    // "." yalnız bir dəfə
+    // Only one "."
     if (key === "." && value.includes(".")) return;
 
-    // Ondalık max 2
+    // Max 2 decimals
     if (value.includes(".")) {
       const [, decimals] = value.split(".");
       if (decimals.length >= 2) return;
     }
 
-    // 👉 ƏGƏR value "0"-dırsa, onu əvəz et
     const newValue = value === "0" && key !== "." ? key : value + key;
-
-    paymentMethod === "cash" ? setCash(newValue) : setCard(newValue);
+    setValue(newValue);
   };
+
   const handleAllValue = () => {
     if (paymentMethod === "cash") {
       setCash(finalTotal.toString());
@@ -230,7 +236,7 @@ export const PaymentStage = ({
             <span className=""> {t("Bütün məbləğ")}</span>
           </button>
           <button
-            // onClick={() => handleSubmitSale("sale")}
+            onClick={() => submitSale("sale", payments)}
             disabled={Number(cash) + Number(card) < finalTotal}
             aria-disabled={Number(cash) + Number(card) < finalTotal}
             className={`flex justify-center text-xl gap-2 items-center border border-gray-200 px-6 h-16 rounded-lg w-full ${

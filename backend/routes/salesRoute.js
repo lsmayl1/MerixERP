@@ -3,6 +3,7 @@ const { PrintReceipt } = require("../services/PrinterService");
 const {
   Sales,
   SalesDetails,
+  SalePayments,
   Products,
   ProductStock,
   sequelize,
@@ -40,6 +41,10 @@ router.post("/", async (req, res) => {
           attributes: ["sell_price", "buy_price", "quantity"],
           required: false,
         },
+        {
+          model: SalePayments,
+          as: "payments",
+        },
       ],
     });
 
@@ -49,22 +54,19 @@ router.post("/", async (req, res) => {
     sales.forEach((sale) => {
       const amount = Number(sale.total_amount);
       const discounted_amount = Number(sale.discounted_amount);
+      const payments = sale.payments;
 
-      if (sale.payment_method === "cash") {
-        if (sale.transaction_type === "sale") {
-          cashTotal += amount;
-        } else if (sale.transaction_type === "return") {
-          cashTotal -= amount;
+      payments.forEach((payment) => {
+        if (payment.payment_type === "cash" && sale.type === "sale") {
+          cashTotal += payment.amount - discounted_amount;
+        } else if (payment.payment_type === "cash" && sale.type === "return") {
+          cashTotal -= payment.amount;
+        } else if (payment.payment_type === "card" && sale.type === "sale") {
+          cashTotal += payment.amount - discounted_amount;
+        } else if (payment.payment_type === "card" && sale.type === "return") {
+          cashTotal -= payment.amount;
         }
-      }
-
-      if (sale.payment_method === "card") {
-        if (sale.transaction_type === "sale") {
-          cardTotal += amount;
-        } else if (sale.transaction_type === "return") {
-          cardTotal -= amount;
-        }
-      }
+      });
     });
 
     const formattedSales = sales.map((sale) => {
@@ -272,15 +274,14 @@ router.post("/preview", async (req, res) => {
 // POST /sales
 router.post("/create", async (req, res) => {
   try {
-    const { products, payment_method, type, discount } = req.body;
+    const { products, payments, type, discount } = req.body;
 
     if (!Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ error: "Products array cannot be empty" });
     }
 
-    const validPaymentMethods = ["cash", "card"];
-    if (!validPaymentMethods.includes(payment_method)) {
-      return res.status(400).json({ error: "Invalid payment method" });
+    if (!payments || payments.length === 0) {
+      throw new Error("At least one payment is required");
     }
     if (!type) {
       return res.status(400).json({ error: "Transaction type is required" });
@@ -349,7 +350,6 @@ router.post("/create", async (req, res) => {
         {
           total_amount: totalAmount,
           subtotal_amount: subtotalAmount,
-          payment_method,
           discount: discount || 0,
           transaction_type: type,
           discounted_amount: discountedAmount,
@@ -408,6 +408,14 @@ router.post("/create", async (req, res) => {
         })
       );
 
+      const paymentRows = payments.map((p) => ({
+        sale_id: sale.sale_id,
+        payment_type: p.payment_type,
+        amount: p.amount,
+      }));
+
+      await SalePayments.bulkCreate(paymentRows, { transaction: t });
+
       return sale;
     });
 
@@ -450,7 +458,6 @@ router.post("/create", async (req, res) => {
       action: "create",
       payload: {
         products,
-        payment_method,
         type,
         totalAmount,
         discount,

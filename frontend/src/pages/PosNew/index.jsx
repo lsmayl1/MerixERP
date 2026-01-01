@@ -84,8 +84,6 @@ export const PosNew = () => {
   const [paymentStage, setPaymentStage] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [discount, setDiscount] = useState(0);
-  //   const [receivedAmount, setReceivedAmount] = useState(0);
-  const [AmountToReturn, setAmountToReturn] = useState(0);
   const [postSale, { isLoading: postLoading }] = usePostSaleMutation();
   const searchInput = useRef();
   const modalRef = useRef();
@@ -251,7 +249,7 @@ export const PosNew = () => {
     setInputData(newData);
   };
 
-  const handleSubmitSale = async (type) => {
+  const handleSubmitSale = async (type, payments) => {
     if (postLoading) return;
     try {
       await postSale({
@@ -259,10 +257,11 @@ export const PosNew = () => {
         products: data?.items,
         type: type || "sale",
         discount: discount,
+        payments: payments,
       }).unwrap();
       setData([]);
       setInputData([]);
-      setPaymentMethod("cash");
+      setPaymentStage(false);
       setDiscount(0);
       setTimeout(() => {
         barcodeRef.current?.focus();
@@ -294,11 +293,6 @@ export const PosNew = () => {
 
   const handleChangeQtyAndFocus = (...args) => {
     handleChangeQty(...args);
-    barcodeRef.current?.focus();
-  };
-
-  const handlePaymentMethodChange = (method) => {
-    setPaymentMethod(method);
     barcodeRef.current?.focus();
   };
 
@@ -338,6 +332,7 @@ export const PosNew = () => {
               data={data}
               setDiscount={handleChangeDiscount}
               discount={discount}
+              submitSale={handleSubmitSale}
             />
           ) : (
             <div className="flex-1  px-4 gap-4  flex flex-col bg-white rounded-2xl  justify-between py-4 h-full  ">

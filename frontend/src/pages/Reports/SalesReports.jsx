@@ -64,13 +64,6 @@ export const SalesReports = () => {
       cellClassName: "text-center",
       cell: ({ getValue }) => <span>{getValue()} ₼</span>,
     }),
-    columnHelper.accessor("payment_method", {
-      header: t("paymentMethod"),
-      headerClassName: "text-center bg-gray-100",
-      cellClassName: "text-center",
-      cell: ({ getValue }) => (getValue() == "cash" ? t("cash") : t("card")),
-    }),
-
     columnHelper.accessor("transaction_type", {
       header: t("Əməliyyat Növü"),
       headerClassName: "text-center bg-gray-100",

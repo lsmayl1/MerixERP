@@ -1,8 +1,8 @@
 const { Sequelize, Op } = require("sequelize");
 const sequelize = require("../database/database"); // Veritabanı bağlantısı
-const Sales = require("./sales");
+const Sales = require("./Sale/sales");
 const Products = require("./products");
-const SalesDetails = require("./salesDetails");
+const SalesDetails = require("./Sale/salesDetails");
 const CashTransactions = require("./cashTransactions");
 const StockTransactions = require("./stockTransactions");
 const ProductStock = require("./productStock");
@@ -11,9 +11,12 @@ const SupplierTransactions = require("./Supplier/SupplierTransaction");
 const SupplierTransactionDetails = require("./Supplier/SupplierTransactionDetails");
 const Category = require("./category");
 const SyncQueue = require("./Sync/SyncQuene");
+const SalePayments = require("./Sale/salePayments");
 // 🔹 İlişkileri Tanımla
 Sales.hasMany(SalesDetails, { foreignKey: "sale_id", as: "details" });
 SalesDetails.belongsTo(Sales, { foreignKey: "sale_id", as: "sale" });
+Sales.hasMany(SalePayments, { foreignKey: "sale_id", as: "payments" });
+SalePayments.belongsTo(Sales, { foreignKey: "sale_id", as: "payments" });
 
 StockTransactions.belongsTo(Products, {
   foreignKey: "product_id",
@@ -89,6 +92,7 @@ module.exports = {
   sequelize,
   Sequelize,
   Sales,
+  SalePayments,
   Products,
   SalesDetails,
   Op,
