@@ -139,6 +139,10 @@ router.get("/:id", async (req, res) => {
             },
           ],
         },
+        {
+          model: SalePayments,
+          as: "payments",
+        },
       ],
     });
     if (!sale) return res.json({ error: "Satis yoxdur" });
@@ -150,6 +154,10 @@ router.get("/:id", async (req, res) => {
       transactionType: sale.transaction_type,
       discount: sale.discount + " %",
       discountedAmount: sale.discounted_amount + " ₼",
+      payments: sale.payments.map((payment) => ({
+        payment_type: payment.payment_type,
+        amount: payment.amount,
+      })),
       subtotalAmount: sale.subtotal_amount + " ₼",
       date: moment(sale.date).tz("Asia/Dubai").format("DD-MM-YYYY HH:mm:ss"),
       details: sale.details.map((detail) => ({

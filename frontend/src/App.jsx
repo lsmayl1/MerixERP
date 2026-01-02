@@ -38,8 +38,7 @@ export const App = () => {
         <Route path="suppliers" element={<Suppliers />} />
         <Route path="suppliers/:id" element={<SupplierDetails />} />
       </Route>
-      <Route path="pos" element={<Pos />} />
-      <Route path="pos-2" element={<PosNew />} />
+      <Route path="pos" element={<PosNew />} />
 
       <Route path="login" element={<Login />} />
     </Routes>

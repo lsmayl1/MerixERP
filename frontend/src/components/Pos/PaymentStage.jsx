@@ -52,7 +52,10 @@ export const PaymentStage = ({
     const list = [];
 
     if (Number(cash) > 0) {
-      list.push({ payment_type: "cash", amount: Number(cash) });
+      list.push({
+        payment_type: "cash",
+        amount: (Number(cash) - Number(change)).toFixed(2),
+      });
     }
 
     if (Number(card) > 0) {
@@ -60,11 +63,15 @@ export const PaymentStage = ({
     }
 
     return list;
-  }, [cash, card]);
+  }, [cash, card, change]);
 
   const applyValue = (key) => {
     const value = paymentMethod === "cash" ? cash : card;
     const setValue = paymentMethod === "cash" ? setCash : setCard;
+    // If one method already covers (or exceeds) the final total,
+    // don't allow entering values for the other method.
+    if (paymentMethod === "card" && Number(cash) >= finalTotal) return;
+    if (paymentMethod === "cash" && Number(card) >= finalTotal) return;
 
     // Clear
     if (key === "C") {
@@ -92,11 +99,41 @@ export const PaymentStage = ({
   };
 
   const handleAllValue = () => {
+    const cardNum = Number(card);
+    const cashNum = Number(cash);
+
     if (paymentMethod === "cash") {
-      setCash(finalTotal.toString());
+      // If card already covers the total or exceeds it, cash should be 0
+      if (cardNum >= finalTotal) {
+        setCash("0");
+        return;
+      }
+
+      // If some card value exists (but less than total), fill remaining with cash
+      if (cardNum > 0) {
+        setCash((finalTotal - cardNum).toFixed(2).toString());
+        return;
+      }
+
+      // Otherwise fill cash with full total and clear card
+      setCash(finalTotal.toFixed(2).toString());
       setCard("0");
     } else {
-      setCard(finalTotal.toString());
+      // paymentMethod === 'card'
+      // If cash already covers the total or exceeds it, card should be 0
+      if (cashNum >= finalTotal) {
+        setCard("0");
+        return;
+      }
+
+      // If some cash value exists (but less than total), fill remaining with card
+      if (cashNum > 0) {
+        setCard((finalTotal - cashNum).toFixed(2).toString());
+        return;
+      }
+
+      // Otherwise fill card with full total and clear cash
+      setCard(finalTotal.toFixed(2).toString());
       setCash("0");
     }
   };
@@ -225,7 +262,9 @@ export const PaymentStage = ({
       </div>
       <div className="flex items-center justify-between text-2xl gap-4 font-medium">
         <span className=" text-nowrap  text-xl">Qaytarılacağ məbləğ</span>
-        <span className=" text-nowrap text-red-600">{-change} ₼</span>
+        <span className=" text-nowrap text-red-600">
+          {Number(change).toFixed(2)} ₼
+        </span>
       </div>
       <div className="flex flex-col gap-2 h-full ">
         <div className="flex items-end gap-2 w-full h-full">

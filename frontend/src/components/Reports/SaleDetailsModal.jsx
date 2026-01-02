@@ -67,23 +67,34 @@ export const SaleDetailsModal = ({ saleId, handleClose }) => {
             <Table columns={column} data={data?.details} pagination={false} />
           </div>
         </div>
-        <div className="flex flex-col gap-2 pb-2 border-b border-mainBorder ">
+        <div className="flex flex-col gap-2 pb-2 ">
           <div className="flex justify-between text-lg font-semibold">
             <span className="text-mainText">Aralıq məbləğ</span>
             <span>{data?.subtotalAmount}</span>
           </div>
-          <div className="flex justify-between text-lg font-semibold">
+          <div className="flex justify-between text-lg font-semibold border-b border-mainBorder pb-2">
             <span className="text-mainText">{t("Endirim")}</span>
             <span>{data?.discountedAmount}</span>
           </div>
-          <div className="flex justify-between text-lg font-semibold">
-            <span className="text-mainText">Ödəniş üsulu</span>
-            <span>{t(data?.paymentMethod)}</span>
+          <div className="flex justify-between items-center  ">
+            <span className="text-lg text-mainText font-semibold">
+              Yekun məbləğ
+            </span>
+            <span className="text-lg font-semibold">{data?.totalAmount}</span>
           </div>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-2xl font-semibold">Yekun məbləğ</span>
-          <span className="text-2xl font-semibold">{data?.totalAmount}</span>
+          <div className="flex flex-col text-lg font-semibold pt-8">
+            <span className="">Ödəniş üsulu</span>
+            {data?.payments.map((payment) => (
+              <div className="flex justify-between ">
+                <span className="text-mainText">
+                  {" "}
+                  {payment?.payment_type === "cash" ? t("cash") : t("card")}
+                </span>
+
+                <span>{payment.amount + ""}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

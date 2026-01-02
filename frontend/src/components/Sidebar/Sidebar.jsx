@@ -49,7 +49,6 @@ export const Sidebar = ({ className, handleClose }) => {
     { name: t("supplier"), blank: true, path: "suppliers", icon: <Supplier /> },
 
     { name: t("pos"), blank: true, path: "pos", icon: <Kart /> },
-    { name: t("KASSA 2"), blank: true, path: "pos-2", icon: <Kart /> },
   ];
   return (
     <div

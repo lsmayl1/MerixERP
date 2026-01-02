@@ -101,7 +101,7 @@ export const Dashboard = () => {
         </div>
         <LineChart data={Revenue?.data} />
       </div>
-      <div className="flex flex-col bg-white w-full justify-end  p-4 h-full  rounded-lg  ">
+      {/* <div className="flex flex-col bg-white w-full justify-end  p-4 h-full  rounded-lg  ">
         <div className="flex items-center justify-between mb-4">
           <div className="flex  items-center   gap-4">
             <h1 className=" font-medium text-xl text-mainText">
@@ -128,11 +128,11 @@ export const Dashboard = () => {
           </div>
         </div>
         <LineChart valueKey={"profit"} data={Profit?.data} />
-      </div>
+      </div> */}
 
       <div className="w-full flex flex-col gap-4 rounded-lg p-4 bg-white h-1/2">
         <h1 className="text-2xl">En cox satilanlar</h1>
-        <div className="px-48 overflow-auto">
+        <div className=" overflow-auto">
           <StockOverview />
         </div>
       </div>
