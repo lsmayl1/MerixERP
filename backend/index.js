@@ -72,7 +72,7 @@ if (isDbConfigured) {
   app.use("/api/supplier-transactions", SupplierTransactionsRoute);
   app.use("/api/category", CategoryRoute);
 
-  startSyncWorker();
+  // startSyncWorker();
 
   app.use((err, req, res, next) => {
     let statusCode = err.statusCode || 500;

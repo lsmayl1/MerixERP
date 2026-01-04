@@ -154,7 +154,7 @@ router.get("/", async (req, res) => {
       ...product.get({ plain: true }),
       buyPrice: parseFloat(product.buyPrice),
       sellPrice: parseFloat(product.sellPrice),
-      stock: stockMap[String(product.product_id)] ?? 0,
+      stock: parseInt(stockMap[String(product.product_id)] ?? 0).toFixed(2),
     }));
 
     res.json(transformedProducts);

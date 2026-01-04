@@ -81,7 +81,7 @@ export const Products = () => {
       header: t("stock"),
       cell: (info) => (
         <div className="flex items-center justify-center gap-2">
-          <span>{info.getValue()}</span>
+          <span>{info.getValue() + " əd"}</span>
         </div>
       ),
       headerClassName: "text-center bg-gray-100",

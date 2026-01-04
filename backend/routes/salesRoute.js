@@ -288,7 +288,7 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ error: "Products array cannot be empty" });
     }
 
-    if (!payments || payments.length === 0) {
+    if (!payments && payments?.length === 0 && type === "sale") {
       throw new Error("At least one payment is required");
     }
     if (!type) {
@@ -416,14 +416,15 @@ router.post("/create", async (req, res) => {
         })
       );
 
-      const paymentRows = payments.map((p) => ({
-        sale_id: sale.sale_id,
-        payment_type: p.payment_type,
-        amount: p.amount,
-      }));
+      if (type === "sale") {
+        const paymentRows = payments?.map((p) => ({
+          sale_id: sale.sale_id,
+          payment_type: p.payment_type,
+          amount: p.amount,
+        }));
 
-      await SalePayments.bulkCreate(paymentRows, { transaction: t });
-
+        await SalePayments.bulkCreate(paymentRows, { transaction: t });
+      }
       return sale;
     });
 

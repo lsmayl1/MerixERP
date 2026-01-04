@@ -346,14 +346,22 @@ export const PosNew = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full h-full">
+                  <div className="flex flex-row-reverse items-center gap-2 w-full h-full">
                     <button
-                      // disabled={data.length == 0 || postLoading}
+                      disabled={data.length == 0 || postLoading}
                       onClick={() => setPaymentStage(true)}
                       className="flex justify-center bg-[#00a63e] cursor-pointer text-xl gap-2 items-center text-white px-6 h-16 rounded-lg w-full"
                     >
                       <Payment className={"size-8 "} />
                       <span className=""> {t("Ödənişə keç")}</span>
+                    </button>
+                    <button
+                      disabled={data.length == 0 || postLoading}
+                      onClick={() => handleSubmitSale("return")}
+                      className="flex justify-center bg-red-500 cursor-pointer text-xl gap-2 items-center text-white px-6 h-16 rounded-lg w-full"
+                    >
+                      <Payment className={"size-8 "} />
+                      <span className=""> {t("return")}</span>
                     </button>
                   </div>
                 </div>
