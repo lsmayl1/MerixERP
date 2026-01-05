@@ -59,7 +59,7 @@ export const PaymentStage = ({
     }
 
     if (Number(card) > 0) {
-      list.push({ payment_type: "card", amount: Number(card) });
+      list.push({ payment_type: "card", amount: Number(card).toFixed(2) });
     }
 
     return list;

@@ -5,8 +5,14 @@ const path = require("path");
 
 const PrintReceipt = (data) => {
   try {
-    const { date, details, totalAmount, discountAmount, transactionType } =
-      data;
+    const {
+      date,
+      details,
+      totalAmount,
+      discountAmount,
+      transactionType,
+      payments = [],
+    } = data;
     const mmToPt = (mm) => (mm / 25.4) * 72;
     const width = mmToPt(75);
     const margin = 0;
@@ -41,7 +47,7 @@ const PrintReceipt = (data) => {
     const tempPath = path.join(tempDir, `receipt_${Date.now()}.pdf`);
 
     const doc = new PDFDocument({
-      size: [width, dynamicHeight + 100],
+      size: [width, dynamicHeight + 130],
       margin,
     });
 
@@ -139,7 +145,7 @@ const PrintReceipt = (data) => {
           const totalWidth = doc.widthOfString(totalText);
 
           doc.text(priceText, col.price - priceWidth - 15, itemStartY);
-          doc.text(qtyText, col.qty - qtyWidth - 8, itemStartY);
+          doc.text(qtyText, col.qty - qtyWidth - 18, itemStartY);
           doc.text(totalText, col.total - totalWidth - 5, itemStartY);
         }
 
@@ -159,20 +165,37 @@ const PrintReceipt = (data) => {
 
     // Total (right aligned)
     doc.fontSize(boldFontSize - 2);
-    doc.text("ÖDƏNİŞ ÜSULU", margin, currentY);
-    currentY += 13;
+
     doc.text("ENDIRIM:", margin, currentY, { continued: true });
     doc.text(`${discountAmount || 0} ₼`, { align: "right" });
     currentY += 13;
-    // NAĞD
-    doc.text("NAĞD:", margin, currentY, { continued: true });
-    doc.text(`${totalAmount} ₼`, { align: "right" });
-
+    doc.text("YEKUN MƏBLƏG :", margin, currentY, { continued: true });
+    doc.text(`${totalAmount || 0} ₼`, { align: "right" });
     currentY += 13;
 
-    // KART
-    doc.text("KART:", margin, currentY, { continued: true });
-    doc.text("0.00 ₼", { align: "right" });
+    if (payments.length > 0) {
+      doc.fontSize(10).text(line, margin, currentY, {
+        align: "center",
+        width: width - 2 * margin,
+      });
+      currentY += lineHeight + 2;
+      doc.text("ÖDƏNİŞ ÜSULU", margin, currentY);
+      currentY += 13;
+      payments.forEach((payment) => {
+        let method = payment.payment_type === "cash" ? "NAĞD" : "KART";
+
+        doc.text(method, margin, currentY);
+
+        doc.text(
+          `${payment.amount} ₼`,
+          doc.page.width - margin - 50,
+          currentY,
+          { width: 50, align: "right" }
+        );
+
+        currentY += 13;
+      });
+    }
 
     currentY += 10;
     currentY += boldFontSize + 8;

@@ -197,6 +197,7 @@ router.get("/sale-receipt/:id", async (req, res, next) => {
       details: sale.details,
       totalAmount: sale.totalAmount || 0,
       discountAmount: sale.discountedAmount,
+      payments: sale.payments,
     });
     res.json({ success: true, message: "Receipt sent to printer" });
   } catch (error) {

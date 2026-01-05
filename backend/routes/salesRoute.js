@@ -456,9 +456,10 @@ router.post("/create", async (req, res) => {
         sellPrice: detail.sell_price,
         subtotal: detail.subtotal.toFixed(2),
       })),
-      transactionType: type,
+      payments: payments,
       totalAmount: totalAmount.toFixed(2),
       discountAmount: discountedAmount.toFixed(2),
+      transactionType: type,
     });
 
     await SyncQueue.create({
