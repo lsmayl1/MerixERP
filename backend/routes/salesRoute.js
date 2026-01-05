@@ -51,20 +51,17 @@ router.post("/", async (req, res) => {
     // Nakit ve kart toplamlarını hesapla
     let cashTotal = 0;
     let cardTotal = 0;
-    sales.forEach((sale) => {
-      const amount = Number(sale.total_amount);
-      const discounted_amount = Number(sale.discounted_amount);
-      const payments = sale.payments;
 
-      payments.forEach((payment) => {
-        if (payment.payment_type === "cash" && sale.type === "sale") {
-          cashTotal += payment.amount - discounted_amount;
-        } else if (payment.payment_type === "cash" && sale.type === "return") {
-          cashTotal -= payment.amount;
-        } else if (payment.payment_type === "card" && sale.type === "sale") {
-          cashTotal += payment.amount - discounted_amount;
-        } else if (payment.payment_type === "card" && sale.type === "return") {
-          cashTotal -= payment.amount;
+    sales.forEach((sale) => {
+      sale.payments.forEach((payment) => {
+        const sign = sale.transaction_type === "sale" ? 1 : -1;
+
+        if (payment.payment_type === "cash") {
+          cashTotal += sign * payment.amount;
+        }
+
+        if (payment.payment_type === "card") {
+          cardTotal += sign * payment.amount;
         }
       });
     });
