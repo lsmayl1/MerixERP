@@ -30,8 +30,8 @@ router.post("/label-print", async (req, res) => {
     }
 
     const mmToPt = (mm) => (mm / 25.4) * 72;
-    const width = mmToPt(40);
-    const height = mmToPt(20);
+    const width = mmToPt(50);
+    const height = mmToPt(30);
 
     // Create temp directory if it doesn't exist
     const labelsDir = path.join(__dirname, "labels");
@@ -50,7 +50,7 @@ router.post("/label-print", async (req, res) => {
     doc.registerFont("Inter", "./utils/fonts/Inter.ttf");
     doc.registerFont("Inter-Bold", "./utils/fonts/Inter-Bold.ttf");
     // Set font and size before measuring text so widthOfString matches rendering
-    doc.font("Inter-Bold").fontSize(6);
+    doc.font("Inter-Bold").fontSize(12);
 
     function wrapTextByWidth(doc, text, maxWidth) {
       const words = text.split(" ");
@@ -102,29 +102,29 @@ router.post("/label-print", async (req, res) => {
     const maxTextWidth = width - leftMargin * 2; // available width for text
     const nameLines = wrapTextByWidth(doc, productName, maxTextWidth);
 
-    let currentY = 2;
+    let currentY = 5;
 
     nameLines.forEach((line) => {
       doc.text(line, leftMargin, currentY, {
         width: maxTextWidth,
         align: "left",
       });
-      currentY += 9; // sətirlər arası məsafə
+      currentY += 12; // sətirlər arası məsafə
     });
 
-    doc.fontSize(9);
+    doc.fontSize(16);
 
     const priceText = `${product.sellPrice} ₼`;
     const priceWidth = doc.widthOfString(priceText);
 
-    doc.text(priceText, (width - priceWidth) / 2, currentY + 2);
+    doc.text(priceText, (width - priceWidth) / 2, currentY + 6);
 
     // Barcode
     const barcodeBuffer = await generateBarcode(product.barcode);
     const barcodeWidth = width; // %80 genişlik
     const barcodeX = (width - barcodeWidth) / 2;
 
-    const barcodeY = currentY + 18;
+    const barcodeY = currentY + 30;
 
     doc.image(barcodeBuffer, barcodeX, barcodeY, {
       width: barcodeWidth,
@@ -135,42 +135,42 @@ router.post("/label-print", async (req, res) => {
     doc.pipe(stream);
     doc.end();
 
-    // stream.on("finish", async () => {
-    //   try {
-    //     // Print using pdf-to-printer with exact size settings
+    stream.on("finish", async () => {
+      try {
+        // Print using pdf-to-printer with exact size settings
 
-    //     const options = {
-    //       printer: "Barkod", // Your thermal printer
-    //       pages: "1",
-    //       orientation: "landscape",
-    //       monochrome: false,
-    //       silent: true,
-    //       printDialog: false,
-    //       copies: 1,
-    //       // For thermal printers, these are the key settings:
-    //       paperSize: "Custom", // Use custom paper size
-    //     };
+        const options = {
+          printer: "Xprinter", // Your thermal printer
+          pages: "1",
+          orientation: "landscape",
+          monochrome: false,
+          silent: true,
+          printDialog: false,
+          copies: 1,
+          // For thermal printers, these are the key settings:
+          paperSize: "Custom", // Use custom paper size
+        };
 
-    //     console.log("Printing with options:", options);
-    //     await pdf2printer.print(pdfPath, options);
+        console.log("Printing with options:", options);
+        await pdf2printer.print(pdfPath, options);
 
-    //     // Clean up temp file
-    //     fs.unlinkSync(pdfPath);
+        // Clean up temp file
+        fs.unlinkSync(pdfPath);
 
-    //     console.log("PDF printed successfully");
-    //     res.json({ success: true, message: "PDF printed successfully" });
-    //   } catch (printError) {
-    //     console.error("Print error:", printError);
-    //     // Clean up temp file even on error
-    //     if (fs.existsSync(pdfPath)) {
-    //       fs.unlinkSync(pdfPath);
-    //     }
-    //     res.status(500).json({
-    //       error: "Print failed",
-    //       details: printError.message,
-    //     });
-    //   }
-    // });
+        console.log("PDF printed successfully");
+        res.json({ success: true, message: "PDF printed successfully" });
+      } catch (printError) {
+        console.error("Print error:", printError);
+        // Clean up temp file even on error
+        if (fs.existsSync(pdfPath)) {
+          fs.unlinkSync(pdfPath);
+        }
+        res.status(500).json({
+          error: "Print failed",
+          details: printError.message,
+        });
+      }
+    });
 
     stream.on("error", (streamError) => {
       console.error("PDF creation error:", streamError);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import TrashBin from "../../assets/TrashBin";
@@ -10,14 +10,25 @@ import {
 } from "../../redux/slices/ApiSlice";
 import { SearchModal } from "../Pos/SearchModal";
 import { Plus } from "../../assets/Plus";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addProduct,
+  changeDate,
+  changePaymentMethod,
+  changeTransactionType,
+  deleteProduct,
+  updateProducts,
+} from "../../redux/supplierTransactions/supplierTransaction.slice";
 
 export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
   const { t } = useTranslation();
+  const { products, transactionType, paymentMethod, date } = useSelector(
+    (state) => state.supplierTransaction
+  );
+  const dispatch = useDispatch();
   const [generateBarcode] = useGetBarcodeMutation();
-  const [transactionType, setTransactionType] = useState("purchase");
-  const [paymentMethod, setPaymentMethod] = useState("cash");
-  const [date, setDate] = useState(null);
-  const [columns, setColumns] = useState([
+
+  const [columns] = useState([
     { label: t("product"), key: "name" },
     { label: t("barcode"), key: "barcode" },
     { label: t("unit"), key: "unit" },
@@ -31,7 +42,6 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
   const { data } = useGetProductsByQueryQuery(query, {
     skip: !query,
   });
-  const [productList, setProductList] = useState([]);
   const [trigger] = useLazyGetProductByIdQuery();
 
   const {
@@ -44,26 +54,10 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
       description: "",
     },
   });
-  const handleTransactionTypeChange = (method) => {
-    setTransactionType(method);
-  };
-
-  const handlePaymentMethodChange = (method) => {
-    setPaymentMethod(method);
-  };
-
-  //   const validateSubmit = (data) => {
-  //     onSubmit({
-  //       ...data,
-  //       type: transactionType,
-  //       payment_method: paymentMethod,
-  //       date,
-  //     });
-  //   };
 
   const handleSubmitInvoice = () => {
     onSubmit({
-      products: productList,
+      products,
       transaction_type: transactionType,
       payment_method: paymentMethod,
       date,
@@ -74,25 +68,14 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
     if (!barcode) {
       return;
     }
-    const exist = productList.find(
-      (x) => String(x.barcode) === String(barcode)
-    );
+    const exist = products.find((x) => String(x.barcode) === String(barcode));
 
     if (exist) {
       return;
     }
     try {
       const product = await trigger(barcode).unwrap();
-      setProductList([
-        ...productList,
-        {
-          name: product.name,
-          barcode: product.barcode,
-          buyPrice: product.buyPrice,
-          sellPrice: product.sellPrice,
-          quantity: 1,
-        },
-      ]);
+      dispatch(addProduct(product));
       console.log(product);
     } catch (error) {
       console.log(error);
@@ -100,8 +83,10 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
   };
 
   const updateProduct = (index, key, value) => {
-    const updated = [...productList];
+    // 1. products array ve içindeki objeleri kopyala
+    const updated = products.map((p, i) => (i === index ? { ...p } : p));
 
+    // 2. Değeri güncelle
     if (
       key === "buyPrice" ||
       key === "quantity" ||
@@ -113,86 +98,48 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
       updated[index][key] = value;
     }
 
-    // amount hesapla:
+    // 3. amount hesapla
     updated[index].amount = Number(
       ((updated[index].buyPrice || 0) * (updated[index].quantity || 0)).toFixed(
         4
       )
     );
 
-    setProductList(updated);
+    // 4. dispatch et
+    dispatch(updateProducts(updated));
   };
 
   const AddProductFromSearch = async (barcode) => {
-    console.log(barcode);
-
     // Önce mevcut listeyi kontrol et
     if (!barcode) {
       return;
     }
-    const exist = productList.find(
-      (x) => String(x.barcode) === String(barcode)
-    );
-
+    const exist = products.find((x) => String(x.barcode) === String(barcode));
     if (exist) {
       console.log("Product exists already");
-      console.log(exist);
-
       return;
     }
-
     try {
       const newProduct = await trigger(barcode).unwrap();
       if (newProduct) {
-        setProductList((prev) => [
-          ...prev,
-          {
-            barcode: newProduct.barcode,
-            name: newProduct.name,
-            unit: newProduct.unit || "piece",
-            quantity: 1,
-            buyPrice: newProduct.buyPrice || 0,
-            sellPrice: newProduct.sellPrice || 0,
-            amount: newProduct.buyPrice || 0,
-          },
-        ]);
+        dispatch(addProduct(newProduct));
       }
     } catch (error) {
       console.log("Ürün getirilirken hata:", error);
     }
   };
 
-  const addProduct = () => {
-    setProductList([
-      ...productList,
-      {
-        name: "",
-        barcode: "",
-        unit: "piece",
-        buyPrice: 0,
-        quantity: 0,
-        sellPrice: 0,
-        amount: 0,
-      },
-    ]);
-  };
-
   const generateNewBarcode = async (unit, index) => {
     try {
       const newBarcode = await generateBarcode({ unit: unit }).unwrap();
-      const updated = [...productList];
+      const updated = products.map((p, i) => (i === index ? { ...p } : p));
       updated[index].barcode = newBarcode.barcode;
-      setProductList(updated);
-      console.log("Yeni barkod oluşturuldu:", newBarcode);
+      dispatch(updateProducts(updated));
     } catch (error) {
       console.error("Barcode oluşturulurken hata:", error);
     }
   };
 
-  const removeProduct = (index) => {
-    const updated = productList.filter((_, i) => i !== index);
-    setProductList(updated);
-  };
   return (
     <div className="absolute right-0 top-0 w-full flex-col gap-4 h-full flex bg-white border border-mainBorder rounded-lg p-4">
       <div className="w-full flex gap-4 items-center justify-between">
@@ -203,7 +150,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
               type="date"
               className="border border-mainBorder rounded-lg px-4 py-2 w-full"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={(e) => dispatch(changeDate(e.target.value))}
               lang="EN-US"
             />
           </div>
@@ -212,7 +159,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
 
             <div className="flex items-center">
               <button
-                onClick={() => handleTransactionTypeChange("purchase")}
+                onClick={() => dispatch(changeTransactionType("purchase"))}
                 className={`border bg-white ${
                   transactionType === "purchase"
                     ? "border-green-500 text-green-500"
@@ -222,7 +169,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
                 {t("Alim")}
               </button>
               <button
-                onClick={() => handleTransactionTypeChange("return")}
+                onClick={() => dispatch(changeTransactionType("return"))}
                 className={`border ${
                   transactionType === "return"
                     ? "border-red-500 text-red-500"
@@ -238,7 +185,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
 
             <div className="flex items-center">
               <button
-                onClick={() => handlePaymentMethodChange("cash")}
+                onClick={() => dispatch(changePaymentMethod("cash"))}
                 className={`border bg-white ${
                   paymentMethod === "cash"
                     ? "border-green-500 text-green-500"
@@ -248,7 +195,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
                 {t("Nagd")}
               </button>
               <button
-                onClick={() => handlePaymentMethodChange("card")}
+                onClick={() => dispatch(changePaymentMethod("card"))}
                 className={`border ${
                   paymentMethod === "card"
                     ? "border-red-500 text-red-500"
@@ -258,7 +205,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
                 {t("Kart")}
               </button>
               <button
-                onClick={() => handlePaymentMethodChange("credit")}
+                onClick={() => dispatch(changePaymentMethod("credit"))}
                 className={`border ${
                   paymentMethod === "credit"
                     ? "border-red-500 text-red-500"
@@ -297,7 +244,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
           <div className="mt-4 flex justify-end">
             <button
               type="button"
-              onClick={addProduct}
+              onClick={() => dispatch(addProduct())}
               className="px-4 py-2 bg-blue-500 text-white rounded-lg"
             >
               + {t("addProduct")}
@@ -315,7 +262,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
           </div>
 
           {/* Ürün Satırları */}
-          {productList?.map((product, index) => (
+          {products?.map((product, index) => (
             <div key={index} className="grid grid-cols-8 w-full">
               <input
                 className="p-2 border border-mainBorder"
@@ -420,7 +367,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
               </div>
               <button
                 className="p-2 border flex items-center border-mainBorder text-red-500"
-                onClick={() => removeProduct(index)}
+                onClick={() => dispatch(deleteProduct(index))}
               >
                 <TrashBin />
               </button>
@@ -431,7 +378,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
       <div className=" flex gap-2 justify-end items-center text-mainText font-semibold">
         Toplam:{" "}
         <span className="text-black text-xl">
-          {productList
+          {products
             ?.reduce(
               (total, p) => total + (p.buyPrice || 0) * (p.quantity || 0),
               0

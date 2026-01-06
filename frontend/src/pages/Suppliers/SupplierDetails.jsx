@@ -12,13 +12,13 @@ import {
   useGetSupplierTransactionsByIdQuery,
 } from "../../redux/slices/SupplierSlice";
 import { SupplierInvoiceModal } from "../../components/Supplier/TransactionModal";
-import { KPI } from "../../components/Metric/KPI";
 import { Plus } from "../../assets/Plus";
 import TrashBin from "../../assets/TrashBin";
 import { DebtModal } from "../../components/Supplier/DebtModal";
 import { Invoice } from "../../assets/Navigation/Invoice";
 import { InvoiceView } from "../../components/Supplier/InvoiceView";
 import Receipt from "../../assets/Navigation/Receipt";
+import Edit from "../../assets/Edit";
 
 export const SupplierDetails = () => {
   const { id } = useParams();
@@ -81,6 +81,12 @@ export const SupplierDetails = () => {
             className="cursor-pointer"
             onClick={() => handleDeleteTransaction(row.original.id)}
           >
+            <Edit className="size-5" />
+          </button>
+          <button
+            className="cursor-pointer"
+            onClick={() => handleDeleteTransaction(row.original.id)}
+          >
             <TrashBin className="size-5" />
           </button>
         </div>
@@ -107,7 +113,7 @@ export const SupplierDetails = () => {
 
       // unwrap başarılıysa response = backend’den gelen data
       setShowDebtModal(false);
-      refetch();
+      await refetch();
     } catch (error) {
       // unwrap error’da burası çalışır
       setShowDebtModal(true);
@@ -115,10 +121,10 @@ export const SupplierDetails = () => {
     }
   };
 
-  const handleDeleteTransaction = async (id) => {
+  const handleDeleteTransaction = async (transactionId) => {
     try {
-      await deleteTransaction(id);
-      refetch();
+      await deleteTransaction(transactionId).unwrap();
+      await refetch();
     } catch (error) {
       console.log(error);
     }
@@ -134,14 +140,14 @@ export const SupplierDetails = () => {
     }
   };
 
-  const handleShowInvoice = async (id) => {
+  const handleShowInvoice = async (transactionId) => {
     try {
-      if (!id) {
+      if (!transactionId) {
         throw new Error("Transaction ID is required to fetch invoice data");
       }
       const supplierInvoiceData = await getSupplierInvociceData({
         supplier_id: id,
-        transaction_id: id,
+        transaction_id: transactionId,
       }).unwrap();
 
       if (!supplierInvoiceData || !supplierInvoiceData.transaction) {
@@ -167,7 +173,7 @@ export const SupplierDetails = () => {
           </span>
         </div>
       </div>
-      <div className="flex flex-col bg-white w-full h-full  rounded-lg  ">
+      <div className="flex flex-col bg-white w-full h-full  rounded-lg  relative ">
         {showInvoice && (
           <InvoiceView
             handleClose={() => {

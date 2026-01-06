@@ -24,14 +24,17 @@ export const SupplierSlice = createApi({
     }),
     getSupplierById: build.query({
       query: (id) => `/suppliers/${id}`,
+      keepUnusedDataFor: 0,
     }),
     getSupplierByQuery: build.query({
       query: (query) => ({
         url: `/suppliers/query?query=${query}`,
       }),
+      keepUnusedDataFor: 0,
     }),
     getSupplierTransactionsById: build.query({
       query: (supplierId) => `/supplier-transactions/${supplierId}`,
+      keepUnusedDataFor: 0,
     }),
     createSupplierTransaction: build.mutation({
       query: (transaction) => ({
@@ -48,6 +51,7 @@ export const SupplierSlice = createApi({
         url: `/supplier-transactions/${id}`,
         method: "DELETE",
       }),
+      keepUnusedDataFor: 0,
     }),
     createSupplierInvoice: build.mutation({
       query: (data) => ({
