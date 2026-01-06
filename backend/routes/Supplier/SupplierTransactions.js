@@ -1,7 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const { Suppliers, SupplierTransactions } = require("../../models/index");
+const {
+  Suppliers,
+  SupplierTransactions,
+  SupplierTransactionDetails,
+  ProductStock,
+} = require("../../models/index");
 const formatDate = require("../../utils/dateUtils");
 const {
   CreateTransaction,
@@ -10,6 +15,7 @@ const {
   GetSupplierDebt,
   UpdateSupplierTransaction,
 } = require("../../services/SupplierService");
+const { UpdateStockValue } = require("../../services/ProductService");
 router.get("/", async (req, res) => {
   try {
     const transactions = await SupplierTransactions.findAll({
@@ -23,7 +29,9 @@ router.get("/", async (req, res) => {
     });
 
     if (!transactions || transactions.length === 0) {
-      return res.status(404).json({ message: "No transactions found" });
+      return res
+        .status(404)
+        .json({ message: "No transactions found", transactions: [] });
     }
 
     // Her bir transaction'ın tarihini sadece YYYY-MM-DD formatında string yap
@@ -100,9 +108,10 @@ router.get("/:id", async (req, res) => {
     });
 
     if (transactions.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No transactions found for this supplier" });
+      return res.status(404).json({
+        message: "No transactions found for this supplier",
+        transactions: [],
+      });
     }
     const totalDebt = await GetSupplierDebt(id);
     res.status(200).json({
@@ -174,11 +183,28 @@ router.delete("/:id", async (req, res) => {
 
   try {
     // Silinecek kaydı bul (isteğe bağlı ama kullanıcıya bilgi vermek için faydalı)
-    const transaction = await SupplierTransactions.findByPk(id);
+    const transaction = await SupplierTransactions.findByPk(id, {
+      include: [
+        {
+          model: SupplierTransactionDetails,
+          as: "details",
+        },
+      ],
+    });
 
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
     }
+    const type = transaction.type === "purchase" ? -1 : 1;
+    transaction.details?.forEach(async (detail) => {
+      try {
+        const value = Number(detail.quantity) * type;
+        await UpdateStockValue(detail.product_id, value);
+      } catch (error) {
+        return;
+      }
+    });
+    console.log(transaction.toJSON());
 
     // Silme işlemi
     await transaction.destroy();

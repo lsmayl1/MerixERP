@@ -112,6 +112,7 @@ export const SupplierDetails = () => {
       }).unwrap();
 
       // unwrap başarılıysa response = backend’den gelen data
+
       setShowDebtModal(false);
       await refetch();
     } catch (error) {
@@ -126,6 +127,7 @@ export const SupplierDetails = () => {
       await deleteTransaction(transactionId).unwrap();
       await refetch();
     } catch (error) {
+      await refetch();
       console.log(error);
     }
   };
@@ -211,7 +213,14 @@ export const SupplierDetails = () => {
           </button>
         </div>
         <div className="flex flex-col gap-4 px-4">
-          <Table columns={columns} data={transactions?.transactions} />
+          <Table
+            columns={columns}
+            data={
+              transactions?.transactions.length > 0
+                ? transactions?.transactions
+                : []
+            }
+          />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-const { Products, Op } = require("../models/index");
+const { Products, Op, ProductStock } = require("../models/index");
 const AppError = require("../utils/AppError");
 
 const GetAllProducts = async (data) => {
@@ -242,6 +242,42 @@ const GenerateBarcode = async (unit) => {
   }
 };
 
+const UpdateStockValue = async (product_id, value) => {
+  try {
+    const product = await Products.findOne({
+      where: {
+        product_id,
+      },
+      include: [
+        {
+          model: ProductStock,
+          as: "stock",
+        },
+      ],
+    });
+    if (!product) {
+      throw AppError(404, "Product Not Found");
+    }
+    const stock = Number(product.stock.current_stock);
+    const newStock = stock + Number(value);
+    console.log(product.toJSON());
+    await ProductStock.update(
+      {
+        current_stock: newStock,
+      },
+      {
+        where: {
+          id: product.stock.id,
+        },
+      }
+    );
+
+    console.log(product.toJSON());
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   CreateProduct,
   GetAllProducts,
@@ -249,4 +285,5 @@ module.exports = {
   DeleteProduct,
   UpdateProduct,
   GenerateBarcode,
+  UpdateStockValue,
 };

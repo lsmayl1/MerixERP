@@ -35,6 +35,9 @@ export const SupplierSlice = createApi({
     getSupplierTransactionsById: build.query({
       query: (supplierId) => `/supplier-transactions/${supplierId}`,
       keepUnusedDataFor: 0,
+      providesTags: (result, error, id) => [
+        { type: "SupplierTransactions", id },
+      ],
     }),
     createSupplierTransaction: build.mutation({
       query: (transaction) => ({
@@ -51,7 +54,7 @@ export const SupplierSlice = createApi({
         url: `/supplier-transactions/${id}`,
         method: "DELETE",
       }),
-      keepUnusedDataFor: 0,
+      invalidatesTags: ["SupplierTransactions"],
     }),
     createSupplierInvoice: build.mutation({
       query: (data) => ({

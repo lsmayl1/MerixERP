@@ -38,6 +38,12 @@ const supplierTransactionSlice = createSlice({
     changeDate(state, action) {
       state.date = action.payload;
     },
+    resetState(state) {
+      state.transactionType = "purchase";
+      state.paymentMethod = "cash";
+      state.date = null;
+      state.products = [];
+    },
   },
 });
 
@@ -48,6 +54,7 @@ export const {
   changePaymentMethod,
   changeTransactionType,
   changeDate,
+  resetState,
 } = supplierTransactionSlice.actions;
 
 export default supplierTransactionSlice.reducer;

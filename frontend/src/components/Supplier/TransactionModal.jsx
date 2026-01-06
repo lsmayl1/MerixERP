@@ -17,6 +17,7 @@ import {
   changePaymentMethod,
   changeTransactionType,
   deleteProduct,
+  resetState,
   updateProducts,
 } from "../../redux/supplierTransactions/supplierTransaction.slice";
 
@@ -62,6 +63,12 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
       payment_method: paymentMethod,
       date,
     });
+    dispatch(resetState());
+  };
+
+  const handleCloseModal = () => {
+    handleClose();
+    dispatch(resetState());
   };
 
   const handleBarcode = async (barcode) => {
@@ -219,7 +226,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
         </div>
         <div className="flex justify-end gap-2 h-fit">
           <button
-            onClick={handleClose}
+            onClick={handleCloseModal}
             className="border bg-white border-red-500 rounded-xl text-nowrap px-4 cursor-pointer max-md:px-2 max-md:text-xs flex items-center text-red-500 gap-2 py-1 max-md:py-0"
           >
             {t("cancel")}

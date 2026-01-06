@@ -6,13 +6,7 @@ import {
 } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-export const Table = ({
-  data = [],
-  columns = [],
-  isLoading,
-  path,
-  pagination = true,
-}) => {
+export const Table = ({ data = [], columns = [], isLoading, path }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const table = useReactTable({
@@ -67,7 +61,7 @@ export const Table = ({
                   </div>
                 </td>
               </tr>
-            ) : data.length == 0 ? (
+            ) : data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-8">
                   <div className="flex justify-center items-center">
@@ -101,59 +95,6 @@ export const Table = ({
           </tbody>
         </table>
       </div>
-      {/* {data && data.length > 10 && !isLoading && pagination && (
-        <div className="flex items-center justify-between   px-4  bg-white rounded-lg ">
-          <div className="flex items-center gap-2">
-            <button
-              className="px-3 py-1 border border-gray-300 rounded-md text-gray-700  hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              First
-            </button>
-            <button
-              className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {Array.from({ length: table.getPageCount() }, (_, i) => (
-              <button
-                key={i}
-                className={`px-3 py-1 rounded-md text-sm font-medium cursor-pointer ${
-                  table.getState().pagination.pageIndex === i
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                } transition-colors duration-200`}
-                onClick={() => table.setPageIndex(i)}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </button>
-            <button
-              className="px-3 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              Last
-            </button>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };
