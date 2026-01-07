@@ -17,8 +17,7 @@ export const ProductModal = ({
 }) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [showCategoryDropDown, setShowCategoryDropDown] = useState(false);
-  const { data } = useGetCategoriesQuery();
+  const [newStock, setNewStock] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(
     editForm?.category ? editForm?.category : null
   );
@@ -39,6 +38,7 @@ export const ProductModal = ({
       barcode: editForm?.barcode || null,
       buyPrice: editForm?.buyPrice || 0.0,
       sellPrice: editForm?.sellPrice || 0.0,
+      stock: editForm?.stock || 0,
     },
   });
   const nameInputRef = useRef(null);
@@ -46,6 +46,7 @@ export const ProductModal = ({
     if (isEditMode) {
       handleUpdateProduct({
         ...data,
+        newStock,
         category_id: selectedCategory?.category_id
           ? selectedCategory?.category_id
           : null,
@@ -53,6 +54,7 @@ export const ProductModal = ({
     } else {
       handleAddProduct({
         ...data,
+        newStock,
         category_id: selectedCategory?.category_id
           ? selectedCategory?.category_id
           : null,
@@ -76,6 +78,7 @@ export const ProductModal = ({
       setValue("buyPrice", editForm.buyPrice);
       setValue("sellPrice", editForm.sellPrice);
       setSelectedCategory(editForm.category);
+      setValue("stock", editForm.stock);
     }
   }, [editForm]);
 
@@ -84,11 +87,6 @@ export const ProductModal = ({
       reset(editForm);
     }
   }, [editForm, reset]);
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    setShowCategoryDropDown(false);
-  };
 
   return (
     <div className="absolute inset-0 z-50 flex max-md:-top-54  h-screen w-full drop-shadow-lg">
@@ -235,43 +233,26 @@ export const ProductModal = ({
                 </p>
               </div>
             </div>
-            <div className="flex flex-col">
-              <label className="text-md max-lg:text-md">{t("Category")}</label>
-              <div className="relative">
-                <div className="w-full border-mainBorder border p-2 items-center rounded-lg flex justify-between">
-                  <span>{selectedCategory?.name || "Select Category"}</span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowCategoryDropDown(!showCategoryDropDown)
-                    }
-                    className="cursor-pointer"
-                  >
-                    <RightArrow
-                      className={`${
-                        showCategoryDropDown ? "rotate-90" : "rotate-270"
-                      }  size-8`}
-                    />
-                  </button>
+            <div className="flex  gap-2 max-md:flex-col">
+              <div className="flex rounded-lg gap-4 items-center justify-between w-full">
+                <div className="text-md flex gap-2 text-lg">
+                  <span className="text-lg">{t("Qalıq")} </span>
+                  <span className="text-lg">
+                    {parseInt(watch("stock"))} (əd){" "}
+                  </span>
                 </div>
-                {showCategoryDropDown && (
-                  <div className="w-full h-24 border border-mainBorder rounded-lg overflow-auto absolute z-50 bg-white   text-xl">
-                    {data?.map((dt) => (
-                      <div
-                        onClick={() => handleCategoryChange(dt)}
-                        className="hover:bg-gray-200 cursor-pointer p-3"
-                      >
-                        {dt.name}{" "}
-                      </div>
-                    ))}
-                    <div
-                      onClick={() => handleCategoryChange(null)}
-                      className="p-3 cursor-pointer hover:bg-gray-200"
-                    >
-                      Bos
-                    </div>
-                  </div>
-                )}
+
+                <div className="flex  gap-2  items-center justify-end ">
+                  <span className="px-2  text-lg">Artır / Azalt</span>
+                  <input
+                    type="number"
+                    value={newStock}
+                    onChange={(e) => {
+                      setNewStock(e.target.value);
+                    }}
+                    className=" border w-1/6 text-center border-mainBorder rounded-lg py-1 focus:outline-blue-500"
+                  />
+                </div>
               </div>
             </div>
 

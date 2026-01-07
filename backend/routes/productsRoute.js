@@ -14,6 +14,7 @@ const {
   DeleteProduct,
   UpdateProduct,
   GenerateBarcode,
+  UpdateStockValue,
 } = require("../services/ProductService");
 const { getCategoryById } = require("../services/CategoryService");
 
@@ -261,6 +262,12 @@ router.get("/:id", async (req, res) => {
             [Op.like]: `${productCode}%`,
           },
         },
+        include: [
+          {
+            model: ProductStock,
+            as: "stock",
+          },
+        ],
       });
 
       if (product) productBarcode = product.barcode;
@@ -270,10 +277,12 @@ router.get("/:id", async (req, res) => {
     if (!product) {
       product = await Products.findOne({
         where: { barcode: param },
-        include: {
-          model: Category,
-          as: "category",
-        },
+        include: [
+          {
+            model: Category,
+            as: "category",
+          },
+        ],
       });
       if (product) productBarcode = product.barcode;
     }
@@ -281,7 +290,12 @@ router.get("/:id", async (req, res) => {
     const category = await Category.findByPk(product.category_id);
 
     if (product) {
+      const stock = await ProductStock.findOne({
+        where: { product_id: product.product_id },
+      });
+
       const productData = product.get({ plain: true });
+      console.log(productData.stock);
 
       // Eğer ürün piece ise sadece barcode dön
       if (unit === "piece") {
@@ -293,7 +307,7 @@ router.get("/:id", async (req, res) => {
           barcode: productBarcode,
           quantity,
           unit,
-          stock: productData.stock,
+          stock: stock.current_stock,
           category: category || 0,
         });
       } else {
@@ -306,6 +320,7 @@ router.get("/:id", async (req, res) => {
           productBarcode: productBarcode, // veritabanındaki gerçek barkod
           quantity,
           unit,
+          stock: stock.current_stock,
           category: productData.category || 0,
         });
       }
@@ -434,6 +449,9 @@ router.put("/:id", async (req, res) => {
       }
     }
 
+    if (req.body.newStock != 0) {
+      await UpdateStockValue(req.params.id, req.body.newStock);
+    }
     // Update product
     await product.update(updateData);
 
