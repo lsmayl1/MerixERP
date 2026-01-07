@@ -17,6 +17,7 @@ import {
   changePaymentMethod,
   changeTransactionType,
   deleteProduct,
+  incrementQty,
   resetState,
   updateProducts,
 } from "../../redux/supplierTransactions/supplierTransaction.slice";
@@ -78,6 +79,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
     const exist = products.find((x) => String(x.barcode) === String(barcode));
 
     if (exist) {
+      dispatch(incrementQty(exist.barcode));
       return;
     }
     try {

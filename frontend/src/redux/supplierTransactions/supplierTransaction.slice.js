@@ -38,6 +38,14 @@ const supplierTransactionSlice = createSlice({
     changeDate(state, action) {
       state.date = action.payload;
     },
+    incrementQty: (state, action) => {
+      const product = state.products.find(
+        (p) => String(p.barcode) === String(action.payload)
+      );
+      if (product) {
+        product.quantity += 1;
+      }
+    },
     resetState(state) {
       state.transactionType = "purchase";
       state.paymentMethod = "cash";
@@ -54,6 +62,7 @@ export const {
   changePaymentMethod,
   changeTransactionType,
   changeDate,
+  incrementQty,
   resetState,
 } = supplierTransactionSlice.actions;
 
