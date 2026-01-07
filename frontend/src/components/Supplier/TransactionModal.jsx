@@ -302,7 +302,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
                     product.unit === "piece" ? "bg-blue-500 text-white" : ""
                   }`}
                 >
-                  Piece
+                  {t("piece")}
                 </button>
                 <button
                   onClick={() => updateProduct(index, "unit", "kg")}

@@ -67,7 +67,7 @@ export const Suppliers = () => {
             <SearchIcon className={"size-6"} />
             <input
               type="text"
-              placeholder="Search Supplier By Name"
+              placeholder="Firma axtar"
               className="p-2 w-full  rounded-lg text-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -79,7 +79,7 @@ export const Suppliers = () => {
             className="border bg-white border-gray-200 rounded-xl text-nowrap px-4 cursor-pointer max-md:px-2 max-md:text-xs flex items-center gap-2 py-1 max-md:py-0"
           >
             <Plus className="max-md:size-5" />
-            {t("Add Supplier")}
+            {t("Yeni Firma")}
           </button>
         </div>
         <div className="grid grid-cols-1 gap-4 pr-4 overflow-auto">
