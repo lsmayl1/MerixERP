@@ -5,6 +5,7 @@ const {
   ProductStock,
   Suppliers,
   Op,
+  sequelize,
 } = require("../models");
 const AppError = require("../utils/AppError");
 const formatDate = require("../utils/dateUtils");
@@ -24,7 +25,7 @@ const GetSupplierByQuery = async (query) => {
       include: {
         model: SupplierTransactions,
         as: "transactions",
-        attributes: ["amount", "type"],
+        attributes: ["amount", "type", "payment_method"],
       },
       order: [["name", "ASC"]],
       limit: 50, // En fazla 20 ürün getir
@@ -36,13 +37,11 @@ const GetSupplierByQuery = async (query) => {
 
         const totalDebt = transactions.reduce((acc, transaction) => {
           const amount = Number(transaction.amount) || 0;
+          const pm = transaction.payment_method;
 
-          if (transaction.type === "purchase" && payment_method === "credit") {
+          if (transaction.type === "purchase" && pm === "credit") {
             return acc + amount;
-          } else if (
-            transaction.type === "payment" &&
-            payment_method === "credit"
-          ) {
+          } else if (transaction.type === "payment" && pm === "credit") {
             return acc - amount;
           }
           return acc;
@@ -213,7 +212,7 @@ const GetSupplierTransactionsWithDetails = async (id) => {
     if (Transactions.length > 0) {
       return Transactions;
     } else {
-      throw new AppError("Transactions Not Found", 404);
+      return { transaction: [] };
     }
   } catch (error) {
     throw error;
@@ -237,7 +236,7 @@ const GetSupplierInvoice = async (supplier_id, transaction_id) => {
       include: {
         model: Products,
         as: "product",
-        attributes: ["name", "barcode", "unit"],
+        attributes: ["name", "barcode", "unit", "sellPrice", "product_id"],
       },
     });
 
@@ -246,9 +245,12 @@ const GetSupplierInvoice = async (supplier_id, transaction_id) => {
       barcode: dt.product?.barcode,
       unit: dt.product?.unit,
       id: dt.id,
-      price: dt.unit_price + " ₼",
+      product_id: dt.product.product_id,
+      price: dt.unit_price,
       quantity: dt.quantity,
-      total: dt.total_price + " ₼",
+      total: dt.total_price,
+      buyPrice: dt.unit_price,
+      sellPrice: dt.product.sellPrice,
     }));
 
     if (!transactionDetails.length) {
@@ -345,7 +347,219 @@ const UpdateSupplierTransaction = async (id, data) => {
     throw new AppError(error, 500);
   }
 };
-// 2) Transaction detaylarını sil
+
+const resolveProduct = async (item, t) => {
+  // 1️⃣ product_id varsa → birbaşa tap
+  if (item.product_id) {
+    const product = await Products.findByPk(item.product_id, {
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
+
+    if (product) return product;
+  }
+
+  // 2️⃣ barcode ilə tap
+  if (!item.barcode) {
+    throw new AppError("Product barcode is required", 400);
+  }
+
+  let product = await Products.findOne({
+    where: { barcode: item.barcode },
+    transaction: t,
+    lock: t.LOCK.UPDATE,
+  });
+
+  // 3️⃣ tapılmadı → yarat
+  if (!product) {
+    product = await Products.create(
+      {
+        barcode: item.barcode,
+        name: item.name,
+        unit: item.unit,
+        buyPrice: item.buyPrice,
+        sellPrice: item.sellPrice,
+      },
+      { transaction: t }
+    );
+
+    await ProductStock.create(
+      {
+        product_id: product.product_id || product.id,
+        current_stock: 0,
+      },
+      { transaction: t }
+    );
+  }
+
+  // 🔴 FINAL GUARANTEE
+  if (!product || !(product.product_id || product.id)) {
+    throw new AppError("Product could not be resolved", 500);
+  }
+
+  return product;
+};
+
+const UpdateSupplierInvoice = async (transaction_id, data) => {
+  const t = await sequelize.transaction();
+
+  try {
+    /* =========================
+       1️⃣ TRANSACTION
+    ========================== */
+    const transaction = await SupplierTransactions.findOne({
+      where: { id: transaction_id, supplier_id: data.supplier_id },
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
+
+    if (!transaction) {
+      throw new AppError("Transaction not found", 404);
+    }
+
+    /* =========================
+       2️⃣ OLD DETAILS
+    ========================== */
+    const oldDetails = await SupplierTransactionDetails.findAll({
+      where: { transaction_id, supplier_id: data.supplier_id },
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
+
+    /* =========================
+       3️⃣ OLD STOCK ROLLBACK
+       purchase → -qty
+       return   → +qty
+    ========================== */
+    const oldMultiplier = transaction.type === "purchase" ? -1 : 1;
+
+    for (const detail of oldDetails) {
+      const qty = Number(detail.quantity);
+      if (Number.isNaN(qty)) {
+        throw new AppError("Invalid quantity in old details", 500);
+      }
+
+      const stock = await ProductStock.findOne({
+        where: { product_id: detail.product_id },
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      });
+
+      if (!stock) {
+        throw new AppError(
+          `Stock not found for product ${detail.product_id}`,
+          500
+        );
+      }
+
+      await stock.increment("current_stock", {
+        by: qty * oldMultiplier,
+        transaction: t,
+      });
+    }
+
+    /* =========================
+       4️⃣ OLD DETAILS DELETE
+    ========================== */
+    await SupplierTransactionDetails.destroy({
+      where: { transaction_id },
+      transaction: t,
+    });
+
+    /* =========================
+       5️⃣ TRANSACTION TOTAL
+    ========================== */
+    if (!data.products || data.products.length === 0) {
+      throw new AppError("Products not found", 400);
+    }
+
+    let transactionTotal = 0;
+    for (const p of data.products) {
+      const qty = Number(p.quantity);
+      const price = Number(p.buyPrice);
+
+      if (Number.isNaN(qty) || Number.isNaN(price)) {
+        throw new AppError("Invalid product quantity or price", 400);
+      }
+
+      transactionTotal += qty * price;
+    }
+
+    /* =========================
+       6️⃣ TRANSACTION UPDATE
+    ========================== */
+    await transaction.update(
+      {
+        supplier_id: data.supplier_id ?? transaction.supplier_id,
+        date: data.date ?? transaction.date,
+        payment_method: data.payment_method ?? transaction.payment_method,
+        type: data.transaction_type ?? transaction.type,
+        amount: transactionTotal,
+      },
+      { transaction: t }
+    );
+
+    /* =========================
+       7️⃣ NEW DETAILS
+       + PRODUCT CREATE / UPDATE
+    ========================== */
+    const newDetails = [];
+
+    for (const item of data.products) {
+      const product = await resolveProduct(item, t);
+
+      newDetails.push({
+        supplier_id: data.supplier_id,
+        transaction_id,
+        product_id: product.product_id || product.id, // 🔥 ARTİQ HEÇ VAXT NULL DEYİL
+        quantity: Number(item.quantity),
+        unit_price: Number(item.buyPrice),
+        total_price: Number(item.quantity) * Number(item.price),
+      });
+    }
+
+    await SupplierTransactionDetails.bulkCreate(newDetails, {
+      transaction: t,
+    });
+
+    /* =========================
+       8️⃣ NEW STOCK APPLY
+       purchase → +qty
+       return   → -qty
+    ========================== */
+    const newMultiplier = data.transaction_type === "purchase" ? 1 : -1;
+
+    for (const detail of newDetails) {
+      const stock = await ProductStock.findOne({
+        where: { product_id: detail.product_id },
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      });
+
+      if (!stock) {
+        throw new AppError("Stock not found", 500);
+      }
+
+      if (newMultiplier === -1 && stock.current_stock < detail.quantity) {
+        throw new AppError("Insufficient stock", 400);
+      }
+
+      await stock.increment("current_stock", {
+        by: detail.quantity * newMultiplier,
+        transaction: t,
+      });
+    }
+
+    /* =========================
+       9️⃣ COMMIT
+    ========================== */
+    await t.commit();
+    return { success: true };
+  } catch (error) {
+    await t.rollback();
+    throw new AppError(error.message || error, 500);
+  }
+};
 
 module.exports = {
   CreateTransaction,
@@ -354,4 +568,5 @@ module.exports = {
   GetSupplierByQuery,
   GetSupplierDebt,
   UpdateSupplierTransaction,
+  UpdateSupplierInvoice,
 };

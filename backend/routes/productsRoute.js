@@ -21,7 +21,8 @@ const { getCategoryById } = require("../services/CategoryService");
 // Create a product
 router.post("/", async (req, res) => {
   try {
-    const { name, barcode, sellPrice, buyPrice, unit, category_id } = req.body;
+    const { name, barcode, sellPrice, buyPrice, unit, category_id, newStock } =
+      req.body;
 
     if (!barcode) {
       return res.status(400).json({ error: "Barkod yoxdur !" });
@@ -84,6 +85,10 @@ router.post("/", async (req, res) => {
     };
 
     const product = await Products.create(productData);
+    await ProductStock.create({
+      product_id: product.product_id,
+      current_stock: newStock || 0,
+    });
     res.status(201).json(product);
   } catch (error) {
     console.error("Hata:", error);

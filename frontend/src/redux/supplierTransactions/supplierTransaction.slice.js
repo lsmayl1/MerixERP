@@ -1,10 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  mode: "create",
   transactionType: "purchase",
   paymentMethod: "cash",
   date: null,
   products: [],
+};
+
+const formatToYYYYMMDD = (dateString) => {
+  return new Date(dateString).toISOString().split("T")[0];
 };
 
 const supplierTransactionSlice = createSlice({
@@ -21,6 +26,7 @@ const supplierTransactionSlice = createSlice({
         quantity: p.quantity ?? 1,
         sellPrice: p.sellPrice ?? 0,
         amount: p.amount ?? 0,
+        product_id: p.product_id ?? null,
       });
     },
     deleteProduct(state, action) {
@@ -46,6 +52,15 @@ const supplierTransactionSlice = createSlice({
         product.quantity += 1;
       }
     },
+    replaceStatement: (state, action) => {
+      state.transactionType = action.payload.transaction.type;
+      state.paymentMethod = action.payload.transaction.payment_method;
+      state.products = action.payload.details;
+      state.date = formatToYYYYMMDD(action.payload.transaction.updatedAt);
+    },
+    updateMode: (state, action) => {
+      state.mode = action.payload;
+    },
     resetState(state) {
       state.transactionType = "purchase";
       state.paymentMethod = "cash";
@@ -64,6 +79,8 @@ export const {
   changeDate,
   incrementQty,
   resetState,
+  replaceStatement,
+  updateMode,
 } = supplierTransactionSlice.actions;
 
 export default supplierTransactionSlice.reducer;

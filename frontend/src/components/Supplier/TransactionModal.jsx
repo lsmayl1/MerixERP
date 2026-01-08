@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import TrashBin from "../../assets/TrashBin";
@@ -18,13 +18,19 @@ import {
   changeTransactionType,
   deleteProduct,
   incrementQty,
+  replaceStatement,
   resetState,
+  updateMode,
   updateProducts,
 } from "../../redux/supplierTransactions/supplierTransaction.slice";
 
-export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
+export const SupplierInvoiceModal = ({
+  handleClose,
+  onSubmit,
+  invoiceData,
+}) => {
   const { t } = useTranslation();
-  const { products, transactionType, paymentMethod, date } = useSelector(
+  const { products, transactionType, paymentMethod, date, mode } = useSelector(
     (state) => state.supplierTransaction
   );
   const dispatch = useDispatch();
@@ -60,16 +66,19 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
   const handleSubmitInvoice = () => {
     onSubmit({
       products,
+      transaction_id: invoiceData?.transaction?.id || null,
       transaction_type: transactionType,
       payment_method: paymentMethod,
       date,
     });
+
     dispatch(resetState());
   };
 
   const handleCloseModal = () => {
     handleClose();
     dispatch(resetState());
+    dispatch(updateMode("create"));
   };
 
   const handleBarcode = async (barcode) => {
@@ -148,6 +157,12 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
       console.error("Barcode oluşturulurken hata:", error);
     }
   };
+
+  useEffect(() => {
+    if (invoiceData.transaction && mode === "update") {
+      dispatch(replaceStatement(invoiceData));
+    }
+  }, [invoiceData]);
 
   return (
     <div className="absolute right-0 top-0 w-full flex-col gap-4 h-full flex bg-white border border-mainBorder rounded-lg p-4">
@@ -237,7 +252,7 @@ export const SupplierInvoiceModal = ({ handleClose, onSubmit }) => {
             onClick={handleSubmitInvoice}
             className="border bg-white border-blue-500 text-blue-500 rounded-xl text-nowrap px-4 cursor-pointer max-md:px-2 max-md:text-xs flex items-center gap-2 py-1 max-md:py-0"
           >
-            {t("create")}
+            {mode === "update" ? t("update") : t("create")}
           </button>
         </div>
       </div>

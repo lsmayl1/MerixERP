@@ -72,6 +72,13 @@ export const SupplierSlice = createApi({
 
       keepUnusedDataFor: 0, // Disable caching for this query
     }),
+    updateSupplierInvoice: build.mutation({
+      query: ({ transaction_id, data }) => ({
+        url: `/supplier-transactions/v2/${transaction_id}`,
+        method: "PUT",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -90,4 +97,6 @@ export const {
 
   useGetSupplierInvoiceMutation,
   useGetSupplierByQueryQuery,
+
+  useUpdateSupplierInvoiceMutation,
 } = SupplierSlice;

@@ -10,6 +10,7 @@ import {
   useGetSupplierByIdQuery,
   useGetSupplierInvoiceMutation,
   useGetSupplierTransactionsByIdQuery,
+  useUpdateSupplierInvoiceMutation,
 } from "../../redux/slices/SupplierSlice";
 import { SupplierInvoiceModal } from "../../components/Supplier/TransactionModal";
 import { Plus } from "../../assets/Plus";
@@ -19,17 +20,24 @@ import { Invoice } from "../../assets/Navigation/Invoice";
 import { InvoiceView } from "../../components/Supplier/InvoiceView";
 import Receipt from "../../assets/Navigation/Receipt";
 import Edit from "../../assets/Edit";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { updateMode } from "../../redux/supplierTransactions/supplierTransaction.slice";
 
 export const SupplierDetails = () => {
   const { id } = useParams();
+  const { mode } = useSelector((state) => state.supplierTransaction);
   const { data } = useGetSupplierByIdQuery(id);
   const [getSupplierInvociceData] = useGetSupplierInvoiceMutation();
+  const dispatch = useDispatch();
   const { data: transactions, refetch } =
     useGetSupplierTransactionsByIdQuery(id);
   const [supplierInvoiceData, setSupplierInvoiceData] = useState(null);
   const [createTransaction] = useCreateSupplierTransactionMutation();
   const [deleteTransaction] = useDeleteSupplierTransactionMutation();
   const [createSupplierInvoice] = useCreateSupplierInvoiceMutation();
+
+  const [InvoiceData, setInvoiceData] = useState({});
   const columnHelper = createColumnHelper();
   const columns = [
     columnHelper.accessor("id", {
@@ -71,18 +79,29 @@ export const SupplierDetails = () => {
       enableSorting: false, // Action sütunu için sıralamayı devre dışı bırak
       enableColumnFilter: false, // Action sütunu için filtrelemeyi devre dışı bırak
     }),
-    columnHelper.accessor("action", {
-      header: t("editDelete"),
-      headerClassName: "text-center rounded-e-lg bg-gray-100",
+    columnHelper.accessor("edit", {
+      header: t("edit"),
+      headerClassName: "text-center  bg-gray-100",
       cellClassName: "text-center",
       cell: ({ row }) => (
         <div className="flex justify-center  gap-4">
           <button
             className="cursor-pointer"
-            onClick={() => handleDeleteTransaction(row.original.id)}
+            onClick={() => handleUpdateTransaction(row.original.id)}
           >
             <Edit className="size-5" />
           </button>
+        </div>
+      ),
+      enableSorting: false, // Action sütunu için sıralamayı devre dışı bırak
+      enableColumnFilter: false, // Action sütunu için filtrelemeyi devre dışı bırak
+    }),
+    columnHelper.accessor("action", {
+      header: t("delete"),
+      headerClassName: "text-center rounded-e-lg bg-gray-100",
+      cellClassName: "text-center",
+      cell: ({ row }) => (
+        <div className="flex justify-center  gap-4">
           <button
             className="cursor-pointer"
             onClick={() => handleDeleteTransaction(row.original.id)}
@@ -99,6 +118,8 @@ export const SupplierDetails = () => {
   const [showDebtModal, setShowDebtModal] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
 
+  const [updateInvoice] = useUpdateSupplierInvoiceMutation();
+
   const handleTransactionSubmit = async (data) => {
     try {
       if (!data.amount || data.amount <= 0) {
@@ -110,8 +131,6 @@ export const SupplierDetails = () => {
         ...data,
         supplier_id: id,
       }).unwrap();
-
-      // unwrap başarılıysa response = backend’den gelen data
 
       setShowDebtModal(false);
       await refetch();
@@ -132,9 +151,37 @@ export const SupplierDetails = () => {
     }
   };
 
-  const handleCreateSupplierInvoice = async (data) => {
+  const handleUpdateTransaction = async (transactionId) => {
     try {
-      await createSupplierInvoice({ ...data, supplier_id: id });
+      dispatch(updateMode("update"));
+      const supplierInvoiceData = await getSupplierInvociceData({
+        supplier_id: id,
+        transaction_id: transactionId,
+      }).unwrap();
+      setInvoiceData(supplierInvoiceData);
+      setShowModal(true);
+    } catch (error) {
+      toast(error);
+    }
+  };
+
+  const handleCreateSupplierInvoice = async (data) => {
+    // if(data.update){
+
+    // }
+    try {
+      if (mode === "create") {
+        await createSupplierInvoice({ ...data, supplier_id: id });
+      } else {
+        await updateInvoice({
+          transaction_id: data.transaction_id,
+          data: {
+            ...data,
+            supplier_id: id,
+          },
+        }).unwrap();
+      }
+      dispatch(updateMode("create"));
       setShowModal(false);
       await refetch();
     } catch (error) {
@@ -188,6 +235,7 @@ export const SupplierDetails = () => {
           <SupplierInvoiceModal
             handleClose={() => setShowModal(false)}
             onSubmit={handleCreateSupplierInvoice}
+            invoiceData={InvoiceData}
           />
         )}
         {showDebtModal && (

@@ -14,6 +14,7 @@ const {
   GetSupplierInvoice,
   GetSupplierDebt,
   UpdateSupplierTransaction,
+  UpdateSupplierInvoice,
 } = require("../../services/SupplierService");
 const { UpdateStockValue } = require("../../services/ProductService");
 router.get("/", async (req, res) => {
@@ -51,17 +52,6 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-function dateFormatting(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // 0-indexed
-  const year = date.getFullYear();
-
-  return `${day}-${month}-${year}`; // "26-07-2025"
-}
 router.get("/change-all-cashtocredit", async (_, res) => {
   try {
     const suppliers = await Suppliers.findAll({
@@ -108,7 +98,7 @@ router.get("/:id", async (req, res) => {
     });
 
     if (transactions.length === 0) {
-      return res.status(404).json({
+      return res.json({
         message: "No transactions found for this supplier",
         transactions: [],
       });
@@ -130,7 +120,7 @@ function parseDateString(dateStr) {
 
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
-
+// Odenis emeliyati
 router.post("/", async (req, res) => {
   const { supplier_id, amount, date, payment_method, type } = req.body;
 
@@ -248,12 +238,23 @@ router.post("/v2/:supplier_id/:transaction_id", async (req, res, next) => {
   }
 });
 
+router.put("/v2/:transaction_id", async (req, res, next) => {
+  try {
+    const updatedTransaction = await UpdateSupplierInvoice(
+      req.params.transaction_id,
+      req.body
+    );
+    res.json(updatedTransaction);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const data = req.body;
 
   try {
-    const updatedTransaction = await UpdateSupplierTransaction(id, data);
+    const updatedTransaction = await UpdateSupplierTransaction(id, req.body);
     res.status(200).json(updatedTransaction);
   } catch (error) {
     console.error("Error updating transaction:", error);
