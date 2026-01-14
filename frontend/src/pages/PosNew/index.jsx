@@ -23,8 +23,17 @@ import { SearchModal } from "../../components/Pos/SearchModal";
 import { ChartPie } from "../../assets/chart-pie";
 import Return from "../../assets/Navigation/Return";
 import { PaymentStage } from "../../components/Pos/PaymentStage";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addProduct,
+  changeQty,
+  createCart,
+} from "../../redux/products/products.slice";
 export const PosNew = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { activeCartId } = useSelector((s) => s.products);
+
   const columnHelper = createColumnHelper();
   const [inputData, setInputData] = useState([]);
   const [data, setData] = useState([]);
@@ -143,7 +152,14 @@ export const PosNew = () => {
               } else if (action === "deacrese") {
                 newQuantity = Math.max(0.001, item.quantity - 1);
               }
-
+              console.log(existProduct);
+              dispatch(
+                changeQty({
+                  cartId: activeCartId,
+                  product_id: existProduct.product_id,
+                  quantity: newQuantity,
+                })
+              );
               return {
                 ...item,
                 quantity: newQuantity,
@@ -171,6 +187,14 @@ export const PosNew = () => {
                 newQuantity = Math.max(0.001, item.quantity - 0.1);
               }
 
+              dispatch(
+                changeQty({
+                  cartId: activeCartId,
+                  productId: existProduct.product_id,
+                  quantity: newQuantity,
+                })
+              );
+
               return {
                 ...item,
                 quantity: newQuantity,
@@ -189,6 +213,7 @@ export const PosNew = () => {
       try {
         const validProduct = await trigger(barcode).unwrap();
         if (!validProduct) return null;
+        console.log(validProduct);
 
         const existProduct = inputData.find(
           (x) => x.barcode == validProduct.productBarcode
@@ -196,6 +221,13 @@ export const PosNew = () => {
 
         if (existProduct) {
           // Ürün zaten listede varsa, miktarı artır
+          dispatch(
+            changeQty({
+              cartId: activeCartId,
+              product_id: validProduct.product_id,
+              quantity: 1,
+            })
+          );
           setInputData((prevData) =>
             prevData.map((item) => {
               if (item.barcode === validProduct.productBarcode) {
@@ -222,15 +254,26 @@ export const PosNew = () => {
           );
           return;
         } else
-          setInputData((prevData) => [
-            ...prevData,
-            {
-              quantity: validProduct.quantity ? validProduct.quantity : 1, // kg ürün için default 0.1 (100 gram)
-              barcode: validProduct.barcode,
-              productBarcode: validProduct?.productBarcode,
-              unit: validProduct.unit,
-            },
-          ]);
+          dispatch(
+            addProduct({
+              cartId: activeCartId,
+              product: {
+                productId: validProduct.product_id,
+                quantity: validProduct.quantity ? validProduct.quantity : 1,
+                barcode: validProduct.productBarcode,
+                unit: validProduct.unit,
+              },
+            })
+          );
+        setInputData((prevData) => [
+          ...prevData,
+          {
+            quantity: validProduct.quantity ? validProduct.quantity : 1, // kg ürün için default 0.1 (100 gram)
+            barcode: validProduct.barcode,
+            productBarcode: validProduct?.productBarcode,
+            unit: validProduct.unit,
+          },
+        ]);
       } catch (err) {
         toast.error(err.data.error);
         console.log(err);
@@ -238,6 +281,15 @@ export const PosNew = () => {
     }
 
     barcodeRef.current?.focus();
+  };
+
+  const handleDuplicateTab = () => {
+    const newWindow = window.open(window.location.href, "_blank");
+
+    // Eğer yönlendirme yapılmasını istiyorsan (aktif sekme o olsun):
+    if (newWindow) {
+      newWindow.focus();
+    }
   };
 
   const handleDeleteProduct = (id) => {
@@ -296,11 +348,18 @@ export const PosNew = () => {
     barcodeRef.current?.focus();
   };
 
+  useEffect(() => {
+    dispatch(createCart(1));
+  }, [dispatch]);
+
   return (
     <div className="flex flex-col  overflow-hidden h-screen  gap-2 w-full ">
       <ToastContainer />
 
       <div className="flex gap-4 items-center justify-between px-8 py-4">
+        <button onClick={handleDuplicateTab}>
+          <Plus />
+        </button>
         <SearchModal
           data={searchData}
           setQuery={setQuery}

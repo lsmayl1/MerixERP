@@ -79,23 +79,7 @@ export const SupplierDetails = () => {
       enableSorting: false, // Action sütunu için sıralamayı devre dışı bırak
       enableColumnFilter: false, // Action sütunu için filtrelemeyi devre dışı bırak
     }),
-    columnHelper.accessor("edit", {
-      header: t("edit"),
-      headerClassName: "text-center  bg-gray-100",
-      cellClassName: "text-center",
-      cell: ({ row }) => (
-        <div className="flex justify-center  gap-4">
-          <button
-            className="cursor-pointer"
-            onClick={() => handleUpdateTransaction(row.original.id)}
-          >
-            <Edit className="size-5" />
-          </button>
-        </div>
-      ),
-      enableSorting: false, // Action sütunu için sıralamayı devre dışı bırak
-      enableColumnFilter: false, // Action sütunu için filtrelemeyi devre dışı bırak
-    }),
+
     columnHelper.accessor("action", {
       header: t("delete"),
       headerClassName: "text-center rounded-e-lg bg-gray-100",
