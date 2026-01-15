@@ -27,15 +27,24 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addProduct,
   changeQty,
+  closeCart,
   createCart,
+  removeProduct,
+  switchCart,
 } from "../../redux/products/products.slice";
+import {
+  selectActiveProducts,
+  selectOpenCarts,
+} from "../../redux/products/products.hook";
+import { Basket } from "../../assets/Basket";
+import { CloseIcon } from "../../assets/Close";
 export const PosNew = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { activeCartId } = useSelector((s) => s.products);
-
+  const products = useSelector(selectActiveProducts) || [];
+  const carts = useSelector((s) => selectOpenCarts(s)) || [];
   const columnHelper = createColumnHelper();
-  const [inputData, setInputData] = useState([]);
   const [data, setData] = useState([]);
   const [query, setQuery] = useState("");
   const [postPreview, { isLoading: previewLoading }] =
@@ -84,21 +93,33 @@ export const PosNew = () => {
       headerClassName: "text-center rounded-e-lg bg-gray-100",
       cellClassName: "text-center",
       cell: ({ row }) => (
-        <button onClick={() => handleDeleteProduct(row.original.barcode)}>
+        <button
+          onClick={() =>
+            dispatch(
+              removeProduct({
+                cartId: activeCartId,
+                barcode: row.original.barcode,
+              })
+            )
+          }
+        >
           <TrashBin className="size-6 text-red-500" />
         </button>
       ),
     }),
   ];
   const [paymentStage, setPaymentStage] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [discount, setDiscount] = useState(0);
   const [postSale, { isLoading: postLoading }] = usePostSaleMutation();
   const searchInput = useRef();
   const modalRef = useRef();
-  const receivedInput = useRef();
   const barcodeRef = useRef();
 
+  useEffect(() => {
+    if (carts.length === 0) {
+      dispatch(createCart());
+    }
+  }, []);
   useEffect(() => {
     document.title = "Kassa";
   }, []);
@@ -112,7 +133,6 @@ export const PosNew = () => {
         searchInput.current?.focus();
       } else if (key === "/") {
         e.preventDefault();
-        receivedInput.current?.select();
       } else if (key === "escape") {
         setQuery("");
         barcodeRef.current?.focus();
@@ -135,76 +155,20 @@ export const PosNew = () => {
   }, []);
 
   const handleChangeQty = async (barcode, action, qty) => {
-    const existProduct = inputData.find((x) => x.barcode == barcode);
+    const existProduct = products.find((x) => x.barcode == barcode);
 
     if (existProduct) {
       // Adet bazlı ürünler için eski davranış
-      if (existProduct.unit === "piece") {
-        setInputData((prevData) =>
-          prevData.map((item) => {
-            if (item.barcode === barcode) {
-              let newQuantity = item.quantity;
-
-              if (qty !== undefined && qty !== null) {
-                newQuantity = Math.max(0.001, Number(qty));
-              } else if (action === "increase") {
-                newQuantity += 1;
-              } else if (action === "deacrese") {
-                newQuantity = Math.max(0.001, item.quantity - 1);
-              }
-              console.log(existProduct);
-              dispatch(
-                changeQty({
-                  cartId: activeCartId,
-                  product_id: existProduct.product_id,
-                  quantity: newQuantity,
-                })
-              );
-              return {
-                ...item,
-                quantity: newQuantity,
-              };
-            }
-            return item;
-          })
-        );
-        return;
-      }
-
-      // KG bazlı ürünler için (direct qty update)
-      if (existProduct.unit === "kg") {
-        // Eğer qty varsa güncelle, yoksa artırma/azaltma mantığına göre davranabiliriz
-        setInputData((prevData) =>
-          prevData.map((item) => {
-            if (item.barcode === barcode) {
-              let newQuantity = item.quantity;
-
-              if (qty !== undefined && qty !== null) {
-                newQuantity = Math.max(0.001, parseFloat(qty)); // minimum 1 gram
-              } else if (action === "increase") {
-                newQuantity += 0.1; // örnek olarak 100 gram artır
-              } else if (action === "deacrese") {
-                newQuantity = Math.max(0.001, item.quantity - 0.1);
-              }
-
-              dispatch(
-                changeQty({
-                  cartId: activeCartId,
-                  productId: existProduct.product_id,
-                  quantity: newQuantity,
-                })
-              );
-
-              return {
-                ...item,
-                quantity: newQuantity,
-              };
-            }
-            return item;
-          })
-        );
-        return;
-      }
+      dispatch(
+        changeQty({
+          cartId: activeCartId,
+          product_id: existProduct.product_id,
+          barcode: existProduct.barcode,
+          qty: qty,
+          operation: action,
+        })
+      );
+      return;
     }
 
     // Ürün yoksa ve artırma işlemi ise yeni ürün ekle
@@ -213,9 +177,8 @@ export const PosNew = () => {
       try {
         const validProduct = await trigger(barcode).unwrap();
         if (!validProduct) return null;
-        console.log(validProduct);
 
-        const existProduct = inputData.find(
+        const existProduct = products.find(
           (x) => x.barcode == validProduct.productBarcode
         );
 
@@ -226,56 +189,25 @@ export const PosNew = () => {
               cartId: activeCartId,
               product_id: validProduct.product_id,
               quantity: 1,
+              barcode: validProduct.barcode,
             })
           );
-          setInputData((prevData) =>
-            prevData.map((item) => {
-              if (item.barcode === validProduct.productBarcode) {
-                let newQuantity = item.quantity;
 
-                if (validProduct.unit === "kg") {
-                  // Tartım barkodundan gelen quantity varsa onu ekle
-                  if (validProduct.quantity) {
-                    newQuantity += validProduct.quantity;
-                  } else {
-                    newQuantity += 0.1;
-                  }
-                } else {
-                  newQuantity += 1;
-                }
-
-                return {
-                  ...item,
-                  quantity: newQuantity,
-                };
-              }
-              return item;
-            })
-          );
           return;
         } else
           dispatch(
             addProduct({
               cartId: activeCartId,
               product: {
-                productId: validProduct.product_id,
+                product_id: validProduct.product_id,
                 quantity: validProduct.quantity ? validProduct.quantity : 1,
-                barcode: validProduct.productBarcode,
+                barcode: validProduct.barcode,
                 unit: validProduct.unit,
               },
             })
           );
-        setInputData((prevData) => [
-          ...prevData,
-          {
-            quantity: validProduct.quantity ? validProduct.quantity : 1, // kg ürün için default 0.1 (100 gram)
-            barcode: validProduct.barcode,
-            productBarcode: validProduct?.productBarcode,
-            unit: validProduct.unit,
-          },
-        ]);
       } catch (err) {
-        toast.error(err.data.error);
+        toast.error(err?.data?.error);
         console.log(err);
       }
     }
@@ -283,37 +215,18 @@ export const PosNew = () => {
     barcodeRef.current?.focus();
   };
 
-  const handleDuplicateTab = () => {
-    const newWindow = window.open(window.location.href, "_blank");
-
-    // Eğer yönlendirme yapılmasını istiyorsan (aktif sekme o olsun):
-    if (newWindow) {
-      newWindow.focus();
-    }
-  };
-
-  const handleDeleteProduct = (id) => {
-    const newData = inputData.filter(
-      (x) =>
-        String(x.barcode) !== String(id) &&
-        String(x.productBarcode) !== String(id)
-    );
-    setInputData(newData);
-  };
-
   const handleSubmitSale = async (type, payments) => {
     if (postLoading) return;
     try {
       await postSale({
-        payment_method: paymentMethod,
         products: data?.items,
         type: type || "sale",
         discount: discount,
         payments: payments,
       }).unwrap();
       setData([]);
-      setInputData([]);
       setPaymentStage(false);
+      dispatch(closeCart(activeCartId));
       setDiscount(0);
       setTimeout(() => {
         barcodeRef.current?.focus();
@@ -328,38 +241,68 @@ export const PosNew = () => {
 
   useEffect(() => {
     const handlePreview = async () => {
-      if (inputData.length == 0) {
+      if (products.length == 0) {
         setData([]);
         return;
       }
-
       const response = await postPreview({
-        items: inputData,
+        items: products,
         discount: discount,
       }).unwrap();
       setData(response); // response = { subtotal, total, items }
     };
 
     handlePreview();
-  }, [inputData, discount]);
+  }, [products, discount]);
 
   const handleChangeQtyAndFocus = (...args) => {
     handleChangeQty(...args);
     barcodeRef.current?.focus();
   };
 
-  useEffect(() => {
-    dispatch(createCart(1));
-  }, [dispatch]);
-
   return (
     <div className="flex flex-col  overflow-hidden h-screen  gap-2 w-full ">
       <ToastContainer />
 
       <div className="flex gap-4 items-center justify-between px-8 py-4">
-        <button onClick={handleDuplicateTab}>
-          <Plus />
-        </button>
+        <div className="flex gap-2 ">
+          {carts.map((cart, index) => (
+            <div
+              className={`px-3 rounded-lg flex items-center gap-2 py-3 pr-4 border border-mainBorder     ${
+                cart.isActive ? "bg-blue-600 text-white" : "bg-gray-200"
+              }`}
+              key={cart.cartId}
+            >
+              <button
+                className="text-nowrap"
+                onClick={() => dispatch(switchCart(cart.cartId))}
+              >
+                Səbət {index + 1}
+              </button>
+              <span
+                onClick={() => dispatch(closeCart(cart.cartId))}
+                className="cursor-pointer"
+              >
+                <CloseIcon className={"size-5"} />
+              </span>
+            </div>
+          ))}
+          {carts.length < 3 && (
+            <div>
+              <button
+                className="flex gap-2 h-full border border-mainBorder  rounded-lg items-center py-2 p-4   "
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  dispatch(createCart());
+                }}
+              >
+                <Plus className={"size-5"} />{" "}
+                <span className="">Yeni Səbət</span>
+              </button>
+            </div>
+          )}
+        </div>
         <SearchModal
           data={searchData}
           setQuery={setQuery}
@@ -384,7 +327,7 @@ export const PosNew = () => {
           handleChangeQty={handleChangeQtyAndFocus}
         />
         <div className="flex-1 min-h-0  bg-white px-4 gap-4 h-full flex flex-col justify-between pb-2 ">
-          {paymentStage && inputData.length > 0 ? (
+          {paymentStage && products.length > 0 ? (
             <PaymentStage
               handleBack={() => setPaymentStage(false)}
               value={data?.total}
@@ -396,7 +339,7 @@ export const PosNew = () => {
           ) : (
             <div className="flex-1  px-4 gap-4  flex flex-col bg-white rounded-2xl  justify-between py-4 h-full  ">
               <Table columns={columns} data={data?.items} pagination={false} />
-              {inputData.length > 0 && (
+              {products.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-end">
                     {/* <span className="text-2xl font-medium">{t("Total")}</span> */}
