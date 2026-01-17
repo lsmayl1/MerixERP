@@ -134,7 +134,7 @@ router.post("/", async (req, res) => {
     if (!date) {
       finalDate = new Date(); // Şu anki tarih + saat
     } else {
-      const formattedDateStr = parseDateString(date);
+      const formattedDateStr = new Date(date);
       if (!formattedDateStr) {
         return res
           .status(400)
@@ -218,7 +218,7 @@ router.post("/v2/", async (req, res, next) => {
 router.get("/v2/:id", async (req, res, next) => {
   try {
     const transactions = await GetSupplierTransactionsWithDetails(
-      req.params.id
+      req.params.id,
     );
     return res.json(transactions);
   } catch (error) {
@@ -230,7 +230,7 @@ router.post("/v2/:supplier_id/:transaction_id", async (req, res, next) => {
   try {
     const transactionDetails = await GetSupplierInvoice(
       req.params.supplier_id,
-      req.params.transaction_id
+      req.params.transaction_id,
     );
     return res.json(transactionDetails);
   } catch (error) {
@@ -242,7 +242,7 @@ router.put("/v2/:transaction_id", async (req, res, next) => {
   try {
     const updatedTransaction = await UpdateSupplierInvoice(
       req.params.transaction_id,
-      req.body
+      req.body,
     );
     res.json(updatedTransaction);
   } catch (err) {

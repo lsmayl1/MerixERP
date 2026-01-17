@@ -122,7 +122,7 @@ router.get("/", async (req, res) => {
     const order =
       sort === "Z-A" ? [["product_id", "DESC"]] : [["product_id", "ASC"]];
     page = parseInt(page) || 1;
-    limit = parseInt(limit) || 50;
+    limit = 2000;
     const offset = (page - 1) * limit;
 
     // Veriyi getir (SQL seviyesinde sıralama yaparak hızlandır)
@@ -351,7 +351,7 @@ router.get("/v2/:id", async (req, res, next) => {
   try {
     const product = await GetProductByIdOrBarcode(
       req.params.id,
-      req.query.fields
+      req.query.fields,
     );
     res.json(product);
   } catch (error) {
@@ -522,7 +522,7 @@ router.delete(
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
+  },
 );
 
 router.delete("/v2/:id", async (req, res, next) => {
@@ -565,7 +565,7 @@ router.post("/generate-barcode", async (req, res) => {
     if (unit === "piece") {
       do {
         newBarcodeBase = Math.floor(
-          100000000000 + Math.random() * 900000000000
+          100000000000 + Math.random() * 900000000000,
         ).toString(); // 12 haneli rastgele
         const checkDigit = calculateCheckDigit(newBarcodeBase);
         newBarcode = newBarcodeBase + checkDigit; // 13 haneli barkod
@@ -611,7 +611,7 @@ router.post("/generate-barcode", async (req, res) => {
           lastKgBarcode && lastKgBarcode.length >= 7
             ? lastKgBarcode.slice(2, 7)
             : "0",
-          10
+          10,
         );
         if (isNaN(lastCode)) lastCode = 0;
         nextCode = String(lastCode + 1).padStart(5, "0");

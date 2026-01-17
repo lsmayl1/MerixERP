@@ -2,9 +2,7 @@ const { Sequelize } = require("sequelize");
 const dotenv = require("dotenv");
 
 // Ortama göre .env dosyasını yükle
-dotenv.config({
-  path: process.env.NODE_ENV === "development" ? ".env.development" : ".env",
-});
+dotenv.config();
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -15,7 +13,7 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT,
     dialect: "postgres",
     logging: console.log, // SQL loglarını görmek için true yapabilirsiniz
-  }
+  },
 );
 
 module.exports = sequelize;

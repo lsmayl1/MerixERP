@@ -19,12 +19,7 @@ const fs = require("fs");
 const AppError = require("./utils/AppError");
 const { startSyncWorker } = require("./Sync/SyncWorker");
 
-dotenv.config({
-  path: path.resolve(
-    __dirname,
-    process.env.NODE_ENV === "development" ? ".env.development" : ".env"
-  ),
-});
+dotenv.config();
 
 app.use(express.json()); // For parsing JSON requests
 app.use(cors());
@@ -92,7 +87,7 @@ if (isDbConfigured) {
     .then(() => {
       app.listen(process.env.PORT, "0.0.0.0", () => {
         console.log(
-          `Server is running on http://localhost:${process.env.PORT || 5000}`
+          `Server is running on http://localhost:${process.env.PORT || 5000}`,
         );
       });
     })
@@ -102,13 +97,13 @@ if (isDbConfigured) {
     });
 } else {
   console.log(
-    "Database config missing. Only /configure-db endpoint is available."
+    "Database config missing. Only /configure-db endpoint is available.",
   );
   app.listen(process.env.PORT || 5000, "0.0.0.0", () => {
     console.log(
       `Server running in limited mode on http://localhost:${
         process.env.PORT || 5000
-      }`
+      }`,
     );
   });
 }
