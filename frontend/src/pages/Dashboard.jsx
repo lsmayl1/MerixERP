@@ -49,7 +49,7 @@ export const Dashboard = () => {
   }, [range]);
 
   return (
-    <div className="w-full h-full  flex flex-col pr-2 gap-4 overflow-auto ">
+    <div className="w-full h-full  flex flex-col pr-2 gap-2 overflow-auto ">
       <DateRange handleRange={setRange} />
       <div className="flex items-center gap-2 w-full">
         <KPI
@@ -73,33 +73,24 @@ export const Dashboard = () => {
           ]}
         />
       </div>
-      <div className="flex flex-col bg-white w-full justify-end  p-4 h-full  rounded-lg  ">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex  items-center   gap-4">
-            <h1 className=" font-medium text-xl text-mainText">
-              Ortalama Dovriyye
-            </h1>
-            <span className="text-3xl text-end font-semibold ">
-              {Revenue?.average}
-            </span>
-          </div>
-          <div className="flex justify-end gap-6  items-center ">
-            {timeframeVariable.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => setTimeframe(item.value)}
-                className={`${
-                  timeframe === item.value
-                    ? "bg-blue-700 text-white"
-                    : "bg-white"
-                } border border-mainBorder px-4 py-1 rounded-lg`}
-              >
-                {t(item.value)}
-              </button>
-            ))}
-          </div>
+      <div className="flex flex-col  bg-white w-full justify-end  p-4 h-full gap-4  rounded-lg  ">
+        <div className="flex justify-end gap-6  items-center ">
+          {timeframeVariable.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => setTimeframe(item.value)}
+              className={`${
+                timeframe === item.value ? "bg-blue-700 text-white" : "bg-white"
+              } border border-mainBorder px-4 py-1 rounded-lg`}
+            >
+              {t(item.value)}
+            </button>
+          ))}
         </div>
-        <LineChart data={Revenue?.data} />
+
+        <div className="w-full min-h-[400px] h-full min-w-0 transition-width duration-200  ">
+          <LineChart data={Revenue?.data} />
+        </div>
       </div>
       {/* <div className="flex flex-col bg-white w-full justify-end  p-4 h-full  rounded-lg  ">
         <div className="flex items-center justify-between mb-4">

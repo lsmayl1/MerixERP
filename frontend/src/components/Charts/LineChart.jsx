@@ -9,6 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 ChartJS.register(
   CategoryScale,
@@ -17,7 +18,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 export const LineChart = ({ data, valueKey = "revenue" }) => {
@@ -32,8 +34,10 @@ export const LineChart = ({ data, valueKey = "revenue" }) => {
         label: "Satış Miktarı",
         data: dataPoints,
         borderColor: "rgba(0, 0, 0)",
-        backgroundColor: "rgba(251, 176, 16)",
-        tension: 0.4,
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
+        tension: 0.2 , // eğri çizgi için
+        fill: true,
+        pointRadius: 0,
       },
     ],
   };
@@ -46,13 +50,6 @@ export const LineChart = ({ data, valueKey = "revenue" }) => {
     plugins: {
       legend: {
         display: false, // Legend'ı gizler
-      },
-      tooltip: {
-        callbacks: {
-          label: function (tooltipItem) {
-            return `Satış: ${tooltipItem.raw}`; // Tooltip formatı
-          },
-        },
       },
     },
     scales: {
@@ -80,23 +77,11 @@ export const LineChart = ({ data, valueKey = "revenue" }) => {
         },
         position: "right", // Y eksenini sağa alır
         grid: {
-          display: false, // Izgaraları gizler
+          display: false,
         },
       },
     },
   };
 
-  return (
-    <div className=" h-128 w-full ">
-      <Line
-        data={chartData}
-        style={{
-          height: "100%",
-          width: "100%",
-          overflow: "hidden",
-        }}
-        options={options}
-      />
-    </div>
-  );
+  return <Line data={chartData} options={options} />;
 };

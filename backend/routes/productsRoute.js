@@ -197,9 +197,18 @@ router.get("/search", async (req, res) => {
 
     const products = await Products.findAll({
       where: {
-        name: {
-          [Op.iLike]: `%${query}%`, // Kelimenin herhangi bir yerinde geçmesine izin ver
-        },
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${query}%`, // İstənilən yerində
+            },
+          },
+          {
+            barcode: {
+              [Op.iLike]: `%${query}%`, // Barkod üçün də
+            },
+          },
+        ],
       },
       order: [["name", "ASC"]],
       limit: 50, // En fazla 20 ürün getir

@@ -10,6 +10,7 @@ import Delivery from "../../assets/Navigation/Delivery";
 import StockBox from "../../assets/Navigation/StockBox";
 import { Supplier } from "../../assets/Navigation/Supplier";
 import Category from "../../assets/Navigation/Category";
+import Suppliers from "../../assets/Sidebar/Suppliers";
 
 export const Sidebar = ({ className, handleClose }) => {
   const { t } = useTranslation();
@@ -46,13 +47,18 @@ export const Sidebar = ({ className, handleClose }) => {
         },
       ],
     },
-    { name: t("supplier"), blank: true, path: "suppliers", icon: <Supplier /> },
+    {
+      name: t("supplier"),
+      blank: true,
+      path: "suppliers",
+      icon: <Suppliers />,
+    },
 
     { name: t("pos"), blank: true, path: "pos", icon: <Kart /> },
   ];
   return (
     <div
-      className={`max-md:absolute z-50 max-md:left-0 max-md:bg-white  flex pt-8 flex-col px-4 ${className}
+      className={`max-md:absolute bg-white border-r-gray-100 border-r z-50 max-md:left-0 max-md:bg-white  flex pt-8 flex-col px-4 ${className}
       `}
     >
       <ul className="flex flex-col  gap-2">
@@ -63,7 +69,7 @@ export const Sidebar = ({ className, handleClose }) => {
               className={({ isActive }) =>
                 `flex items-center gap-4 border-mainBorder py-2 ${
                   isActive
-                    ? "bg-white border border-mainBorder"
+                    ? "bg-gray-200 border border-mainBorder"
                     : "hover:bg-white"
                 } px-4 rounded-lg transition-colors duration-200`
               }
@@ -73,12 +79,12 @@ export const Sidebar = ({ className, handleClose }) => {
                   {link.icon &&
                     React.cloneElement(link.icon, {
                       className: ` size-8 max-md:size-6 ${
-                        isActive ? "text-black" : "text-mainText"
+                        !isActive ? "text-black" : "text-mainText"
                       } `,
                     })}
                   <span
                     className={`${
-                      isActive ? "text-black" : "text-mainText"
+                      !isActive ? "text-black" : "text-mainText"
                     } text-lg max-md:text-md font-medium`}
                   >
                     {link.name}
@@ -96,7 +102,7 @@ export const Sidebar = ({ className, handleClose }) => {
                     className={({ isActive }) =>
                       `flex items-center gap-4 py-2 ${
                         isActive
-                          ? "bg-white border border-mainBorder"
+                          ? "bg-gray-200 border border-mainBorder"
                           : "hover:bg-white"
                       } px-4 rounded-lg transition-colors duration-200`
                     }
@@ -104,7 +110,7 @@ export const Sidebar = ({ className, handleClose }) => {
                     {({ isActive }) => (
                       <span
                         className={` text-lg max-md:text-md font-medium text-nowrap ${
-                          isActive ? "text-black" : "text-mainText"
+                          !isActive ? "text-black" : "text-mainText"
                         }`}
                       >
                         {subLink.name}

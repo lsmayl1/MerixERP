@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "main.js",
   "description": "Merix Pos System",
+  "productName": "Merix",
   "author": {
     "name": "ismayil"
   },
@@ -16,6 +17,7 @@
     "appId": "com.ismayil.merix",
     "productName": "Merix",
     "asar": false,
+    
     "files": [
       "backend/**/*",
       "frontend/dist/**/*",
@@ -24,7 +26,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "dist/icon.ico"
+      "icon": "frontend/public/icon.ico"
     },
     "nsis": {
       "oneClick": false,
