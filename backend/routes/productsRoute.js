@@ -122,7 +122,7 @@ router.get("/", async (req, res) => {
     const order =
       sort === "Z-A" ? [["product_id", "DESC"]] : [["product_id", "ASC"]];
     page = parseInt(page) || 1;
-    limit = 2000;
+    limit = 50;
     const offset = (page - 1) * limit;
 
     // Veriyi getir (SQL seviyesinde sıralama yaparak hızlandır)

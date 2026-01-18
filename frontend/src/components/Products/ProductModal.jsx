@@ -19,7 +19,7 @@ export const ProductModal = ({
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [newStock, setNewStock] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(
-    editForm?.category ? editForm?.category : null
+    editForm?.category ? editForm?.category : null,
   );
   const [getBarcode, { isLoading: barcodeLoading, isError: barcodeError }] =
     useGetBarcodeMutation();
@@ -163,6 +163,11 @@ export const ProductModal = ({
                 <div className="flex items-center gap-1 max-lg:justify-between w-full">
                   <div className="flex  flex-col gap-2 w-full">
                     <input
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                        }
+                      }}
                       type="text"
                       placeholder="Enter Barcode or Generate"
                       {...register("barcode", {
@@ -282,11 +287,17 @@ export const ProductModal = ({
                 </button>
 
                 {isEditMode ? (
-                  <button className="rounded-xl cursor-pointer max-lg:text-md border border-blue-700 px-4 py-1 font-semibold text-blue-700">
+                  <button
+                    type="submit"
+                    className="rounded-xl cursor-pointer max-lg:text-md border border-blue-700 px-4 py-1 font-semibold text-blue-700"
+                  >
                     {t("update")}
                   </button>
                 ) : (
-                  <button className="rounded-xl max-lg:text-md cursor-pointer border border-blue-700 px-4 py-1 font-semibold text-blue-700">
+                  <button
+                    type="submit"
+                    className="rounded-xl max-lg:text-md cursor-pointer border border-blue-700 px-4 py-1 font-semibold text-blue-700"
+                  >
                     {t("add")}
                   </button>
                 )}
