@@ -1,17 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-
 const { getSaleById } = require("../services/SaleService");
 
 const { PrintReceipt, PrintLabel } = require("../services/PrinterService");
 
 // Using pdf-to-printer
-router.post("/label-print", async (req, res) => {
+router.post("/label-print", async (req, res, next) => {
   try {
     await PrintLabel(req.body);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 });
 

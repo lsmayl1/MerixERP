@@ -378,10 +378,8 @@ const PrintLabel = async (labelData) => {
     doc.pipe(stream);
     doc.end();
 
-    stream.on("finish", async () => {
-      try {
-        // Print using pdf-to-printer with exact size settings
-
+    await new Promise((resolve, reject) => {
+      stream.on("finish", async () => {
         const options = {
           printer: "Xprinter", // Your thermal printer
           pages: "1",
@@ -390,36 +388,21 @@ const PrintLabel = async (labelData) => {
           silent: true,
           printDialog: false,
           copies: 1,
-          // For thermal printers, these are the key settings:
           paperSize: "Custom", // Use custom paper size
         };
 
-        console.log("Printing with options:", options);
-        await pdf2printer.print(pdfPath, options);
-
-        // Clean up temp file
-        fs.unlinkSync(pdfPath);
-
-        console.log("PDF printed successfully");
-        res.json({ success: true, message: "PDF printed successfully" });
-      } catch (printError) {
-        console.error("Print error:", printError);
-        // Clean up temp file even on error
-        if (fs.existsSync(pdfPath)) {
+        try {
+          await pdf2printer.print(pdfPath, options);
           fs.unlinkSync(pdfPath);
+          resolve();
+        } catch (err) {
+          if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
+          reject(err);
         }
-        res.status(500).json({
-          error: "Print failed",
-          details: printError.message,
-        });
-      }
-    });
+      });
 
-    stream.on("error", (streamError) => {
-      console.error("PDF creation error:", streamError);
-      res.status(500).json({
-        error: "Failed to create PDF",
-        details: streamError.message,
+      stream.on("error", (err) => {
+        reject(err);
       });
     });
   } catch (error) {

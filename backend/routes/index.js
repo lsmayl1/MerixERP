@@ -1,0 +1,28 @@
+const productsRoute = require("./productsRoute");
+const categoriesRoute = require("./CategoryRoute");
+const salesRoute = require("./salesRoute");
+const stockTransactionsRoute = require("./StockTransactionsRoute");
+const cashTransactionsRoute = require("./CashTransactionsRoute");
+const metricsRoute = require("./MetricRoute");
+const pluRoute = require("./pluRoute");
+const printerRoute = require("./PrinterRoute");
+const reportsRoute = require("./reportsRoute");
+const categoryRoute = require("./CategoryRoute");
+const supplierRoute = require("./Supplier/SupplierRoute");
+const supplierTransactionsRoute = require("./Supplier/SupplierTransactions");
+const router = (app) => {
+  app.use("/api/products", productsRoute);
+  app.use("/api/categories", categoriesRoute);
+  app.use("/api/sales", salesRoute);
+  app.use("/api/stock-transactions", stockTransactionsRoute);
+  app.use("/api/cash-transactions", cashTransactionsRoute);
+  app.use("/api/metrics", metricsRoute);
+  app.use("/api/plu", pluRoute);
+  app.use("/api/printer", printerRoute);
+  app.use("/api/reports", reportsRoute);
+  app.use("/api/category", categoryRoute);
+  app.use("/api/suppliers", supplierRoute);
+  app.use("/api/supplier-transactions", supplierTransactionsRoute);
+};
+
+module.exports = router;

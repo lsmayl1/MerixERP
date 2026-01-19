@@ -10,8 +10,6 @@ import {
   usePrintProductLabelMutation,
   usePutProductByIdMutation,
 } from "../../redux/slices/ApiSlice";
-import Edit from "../../assets/Edit";
-import TrashBin from "../../assets/TrashBin";
 import { ProductModal } from "../../components/Products/ProductModal";
 import { BarcodeField } from "../../components/BarcodeField";
 import { KPI } from "../../components/Metric/KPI";
@@ -20,128 +18,33 @@ import { Filters } from "../../assets/Filters";
 import { Plus } from "../../assets/Plus";
 import { FiltersModal } from "../../components/Filters/FiltersModal";
 import { Table } from "../../components/Table";
-import { createColumnHelper } from "@tanstack/react-table";
-import { NavLink, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Details } from "../../assets/Details";
 import { toast, ToastContainer } from "react-toastify";
-import { PrintIcon } from "../../assets/PrintIcon";
+import { productColumn } from "./products.column";
 
 export const Products = () => {
   const { t } = useTranslation();
   const { data: metricData } = useGetProductsMetricsQuery();
-  const columnHelper = createColumnHelper();
-  const columns = [
-    columnHelper.accessor("product_id", {
-      header: "ID",
-      headerClassName: "text-center",
-      cellClassName: "text-center",
-    }),
-    columnHelper.accessor("name", {
-      header: t("product"),
-      headerClassName: "text-start",
-      cellClassName: "text-start",
-    }),
-    columnHelper.accessor("barcode", {
-      header: t("barcode"),
-      headerClassName: "text-start bg-gray-100",
-      cellClassName: "text-start",
-    }),
-    columnHelper.accessor("unit", {
-      header: t("unit"),
-      cell: (info) => (
-        <span>
-          {info.getValue() === "piece" ? t("piece") : info.getValue()}
-        </span>
-      ),
-      headerClassName: "text-center bg-gray-100",
-      cellClassName: "text-center",
-    }),
-    columnHelper.accessor("buyPrice", {
-      header: t("buyPrice"),
-      cell: (info) => (
-        <div className="flex items-center justify-center gap-2">
-          <span>{info.getValue().toFixed(2)}</span>₼
-        </div>
-      ),
-      headerClassName: "text-center bg-gray-100",
-      cellClassName: "text-center",
-    }),
-    columnHelper.accessor("sellPrice", {
-      header: t("sellPrice"),
-      cell: (info) => (
-        <div className="flex items-center justify-center gap-2">
-          <span>{parseFloat(info.getValue())?.toFixed(2)}</span>₼
-        </div>
-      ),
-      headerClassName: "text-center bg-gray-100",
-      cellClassName: "text-center",
-    }),
-    columnHelper.accessor("stock", {
-      header: t("stock"),
-      cell: (info) => (
-        <div className="flex items-center justify-center gap-2">
-          <span>{info.getValue() + " əd"}</span>
-        </div>
-      ),
-      headerClassName: "text-center bg-gray-100",
-      cellClassName: "text-center",
-    }),
-    columnHelper.accessor("action", {
-      header: t("editDelete"),
-      headerClassName: "text-center rounded-e-lg bg-gray-100",
-      cellClassName: "text-center",
-      cell: ({ row }) => (
-        <div className="flex justify-center  gap-6">
-          <button
-            className="cursor-pointer"
-            onClick={() => handleEditProduct(row.original.product_id)}
-          >
-            <Edit />
-          </button>
-
-          <NavLink
-            to={`/products/${row.original.product_id}`}
-            className="cursor-pointer"
-          >
-            <Details className="size-5" />
-          </NavLink>
-          <button
-            onClick={() => handlePrintProductLabel(row.original.barcode)}
-            className="cursor-pointer text-black"
-          >
-            <PrintIcon className={"size-6"} />
-          </button>
-          <button
-            className="cursor-pointer"
-            onClick={() => handleDeleteProduct(row.original.product_id)}
-          >
-            <TrashBin className="size-5" />
-          </button>
-        </div>
-      ),
-      enableSorting: false, // Action sütunu için sıralamayı devre dışı bırak
-      enableColumnFilter: false, // Action sütunu için filtrelemeyi devre dışı bırak
-    }),
-  ];
-  const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
   const sort = searchParams.get("name");
   const {
     data,
     isLoading,
     refetch: ProductsRefetch,
-  } = useGetProductsQuery({ page, sort });
+  } = useGetProductsQuery({ page: 1, sort });
   const [showProductModal, setShowProductModal] = useState(false);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [query, setQuery] = useState("");
   const [editId, setEditId] = useState(null);
-  const [inputValue, setInputValue] = useState("");
   const [editForm, setEditForm] = useState(null);
-  const { data: searchedProducts, isLoading: SearchLoading } =
-    useGetProductsByQueryQuery(query, {
-      skip: !query || query.length < 3,
-    });
+  const {
+    data: searchedProducts,
+    isLoading: SearchLoading,
+    refetch: searchRefetch,
+  } = useGetProductsByQueryQuery(query, {
+    skip: !query || query.length < 3,
+  });
   const [filteredProducts, setFilteredProducts] = useState([]);
   const { data: editedProduct, refetch } = useGetProductByIdQuery(editId, {
     skip: !editId,
@@ -174,19 +77,13 @@ export const Products = () => {
     }
   }, [editedProduct]);
 
-  const handleInputKeyDown = (e) => {
-    if (e.key === "Enter") {
-      setQuery(inputValue);
-    }
-  };
+
   const handleEditProduct = async (id) => {
     try {
       if (editId === id) {
-        // Aynı ID için refetch yap
         await refetch(); // Asenkron işlemi bekle
         setShowProductModal(true);
       } else {
-        // Yeni ID için edit modunu başlat
         setEditId(id);
         setShowProductModal(true);
       }
@@ -227,6 +124,7 @@ export const Products = () => {
       setEditId(null);
       setEditForm(null);
       ProductsRefetch();
+      searchRefetch();
     } catch (error) {
       console.log(error);
     }
@@ -293,9 +191,8 @@ export const Products = () => {
             <input
               type="text"
               placeholder="Search by name or barcode"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleInputKeyDown}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               className="px-12 w-full max-md:px-8  py-2 rounded-lg bg-white focus:outline-blue-500 "
             />
             <SearchIcon className="absolute left-2 max-md:size-5" />
@@ -330,7 +227,12 @@ export const Products = () => {
 
         <div className="min-h-0 w-full px-2">
           <Table
-            columns={columns}
+            columns={productColumn({
+              t,
+              editProduct: handleEditProduct,
+              printProduct: handlePrintProductLabel,
+              deleteProduct: handleDeleteProduct,
+            })}
             data={filteredProducts}
             isLoading={isLoading}
           />
