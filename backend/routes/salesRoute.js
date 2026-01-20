@@ -53,15 +53,27 @@ router.post("/", async (req, res) => {
     let cardTotal = 0;
 
     sales.forEach((sale) => {
-      sale.payments.forEach((payment) => {
-        const sign = sale.transaction_type === "sale" ? 1 : -1;
+      sale.payments?.forEach((payment) => {
+        console.log(
+          sale.transaction_type,
+          payment.payment_type,
+          payment.amount,
+        );
 
-        if (payment.payment_type === "cash") {
-          cashTotal += sign * payment.amount;
+        const rawAmount = Number(payment.amount);
+        if (isNaN(rawAmount)) return;
+
+        const amount = Math.abs(rawAmount); // 💥 ƏSAS DÜZƏLİŞ
+        const type = payment.payment_type?.trim().toLowerCase();
+
+        const sign = sale.transaction_type === "sale" ? 1 : -1; // return/refund → -1
+
+        if (type === "cash") {
+          cashTotal += amount * sign;
         }
 
-        if (payment.payment_type === "card") {
-          cardTotal += sign * payment.amount;
+        if (type === "card") {
+          cardTotal += amount * sign;
         }
       });
     });
@@ -71,6 +83,7 @@ router.post("/", async (req, res) => {
       let profit = 0;
       if (Array.isArray(details)) {
         profit = details.reduce((sum, d) => {
+          const discountedAmount = sale.discounted_amount;
           if (sale.transaction_type === "return") {
             return (
               sum -
@@ -82,13 +95,11 @@ router.post("/", async (req, res) => {
             sale.discount &&
             sale.discount > 0
           ) {
-            const discountRate = sale.discount / 100;
-            const discountedSellPrice =
-              Number(d.sell_price) * (1 - discountRate);
             return (
               sum +
-              (discountedSellPrice - Number(d.buy_price)) *
-                Number(d.quantity || 0)
+              (Number(d.sell_price) - Number(d.buy_price)) *
+                Number(d.quantity || 0) -
+              discountedAmount
             );
           } else {
             return (
@@ -346,7 +357,7 @@ router.post("/create", async (req, res) => {
 
     const discountRate = discount ? discount / 100 : 0;
     const discountedAmount = parseFloat(
-      (subtotalAmount * discountRate).toFixed(2)
+      (subtotalAmount * discountRate).toFixed(2),
     );
     totalAmount = parseFloat((subtotalAmount - discountedAmount).toFixed(2));
 
@@ -359,7 +370,7 @@ router.post("/create", async (req, res) => {
           transaction_type: type,
           discounted_amount: discountedAmount,
         },
-        { transaction: t }
+        { transaction: t },
       );
 
       await Promise.all(
@@ -373,9 +384,9 @@ router.post("/create", async (req, res) => {
               buy_price: detail.buy_price,
               sell_price: detail.sell_price,
             },
-            { transaction: t }
+            { transaction: t },
           );
-        })
+        }),
       );
 
       await Promise.all(
@@ -395,7 +406,7 @@ router.post("/create", async (req, res) => {
                 current_stock: sequelize.literal(stockChange),
                 updated_at: new Date(),
               },
-              { transaction: t }
+              { transaction: t },
             );
           } else {
             const initialStock = update.isReturn
@@ -407,21 +418,19 @@ router.post("/create", async (req, res) => {
                 product_id: update.product.product_id,
                 current_stock: initialStock,
               },
-              { transaction: t }
+              { transaction: t },
             );
           }
-        })
+        }),
       );
 
-      if (type === "sale") {
-        const paymentRows = payments?.map((p) => ({
-          sale_id: sale.sale_id,
-          payment_type: p.payment_type,
-          amount: p.amount,
-        }));
+      const paymentRows = payments?.map((p) => ({
+        sale_id: sale.sale_id,
+        payment_type: p.payment_type,
+        amount: p.amount,
+      }));
 
-        await SalePayments.bulkCreate(paymentRows, { transaction: t });
-      }
+      await SalePayments.bulkCreate(paymentRows, { transaction: t });
       return sale;
     });
 

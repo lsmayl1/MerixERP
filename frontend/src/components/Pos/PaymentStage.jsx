@@ -12,6 +12,7 @@ export const PaymentStage = ({
   setDiscount,
   discount = 0,
   submitSale,
+  type = "sale",
 }) => {
   const { t } = useTranslation();
   const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -42,7 +43,7 @@ export const PaymentStage = ({
   const activeDiscount =
     typeof setDiscount === "function" ? Number(discount) || 0 : localDiscount;
   const computedDiscountAmount = Number(
-    ((subtotal * activeDiscount) / 100).toFixed(2)
+    ((subtotal * activeDiscount) / 100).toFixed(2),
   );
   const finalTotal = Number((subtotal - computedDiscountAmount).toFixed(2));
   const paid = Number(cash) + Number(card);
@@ -175,7 +176,9 @@ export const PaymentStage = ({
             className="inline size-6 mr-2 cursor-pointer"
             onClick={handleBack}
           />
-          <h1 className="text-xl">Ödəniş</h1>
+          <h1 className="text-xl">
+            {type === "sale" ? "Ödəniş" : "Qayarılma"}
+          </h1>
         </div>
       </div>
       <div className="flex flex-col gap-2 bg-gray-100 p-2 rounded-lg">
@@ -260,6 +263,7 @@ export const PaymentStage = ({
           </div>
         </div>
       </div>
+
       <div className="flex items-center justify-between text-2xl gap-4 font-medium">
         <span className=" text-nowrap  text-xl">Qaytarılacağ məbləğ</span>
         <span className=" text-nowrap text-red-600">
@@ -275,7 +279,7 @@ export const PaymentStage = ({
             <span className=""> {t("Bütün məbləğ")}</span>
           </button>
           <button
-            onClick={() => submitSale("sale", payments)}
+            onClick={() => submitSale(type, payments)}
             disabled={Number(cash) + Number(card) < finalTotal}
             aria-disabled={Number(cash) + Number(card) < finalTotal}
             className={`flex justify-center text-xl gap-2 items-center border border-gray-200 px-6 h-16 rounded-lg w-full ${
@@ -285,7 +289,10 @@ export const PaymentStage = ({
             }`}
           >
             <Payment className={"size-6 "} />
-            <span className=""> {t("Ödə")}</span>
+            <span className="">
+              {" "}
+              {type === "sale" ? t("Ödə") : t("return")}
+            </span>
           </button>
         </div>
       </div>

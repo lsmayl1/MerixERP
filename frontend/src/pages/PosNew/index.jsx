@@ -36,7 +36,6 @@ import {
   selectActiveProducts,
   selectOpenCarts,
 } from "../../redux/products/products.hook";
-import { Basket } from "../../assets/Basket";
 import { CloseIcon } from "../../assets/Close";
 export const PosNew = () => {
   const { t } = useTranslation();
@@ -99,7 +98,7 @@ export const PosNew = () => {
               removeProduct({
                 cartId: activeCartId,
                 barcode: row.original.barcode,
-              })
+              }),
             )
           }
         >
@@ -109,6 +108,7 @@ export const PosNew = () => {
     }),
   ];
   const [paymentStage, setPaymentStage] = useState(false);
+  const [type, setType] = useState("sale");
   const [discount, setDiscount] = useState(0);
   const [postSale, { isLoading: postLoading }] = usePostSaleMutation();
   const searchInput = useRef();
@@ -166,7 +166,7 @@ export const PosNew = () => {
           barcode: existProduct.barcode,
           qty: qty,
           operation: action,
-        })
+        }),
       );
       return;
     }
@@ -179,7 +179,7 @@ export const PosNew = () => {
         if (!validProduct) return null;
 
         const existProduct = products.find(
-          (x) => x.barcode == validProduct.productBarcode
+          (x) => x.barcode == validProduct.productBarcode,
         );
 
         if (existProduct) {
@@ -190,7 +190,7 @@ export const PosNew = () => {
               product_id: validProduct.product_id,
               quantity: 1,
               barcode: validProduct.barcode,
-            })
+            }),
           );
 
           return;
@@ -204,7 +204,7 @@ export const PosNew = () => {
                 barcode: validProduct.barcode,
                 unit: validProduct.unit,
               },
-            })
+            }),
           );
       } catch (err) {
         toast.error(err?.data?.error);
@@ -258,6 +258,11 @@ export const PosNew = () => {
   const handleChangeQtyAndFocus = (...args) => {
     handleChangeQty(...args);
     barcodeRef.current?.focus();
+  };
+
+  const stageType = (type) => {
+    setType(type);
+    setPaymentStage(true);
   };
 
   return (
@@ -329,6 +334,7 @@ export const PosNew = () => {
         <div className="flex-1 min-h-0  bg-white px-4 gap-4 h-full flex flex-col justify-between pb-2 ">
           {paymentStage && products.length > 0 ? (
             <PaymentStage
+              type={type}
               handleBack={() => setPaymentStage(false)}
               value={data?.total}
               data={data}
@@ -351,7 +357,7 @@ export const PosNew = () => {
                   <div className="flex flex-row-reverse items-center gap-2 w-full h-full">
                     <button
                       disabled={data.length == 0 || postLoading}
-                      onClick={() => setPaymentStage(true)}
+                      onClick={() => stageType("sale")}
                       className="flex justify-center bg-[#00a63e] cursor-pointer text-xl gap-2 items-center text-white px-6 h-16 rounded-lg w-full"
                     >
                       <Payment className={"size-8 "} />
@@ -359,7 +365,7 @@ export const PosNew = () => {
                     </button>
                     <button
                       disabled={data.length == 0 || postLoading}
-                      onClick={() => handleSubmitSale("return")}
+                      onClick={() => stageType("return")}
                       className="flex justify-center bg-red-500 cursor-pointer text-xl gap-2 items-center text-white px-6 h-16 rounded-lg w-full"
                     >
                       <Payment className={"size-8 "} />

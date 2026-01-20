@@ -161,7 +161,8 @@ export const ProductShortcuts = ({
           <li
             key={index}
             onClick={(e) => (
-              e.stopPropagation(), handleChangeQty(item.barcode, "increase")
+              e.stopPropagation(),
+              handleChangeQty(item.barcode, "increase")
             )}
             onContextMenu={(e) => {
               e.preventDefault();

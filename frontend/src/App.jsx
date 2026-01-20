@@ -7,7 +7,6 @@ import { SalesReports } from "./pages/Reports/SalesReports";
 import { Products } from "./pages/Products/Products";
 import { ProductReports } from "./pages/Reports/ProductReports";
 import { ReportsLayout } from "./components/layout/ReportsLayout";
-import { Pos } from "./pages/Pos";
 import { DailyCashMovements } from "./pages/Reports/DailyCashMovements";
 import { StockMovements } from "./pages/Stock/StockMovements";
 import { ProductDetails } from "./pages/Products/ProductDetails";

@@ -5,6 +5,8 @@ const path = require("path");
 const AppError = require("../utils/AppError");
 const bwipjs = require("bwip-js");
 const { GetProductByIdOrBarcode } = require("../services/ProductService");
+const dotenv = require("dotenv");
+dotenv.config();
 async function generateBarcode(text) {
   return bwipjs.toBuffer({
     bcid: "code128", // EAN13 varsa "ean13"
@@ -69,20 +71,24 @@ const PrintReceipt = (data) => {
     currentY += lineHeight;
     // === Header ===
     doc.fontSize(boldFontSize + 2);
-    doc.text("Qlobus Məktəb Ləvazimatları", margin, currentY, {
+    const companyName = process.env.COMPANY_NAME || "Example";
+    const companyAddress = process.env.COMPANY_ADDRESS || "123 Main St, City";
+    const companyPhone = process.env.COMPANY_PHONE || "+1234567890";
+    const printerInvoice = process.env.PRINTER_INVOICE || "XP-58IIH";
+    doc.text(companyName, margin, currentY, {
       align: "center",
       width: width - 2 * margin,
     });
     currentY += lineHeight + 5;
 
     doc.fontSize(boldFontSize - 2);
-    doc.text("Ünvan : Xəzər Rayonu, Binə Atçıliq", margin, currentY, {
+    doc.text(companyAddress, margin, currentY, {
       align: "center",
       width: width - 2 * margin,
     });
     currentY += lineHeight + 5;
 
-    doc.text("Tel : 099-331-38-35", margin, currentY, {
+    doc.text(`Tel : ${companyPhone}`, margin, currentY, {
       align: "center",
       width: width - 2 * margin,
     });
@@ -107,9 +113,6 @@ const PrintReceipt = (data) => {
     });
     currentY += lineHeight;
 
-    // doc.text(`Çek No: ${data?.dataId}`, margin, currentY);
-    // currentY += lineHeight + 3;
-
     doc.fontSize(10).text(line, margin, currentY, {
       align: "center",
       width: width - 2 * margin,
@@ -122,14 +125,6 @@ const PrintReceipt = (data) => {
     doc.text("Miqdar", col.qty - 36, currentY);
     doc.text("Məbləğ", col.total - 40, currentY);
     currentY += lineHeight + 4;
-
-    // doc
-    //   .dash(1, { space: 2 }) // 1px nokta, 2px boşluk
-    //   .moveTo(margin, currentY)
-    //   .lineTo(width - margin, currentY)
-    //   .stroke()
-    //   .undash();
-    // currentY += 3;
 
     // === Product List ===
     doc.fontSize(fontSize - 2);
@@ -220,7 +215,7 @@ const PrintReceipt = (data) => {
         // Print using pdf-to-printer
 
         const options = {
-          printer: "POS-80C", // kendi yazıcınızın adı
+          printer: printerInvoice, // kendi yazıcınızın adı
           pages: "1",
           orientation: "portrait", // fiş yatay
           scale: "noscale", // Ölçeklendirme
@@ -377,11 +372,12 @@ const PrintLabel = async (labelData) => {
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
     doc.end();
+    const printerLabel = process.env.PRINTER_LABEL || "XP-360B";
 
     await new Promise((resolve, reject) => {
       stream.on("finish", async () => {
         const options = {
-          printer: "Xprinter", // Your thermal printer
+          printer: printerLabel, // Your thermal printer
           pages: "1",
           orientation: "landscape",
           monochrome: false,

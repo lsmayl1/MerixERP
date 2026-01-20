@@ -41,27 +41,30 @@ router.post("/sale", async (req, res) => {
     sales.forEach((sale) => {
       const isReturn = sale.transaction_type === "return";
 
+      const subtotal = Number(sale.subtotal_amount);
+      const discountTotal = Number(sale.discounted_amount);
+
+      sale.details.forEach((detail) => {
+        const qty = Number(detail.quantity);
+        const sell = Number(detail.sell_price);
+        const buy = Number(detail.buy_price);
+
+        const lineGross = sell * qty;
+
+        const discountShare =
+          subtotal > 0 ? (lineGross / subtotal) * discountTotal : 0;
+
+        const revenue = lineGross - discountShare;
+        const cost = buy * qty;
+        const profit = revenue - cost;
+
+        // ✅ SALE / RETURN düzgün fərqlənir
+        totalRevenue += isReturn ? -revenue : revenue;
+        totalStockCost += isReturn ? cost : -cost;
+        totalProfit += isReturn ? -profit : profit;
+      });
+
       if (!isReturn) totalSales++;
-
-      if (Array.isArray(sale.details)) {
-        sale.details.forEach((detail) => {
-          const quantity = Number(detail.quantity);
-          const revenue = Number(detail.sell_price) * quantity;
-          const cost = Number(detail.buy_price) * quantity;
-          const profit = revenue - cost;
-
-          const sign = isReturn ? -1 : 1;
-
-          totalRevenue += revenue * sign;
-          totalStockCost += cost * sign;
-          totalProfit += profit * sign;
-        });
-      }
-      if (!isReturn && sale.discounted_amount) {
-        const discount = Number(sale.discounted_amount);
-        totalRevenue -= discount;
-        totalProfit -= discount;
-      }
     });
 
     res.json({
@@ -115,7 +118,7 @@ router.get("/products", async (req, res) => {
     const totalStock = products
       ? products.reduce(
           (sum, p) => sum + Number(stockMap[p.product_id] ?? 0),
-          0
+          0,
         )
       : 0;
 
@@ -354,7 +357,7 @@ function getWeekNumber(date) {
       ((target - firstThursday) / 86400000 -
         3 +
         ((firstThursday.getDay() + 6) % 7)) /
-        7
+        7,
     ) + 1;
   return weekNumber;
 }
@@ -372,15 +375,15 @@ router.get("/revenue", async (req, res) => {
       switch (type) {
         case "hourly":
           key = `${dateObj.getFullYear()}-${String(
-            dateObj.getMonth() + 1
+            dateObj.getMonth() + 1,
           ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(
             2,
-            "0"
+            "0",
           )} ${String(dateObj.getHours()).padStart(2, "0")}:00`;
           break;
         case "daily":
           key = `${dateObj.getFullYear()}-${String(
-            dateObj.getMonth() + 1
+            dateObj.getMonth() + 1,
           ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
           break;
         case "weekly":
@@ -390,7 +393,7 @@ router.get("/revenue", async (req, res) => {
           break;
         case "monthly":
           key = `${dateObj.getFullYear()}-${String(
-            dateObj.getMonth() + 1
+            dateObj.getMonth() + 1,
           ).padStart(2, "0")}`;
           break;
         default:
@@ -446,15 +449,15 @@ router.get("/profit", async (req, res) => {
       switch (type) {
         case "hourly":
           key = `${dateObj.getFullYear()}-${String(
-            dateObj.getMonth() + 1
+            dateObj.getMonth() + 1,
           ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(
             2,
-            "0"
+            "0",
           )} ${String(dateObj.getHours()).padStart(2, "0")}:00`;
           break;
         case "daily":
           key = `${dateObj.getFullYear()}-${String(
-            dateObj.getMonth() + 1
+            dateObj.getMonth() + 1,
           ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
           break;
         case "weekly":
@@ -464,7 +467,7 @@ router.get("/profit", async (req, res) => {
           break;
         case "monthly":
           key = `${dateObj.getFullYear()}-${String(
-            dateObj.getMonth() + 1
+            dateObj.getMonth() + 1,
           ).padStart(2, "0")}`;
           break;
         default:
@@ -528,7 +531,7 @@ router.get("/payments-total", async (req, res) => {
       suppliers.map(async (supplier) => {
         const supplierDebt = await GetSupplierDebt(supplier.id);
         total += Number(supplierDebt || 0);
-      })
+      }),
     );
 
     const supplierCount = suppliers.length;
