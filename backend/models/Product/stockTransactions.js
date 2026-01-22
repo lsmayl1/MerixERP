@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../database/database");
+const sequelize = require("../../database/database");
 
 const StockTransactions = sequelize.define(
   "StockTransactions",
@@ -45,7 +45,7 @@ const StockTransactions = sequelize.define(
   {
     timestamps: false, // Sequelize’nin otomatik createdAt/updatedAt eklemesini kapat
     tableName: "stock_transactions", // Tablo adı
-  }
+  },
 );
 
 module.exports = StockTransactions;

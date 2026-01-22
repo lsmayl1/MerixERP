@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../database/database");
+const sequelize = require("../../database/database");
 
 const CashTransactions = sequelize.define(
   "cashTransactions",
@@ -35,7 +35,7 @@ const CashTransactions = sequelize.define(
   {
     timestamps: false,
     tableName: "cashTransactions",
-  }
+  },
 );
 
 module.exports = CashTransactions;

@@ -1,15 +1,16 @@
 const { Sequelize, Op } = require("sequelize");
-const sequelize = require("../database/database"); // Veritabanı bağlantısı
+const sequelize = require("../database/database");
 const Sales = require("./Sale/sales");
-const Products = require("./products");
+const Products = require("./Product/products");
 const SalesDetails = require("./Sale/salesDetails");
-const CashTransactions = require("./cashTransactions");
-const StockTransactions = require("./stockTransactions");
-const ProductStock = require("./productStock");
+const CashTransactions = require("./Supplier/cashTransactions");
+const StockTransactions = require("./Product/stockTransactions");
+const ProductStock = require("./Product/productStock");
+const ShortCut = require("./Product/shortCut");
 const Suppliers = require("./Supplier/Suppliers");
 const SupplierTransactions = require("./Supplier/SupplierTransaction");
 const SupplierTransactionDetails = require("./Supplier/SupplierTransactionDetails");
-const Category = require("./category");
+const Category = require("./Product/category");
 const SyncQueue = require("./Sync/SyncQuene");
 const SalePayments = require("./Sale/salePayments");
 // 🔹 İlişkileri Tanımla
@@ -26,6 +27,12 @@ Products.hasOne(ProductStock, {
   foreignKey: "product_id",
   as: "stock",
 });
+
+ShortCut.belongsTo(Products, {
+  foreignKey: "product_id",
+  as: "product",
+});
+Products.hasOne(ShortCut, { foreignKey: "product_id", as: "shortcut" });
 
 ProductStock.belongsTo(Products, {
   foreignKey: "product_id",
@@ -104,4 +111,5 @@ module.exports = {
   SupplierTransactionDetails,
   Category,
   SyncQueue,
+  ShortCut,
 };

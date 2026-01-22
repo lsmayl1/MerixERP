@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Products = require("../models/products");
-const { Plu } = require("../models");
+const { Plu, Products } = require("../models");
 const { sequelize, Op } = require("../models/index");
 
 // PLU tablosunu otomatik doldurma

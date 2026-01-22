@@ -1,6 +1,0 @@
-{
-  "type": "trial", // trial | licensed
-  "startDate": "2026-01-18T10:00:00Z",
-  "expireDate": "2026-02-02T10:00:00Z",
-  "lastRun": "2026-01-18T12:30:00Z"
-}

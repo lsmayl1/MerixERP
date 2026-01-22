@@ -7,11 +7,13 @@ const path = require("path");
 const fs = require("fs");
 const { startSyncWorker } = require("./Sync/SyncWorker");
 const routes = require("./routes");
+const { licenseMiddleware } = require("./license/license.middleware");
 
 dotenv.config();
 
 app.use(express.json()); // For parsing JSON requests
 app.use(cors());
+app.use(licenseMiddleware);
 
 routes(app);
 // startSyncWorker();

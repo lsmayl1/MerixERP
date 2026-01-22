@@ -11,7 +11,8 @@
     "start": "electron .",
     "build": "electron-builder",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "install:all": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend"
+    "install:all": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "resetDb": "npm run resetDb --prefix backend"
   },
   "build": {
     "appId": "com.ismayil.merix",
@@ -34,8 +35,11 @@
     }
   },
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "electron": "^37.3.1",
-    "electron-builder": "^26.0.12",
-    "concurrently": "^9.2.0"
+    "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
   }
 }
