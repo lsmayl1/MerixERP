@@ -1,17 +1,19 @@
-const productsRoute = require("./productsRoute");
-const categoriesRoute = require("./CategoryRoute");
+const productsRoute = require("./Product/productsRoute");
+const categoriesRoute = require("./Product/CategoryRoute");
 const salesRoute = require("./salesRoute");
-const stockTransactionsRoute = require("./StockTransactionsRoute");
+const stockTransactionsRoute = require("./Product/StockTransactionsRoute");
 const cashTransactionsRoute = require("./CashTransactionsRoute");
 const metricsRoute = require("./MetricRoute");
 const pluRoute = require("./pluRoute");
 const printerRoute = require("./PrinterRoute");
 const reportsRoute = require("./reportsRoute");
-const categoryRoute = require("./CategoryRoute");
+const categoryRoute = require("./Product/CategoryRoute");
 const supplierRoute = require("./Supplier/SupplierRoute");
 const supplierTransactionsRoute = require("./Supplier/SupplierTransactions");
+const productShortCutRoute = require("./Product/productShortCutRoute");
 const router = (app) => {
   app.use("/api/products", productsRoute);
+  app.use("/api/product-shortcuts", productShortCutRoute);
   app.use("/api/categories", categoriesRoute);
   app.use("/api/sales", salesRoute);
   app.use("/api/stock-transactions", stockTransactionsRoute);

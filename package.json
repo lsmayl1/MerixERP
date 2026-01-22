@@ -1,7 +1,7 @@
 {
   "name": "merix",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "electron/main.js",
   "description": "Merix Pos System",
   "productName": "Merix",
   "author": {
@@ -21,9 +21,9 @@
     
     "files": [
       "backend/**/*",
-      "frontend/dist/**/*",
       "package.json",
-      "main.js"
+      "electron/main.js",
+      "build/**/*"
     ],
     "win": {
       "target": "nsis",

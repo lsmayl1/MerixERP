@@ -343,7 +343,7 @@ export const PosNew = () => {
               submitSale={handleSubmitSale}
             />
           ) : (
-            <div className="flex-1  px-4 gap-4  flex flex-col bg-white rounded-2xl  justify-between py-4 h-full  ">
+            <div className="flex-1  px-4 gap-4  flex flex-col bg-white rounded-2xl  justify-between h-full  ">
               <Table columns={columns} data={data?.items} pagination={false} />
               {products.length > 0 && (
                 <div className="flex flex-col gap-2">

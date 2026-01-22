@@ -6,7 +6,7 @@ const {
   Op,
   ProductStock,
   Category,
-} = require("../models");
+} = require("../../models");
 const {
   CreateProduct,
   GetAllProducts,
@@ -15,8 +15,8 @@ const {
   UpdateProduct,
   GenerateBarcode,
   UpdateStockValue,
-} = require("../services/ProductService");
-const { getCategoryById } = require("../services/CategoryService");
+} = require("../../services/ProductService");
+const { getCategoryById } = require("../../services/CategoryService");
 
 // Create a product
 router.post("/", async (req, res) => {

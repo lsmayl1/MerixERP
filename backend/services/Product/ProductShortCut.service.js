@@ -1,9 +1,17 @@
-const { ShortCut } = require("../../models");
+const { ShortCut, Products } = require("../../models");
 const AppError = require("../../utils/AppError");
 
 const getAllShortCuts = async () => {
   try {
-    const shortCuts = await ShortCut.findAll();
+    const shortCuts = await ShortCut.findAll({
+      include: [
+        {
+          model: Products,
+          as: "product",
+        },
+      ],
+    });
+
     return shortCuts;
   } catch (error) {
     throw error;
@@ -41,8 +49,26 @@ const getShortCutByProductId = async (productId) => {
   }
 };
 
+const deleteShortCut = async (productId) => {
+  try {
+    if (!productId) {
+      throw new AppError("Product ID is required to delete a shortcut.", 400);
+    }
+    const existingShortCut = await getShortCutByProductId(productId);
+    if (!existingShortCut) {
+      throw new AppError("Shortcut for this product does not exist.", 404);
+    }
+    await ShortCut.destroy({
+      where: { product_id: productId },
+    });
+    return;
+  } catch (error) {
+    throw error;
+  }
+};
 module.exports = {
   getAllShortCuts,
   createShortCut,
   getShortCutByProductId,
+  deleteShortCut,
 };

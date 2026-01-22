@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Minus } from "../../assets/Minus";
 import { Plus } from "../../assets/Plus";
-import {
-  useGetBulkProductMutation,
-  useGetProductsByQueryQuery,
-} from "../../redux/slices/ApiSlice";
+import { useGetProductsByQueryQuery } from "../../redux/slices/ApiSlice";
 import { SearchIcon } from "../../assets/SearchIcon";
 import { Xcircle } from "../../assets/Xcircle";
 import { Table } from "../Table";
@@ -12,13 +8,17 @@ import { createColumnHelper } from "@tanstack/react-table";
 import TrashBin from "../../assets/TrashBin";
 import { QtyInput } from "../QtyInput";
 import { useTranslation } from "react-i18next";
+import {
+  useCreateProductShortcutMutation,
+  useDeleteProductShortcutMutation,
+  useGetAllProductShortcutsQuery,
+} from "../../redux/slices/productsShortcuts/ProductShortcutsSlice";
 
-export const ProductShortcuts = ({
-  products = [],
-  data = [],
-  handleChangeQty,
-}) => {
+export const ProductShortcuts = ({ handleChangeQty, data: existProduct }) => {
   const { t } = useTranslation();
+  const { data, refetch } = useGetAllProductShortcutsQuery();
+  const [createShortCut] = useCreateProductShortcutMutation();
+  const [deleteShortCut] = useDeleteProductShortcutMutation();
   const columnHelper = createColumnHelper();
   const [showAddModal, setShowAddModal] = useState(false);
   const [openContext, setOpenContext] = useState(null);
@@ -39,7 +39,9 @@ export const ProductShortcuts = ({
       cellClassName: "text-center",
       cell: ({ row }) => (
         <button
-          onClick={() => handleIdentifiers(row.original.barcode)}
+          onClick={() =>
+            handleCreateShortcut(row.original.product_id, data?.length + 1)
+          }
           className=" p-1  bg-white border border-mainBorder rounded-lg"
         >
           <Plus className="size-6" />
@@ -47,71 +49,27 @@ export const ProductShortcuts = ({
       ),
     }),
   ];
-  const [getShortCuts, { isLoading }] = useGetBulkProductMutation();
   const [query, setQuery] = useState("");
   const { data: searchData } = useGetProductsByQueryQuery(query, {
     skip: !query || query.length < 3,
   });
-  const [identifiers, setIdentifiers] = useState(() => {
+
+  const handleCreateShortcut = async (product_id, position) => {
     try {
-      const raw = localStorage.getItem("identifiers");
-      const data = raw && raw !== "undefined" ? JSON.parse(raw) : [];
-      return data || [];
-    } catch (err) {
-      console.error("Invalid JSON in localStorage:", err);
-      return [];
-    }
-  });
-  const [shortCuts, setShortCuts] = useState([]);
-
-  useEffect(() => {
-    const handleData = async () => {
-      if (identifiers && identifiers.length > 0) {
-        try {
-          const shortcuts = await getShortCuts({
-            identifiers: identifiers,
-          }).unwrap();
-          setShortCuts(shortcuts);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    };
-    handleData();
-  }, [getShortCuts, identifiers]);
-
-  const deleteIdentifiers = async (id, e) => {
-    e.stopPropagation();
-    const updatedIds = (identifiers || []).filter((x) => x != id);
-
-    // If there are no identifiers left, fully clear storage and shortcuts
-    if (!updatedIds || updatedIds.length === 0) {
-      setIdentifiers([]);
-      localStorage.removeItem("identifiers");
-      setShortCuts([]);
-      return;
-    }
-
-    setIdentifiers(updatedIds);
-    localStorage.setItem("identifiers", JSON.stringify(updatedIds));
-    try {
-      const data = await getShortCuts({ identifiers: updatedIds }).unwrap();
-      setShortCuts(data);
+      await createShortCut({ product_id, position }).unwrap();
+      refetch();
     } catch (error) {
-      console.log(error);
+      console.error("Failed to create shortcut:", error);
     }
   };
 
-  const handleIdentifiers = async (id) => {
-    const updatedIds = [...new Set([...(identifiers || []), id])]; // tekrarları önler
-    setIdentifiers(updatedIds);
-    localStorage.setItem("identifiers", JSON.stringify(updatedIds || []));
-
+  const handleDeleteShortcut = async (product_id, e) => {
     try {
-      const data = await getShortCuts({ identifiers: updatedIds }).unwrap();
-      setShortCuts(data);
+      e.stopPropagation();
+      await deleteShortCut(product_id).unwrap();
+      refetch();
     } catch (error) {
-      console.log(error);
+      console.error("Failed to delete shortcut:", error);
     }
   };
 
@@ -120,7 +78,7 @@ export const ProductShortcuts = ({
       {showAddModal && (
         <div className="w-full h-full absolute z-50  flex items-center justify-center ">
           <div className="bg-white flex flex-col ounded-lg p-5 gap-2 w-9/12 h-2/3 min-h-0 shadow-2xl border border-mainBorder rounded-lg">
-            <h1 className="text-xl font-semibold ">{t("addProduct")}</h1>
+            <h1 className="text-xl  ">{t("addProduct")}</h1>
             <div className="flex items-center  relative w-full">
               <input
                 type="text"
@@ -148,7 +106,7 @@ export const ProductShortcuts = ({
             <div className="overflow-auto ">
               <Table
                 columns={colums}
-                data={searchData || shortCuts}
+                data={searchData || []}
                 pagination={false}
               />
             </div>
@@ -157,46 +115,51 @@ export const ProductShortcuts = ({
       )}
 
       <ul className="grid grid-cols-3 gap-2 p-4 overflow-auto min-h-0">
-        {shortCuts?.map((item, index) => (
+        {data?.map((item, index) => (
           <li
             key={index}
             onClick={(e) => (
               e.stopPropagation(),
-              handleChangeQty(item.barcode, "increase")
+              handleChangeQty(item.product.barcode, "increase")
             )}
             onContextMenu={(e) => {
               e.preventDefault();
-              if (openContext == item.barcode) {
+              if (openContext == item.product.product_id) {
                 setOpenContext(null);
               } else {
-                setOpenContext(item.barcode);
+                setOpenContext(item.product.product_id);
               }
             }}
             className={`flex cursor-pointer  flex-col relative px-4 py-2 rounded-lg justify-between   border border-mainBorder ${
-              data?.find((x) => x.barcode == item.barcode)
+              existProduct?.find((x) => x.barcode == item.product.barcode)
                 ? "bg-blue-600  text-white"
                 : "bg-white"
             }`}
           >
-            <h1 className="text-lg font-medium">{item.name}</h1>
-            <h1 className="text-md ">{item.sellPrice?.toFixed(2)} ₼</h1>
+            <h1 className="text-lg font-medium w-full">{item.product.name}</h1>
+            <h1 className="text-md ">{item.product.sellPrice} ₼</h1>
             <div className="flex justify-end items-end w-full">
               <QtyInput
-                barcode={item.barcode}
-                qty={data?.find((x) => x.barcode == item.barcode)?.quantity}
+                barcode={item.product.barcode}
+                qty={
+                  existProduct?.find((x) => x.barcode == item.product.barcode)
+                    ?.quantity
+                }
                 handleQty={handleChangeQty}
                 allign={"justify-end"}
                 className={
-                  data?.find((x) => x.barcode == item.barcode)
+                  existProduct?.find((x) => x.barcode == item.product.barcode)
                     ? "bg-blue-600 text-white "
                     : "bg-white"
                 }
               />
             </div>
 
-            {openContext === item.barcode && (
+            {openContext === item.product.product_id && (
               <button
-                onClick={(e) => deleteIdentifiers(item.barcode, e)}
+                onClick={(e) =>
+                  handleDeleteShortcut(item.product.product_id, e)
+                }
                 className="absolute w-full border border-mainBorder  h-full flex items-center justify-center right-0 top-0  bg-blur-xs bg-white gap-2"
               >
                 <TrashBin className="size-8" />

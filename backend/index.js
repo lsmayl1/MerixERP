@@ -1,15 +1,11 @@
-const dotenv = require("dotenv");
 const cors = require("cors");
 const express = require("express");
 const { sequelize } = require("./models");
 const app = express();
-const path = require("path");
-const fs = require("fs");
 const { startSyncWorker } = require("./Sync/SyncWorker");
 const routes = require("./routes");
 const { licenseMiddleware } = require("./license/license.middleware");
-
-dotenv.config();
+const config = require("./database/config.json");
 
 app.use(express.json()); // For parsing JSON requests
 app.use(cors());
@@ -29,14 +25,13 @@ app.use((err, req, res, next) => {
   });
 });
 
+const port = config.server.PORT || 5000;
 // Sequelize Sync ve Server Başlatma
 sequelize
   .sync()
   .then(() => {
-    app.listen(process.env.PORT, "0.0.0.0", () => {
-      console.log(
-        `Server is running on http://localhost:${process.env.PORT || 5000}`,
-      );
+    app.listen(port, "0.0.0.0", () => {
+      console.log(`Server is running on http://localhost:${port || 5000}`);
     });
   })
   .catch((err) => {

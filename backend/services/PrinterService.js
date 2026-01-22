@@ -5,8 +5,7 @@ const path = require("path");
 const AppError = require("../utils/AppError");
 const bwipjs = require("bwip-js");
 const { GetProductByIdOrBarcode } = require("../services/ProductService");
-const dotenv = require("dotenv");
-dotenv.config();
+const config = require("../database/config.json");
 async function generateBarcode(text) {
   return bwipjs.toBuffer({
     bcid: "code128", // EAN13 varsa "ean13"
@@ -71,10 +70,10 @@ const PrintReceipt = (data) => {
     currentY += lineHeight;
     // === Header ===
     doc.fontSize(boldFontSize + 2);
-    const companyName = process.env.COMPANY_NAME || "Example";
-    const companyAddress = process.env.COMPANY_ADDRESS || "123 Main St, City";
-    const companyPhone = process.env.COMPANY_PHONE || "+1234567890";
-    const printerInvoice = process.env.PRINTER_INVOICE || "XP-58IIH";
+    const companyName = config.server.COMPANY_NAME || "Example";
+    const companyAddress = config.server.COMPANY_ADDRESS || "123 Main St, City";
+    const companyPhone = config.server.COMPANY_PHONE || "+1234567890";
+    const printerInvoice = config.server.PRINTER_INVOICE || "XP-58IIH";
     doc.text(companyName, margin, currentY, {
       align: "center",
       width: width - 2 * margin,
@@ -372,7 +371,7 @@ const PrintLabel = async (labelData) => {
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
     doc.end();
-    const printerLabel = process.env.PRINTER_LABEL || "XP-360B";
+    const printerLabel = config.server.PRINTER_LABEL || "XP-360B";
 
     await new Promise((resolve, reject) => {
       stream.on("finish", async () => {

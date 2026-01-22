@@ -27,7 +27,7 @@ export const QtyInput = ({ barcode, handleQty, qty, className, allign }) => {
       <input
         type="number"
         step={0.01}
-        className={`${className} rounded-lg  w-1/6 text-center  text-black`}
+        className={`${className} rounded-lg  w-1/5 text-center  text-black`}
         value={newQty}
         onChange={(e) => setNewQty(e.target.value)}
         onKeyDown={(e) => {

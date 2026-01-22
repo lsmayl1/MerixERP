@@ -5,8 +5,8 @@ const {
   Products,
   ProductStock,
   Op,
-} = require("../models/index");
-const formatDate = require("../utils/dateUtils");
+} = require("../../models/index");
+const formatDate = require("../../utils/dateUtils");
 // GET all stock transactions
 router.post("/", async (req, res) => {
   const { from, to } = req.body;

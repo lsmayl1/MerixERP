@@ -3,7 +3,7 @@ const {
   getAllCategories,
   createCategory,
   getCategoryById,
-} = require("../services/CategoryService");
+} = require("../../services/CategoryService");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {

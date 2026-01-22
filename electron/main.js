@@ -6,11 +6,11 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    icon: path.join(__dirname, "frontend/public/icon.png"),
+    icon: path.join(__dirname, "../frontend/public/icon.png"),
   });
 
   // React build dosyalarını yükle
-  win.loadFile(path.join(__dirname, "frontend/dist/index.html"));
+  win.loadFile(path.join(__dirname, "../build/index.html"));
   win.maximize();
 
   // Geliştirme sırasında React server’a bağlanabilirsin:
@@ -19,12 +19,12 @@ function createWindow() {
 
 function startBackend() {
   // backend.js senin Node server dosyan (ör: Express)
-  const backendPath = path.join(__dirname, "./backend/index.js");
+  const backendPath = path.join(__dirname, "../backend/index.js");
 
   backendProcess = spawn("node", [backendPath], {
     env: { ...process.env }, // 👈 Electron’daki tüm env’leri aktar
-    cwd: path.join(__dirname, "backend"),
-    stdio: "ignore",
+    cwd: path.join(__dirname, "../backend"),
+    stdio: "pipe",
   });
 
   backendProcess.on("close", (code) => {

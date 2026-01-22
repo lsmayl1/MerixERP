@@ -1,0 +1,17 @@
+{
+"db":{
+	"DB_HOST":"localhost",
+	"DB_PORT":5432,
+	"DB_USER":"postgres",
+	"DB_PASSWORD":"ismo2006",
+	"DB_NAME":"Local"
+},
+"server":{
+	"COMPANY_NAME":"Example Corp",
+	"COMPANY_ADDRESS":"123 Main St, City",
+	"COMPANY_PHONE":"+1234567890",
+	"PRINTER_INVOICE":"XP-58IIH",
+	"PRINTER_LABEL":"XP-360B",
+	"PORT":5000
+	}
+}

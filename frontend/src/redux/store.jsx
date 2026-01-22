@@ -6,6 +6,7 @@ import { SupplierSlice } from "./slices/SupplierSlice";
 import { CategorySlice } from "./slices/CategorySlice";
 import supplierTransactionReducer from "./supplierTransactions/supplierTransaction.slice";
 import { productsSlice } from "./products/products.slice";
+import { ProductShortcutsApiSlice } from "./slices/productsShortcuts/ProductShortcutsSlice";
 export const store = configureStore({
   reducer: {
     [ApiSlice.reducerPath]: ApiSlice.reducer,
@@ -13,6 +14,7 @@ export const store = configureStore({
     [StockMovementsSlice.reducerPath]: StockMovementsSlice.reducer,
     [SupplierSlice.reducerPath]: SupplierSlice.reducer,
     [CategorySlice.reducerPath]: CategorySlice.reducer,
+    [ProductShortcutsApiSlice.reducerPath]: ProductShortcutsApiSlice.reducer,
     supplierTransaction: supplierTransactionReducer,
     products: productsSlice.reducer,
   },
@@ -23,6 +25,7 @@ export const store = configureStore({
       CashMovementSlice.middleware,
       StockMovementsSlice.middleware,
       SupplierSlice.middleware,
-      CategorySlice.middleware
+      CategorySlice.middleware,
+      ProductShortcutsApiSlice.middleware,
     ),
 });
