@@ -95,9 +95,9 @@ export const SearchModal = ({
               >
                 <div className="flex gap-4 w-1/2">
                   <span className="flex-2">{item.name}</span>
-                  <span>{item?.stock}</span>
+                  <span>{item?.stock.current_stock}</span>
                 </div>
-                <span>{item.sellPrice?.toFixed(2) + " ₼" || 0.0 } </span>
+                <span>{item.sellPrice + " ₼" || 0.0} </span>
 
                 <button
                   onClick={() => handleAdd(item.barcode, "increase")}
