@@ -1,5 +1,5 @@
-const { Products, Op, ProductStock } = require("../models/index");
-const AppError = require("../utils/AppError");
+const { Products, Op, ProductStock } = require("../../models/index");
+const AppError = require("../../utils/AppError");
 
 const GetAllProducts = async (data) => {
   try {
@@ -12,6 +12,7 @@ const GetAllProducts = async (data) => {
       "buyPrice",
       "sellPrice",
       "category_id",
+      "unit",
     ];
     const order =
       data.sort === "Z-A" ? [["product_id", "DESC"]] : [["product_id", "ASC"]];
@@ -21,6 +22,14 @@ const GetAllProducts = async (data) => {
       attributes: fields,
       order,
       offset: offset,
+      include: [
+        {
+          model: ProductStock,
+          as: "stock",
+          attributes: ["current_stock"],
+        },
+      ],
+      limit: limit,
     });
 
     return products;
@@ -50,6 +59,10 @@ const CreateProduct = async (product) => {
     }
 
     const newProduct = await Products.create(product);
+    await ProductStock.create({
+      product_id: newProduct.product_id,
+      current_stock: 0,
+    });
     if (newProduct) {
       return {
         ...newProduct.toJSON(),
@@ -81,7 +94,7 @@ const UpdateProduct = async (id, product) => {
         where: {
           [Op.or]: [{ product_id: id }],
         },
-      }
+      },
     );
     return {
       product_id: id,
@@ -132,7 +145,7 @@ const DeleteProduct = async (id) => {
     }
     const existingProduct = await GetProductByIdOrBarcode(
       id,
-      "product_id,barcode"
+      "product_id,barcode",
     );
     if (!existingProduct) {
       throw new AppError("This Product not exist", 404);
@@ -175,7 +188,7 @@ const GenerateBarcode = async (unit) => {
     if (unit === "piece") {
       do {
         newBarcodeBase = Math.floor(
-          100000000000 + Math.random() * 900000000000
+          100000000000 + Math.random() * 900000000000,
         ).toString(); // 12 haneli rastgele
         const checkDigit = calculateCheckDigit(newBarcodeBase);
         newBarcode = newBarcodeBase + checkDigit; // 13 haneli barkod
@@ -219,7 +232,7 @@ const GenerateBarcode = async (unit) => {
           lastKgBarcode && lastKgBarcode.length >= 7
             ? lastKgBarcode.slice(2, 7)
             : "0",
-          10
+          10,
         );
         if (isNaN(lastCode)) lastCode = 0;
         nextCode = String(lastCode + 1).padStart(5, "0");
@@ -258,9 +271,13 @@ const UpdateStockValue = async (product_id, value) => {
     if (!product) {
       throw AppError(404, "Product Not Found");
     }
-    const stock = Number(product.stock.current_stock);
-    const newStock = stock + Number(value);
-    console.log(product.toJSON());
+    let newStock = 0;
+    if (!product.stock) {
+      newStock = Number(value);
+    } else {
+      newStock = Number(product.stock.current_stock) + Number(value);
+    }
+
     await ProductStock.update(
       {
         current_stock: newStock,
@@ -269,7 +286,7 @@ const UpdateStockValue = async (product_id, value) => {
         where: {
           id: product.stock.id,
         },
-      }
+      },
     );
 
     console.log(product.toJSON());

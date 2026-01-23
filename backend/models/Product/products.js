@@ -26,14 +26,23 @@ const Products = sequelize.define(
     buyPrice: {
       type: DataTypes.DECIMAL(10, 2), // 10 digits, 2 after decimal
       allowNull: true,
+      get() {
+        const rawValue = this.getDataValue("buyPrice");
+        return rawValue === null ? null : parseFloat(rawValue).toFixed(2);
+      },
     },
     sellPrice: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
+      get() {
+        const rawValue = this.getDataValue("sellPrice");
+        return rawValue === null ? null : parseFloat(rawValue).toFixed(2);
+      },
     },
     unit: {
       type: DataTypes.ENUM("piece", "kg"),
       allowNull: false,
+      defaultValue: "piece",
     },
 
     timestamp: {
@@ -44,7 +53,7 @@ const Products = sequelize.define(
   {
     timestamps: false, // Disable Sequelize's default createdAt/updatedAt
     tableName: "products", // Explicit table name
-  }
+  },
 );
 
 module.exports = Products;

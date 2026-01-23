@@ -18,6 +18,10 @@ const ProductStock = sequelize.define(
       type: DataTypes.DECIMAL(10, 3), // 10 basamak, 3 ondalık basamak
       allowNull: false,
       defaultValue: 0,
+      get() {
+        const rawValue = this.getDataValue("current_stock");
+        return rawValue === null ? null : parseFloat(rawValue).toFixed(2);
+      },
     },
     updated_at: {
       type: DataTypes.DATE,
@@ -27,7 +31,7 @@ const ProductStock = sequelize.define(
   {
     timestamps: false,
     tableName: "product_stocks",
-  }
+  },
 );
 
 module.exports = ProductStock;

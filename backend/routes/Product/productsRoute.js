@@ -15,95 +15,10 @@ const {
   UpdateProduct,
   GenerateBarcode,
   UpdateStockValue,
-} = require("../../services/ProductService");
-const { getCategoryById } = require("../../services/CategoryService");
+} = require("../../services/Product/ProductService");
 
-// Create a product
-router.post("/", async (req, res) => {
-  try {
-    const { name, barcode, sellPrice, buyPrice, unit, category_id, newStock } =
-      req.body;
-
-    if (!barcode) {
-      return res.status(400).json({ error: "Barkod yoxdur !" });
-    }
-    // Zorunlu alanları kontrol et
-    if (!name || !unit) {
-      return res.status(400).json({ error: "Ad veya Vahid teyin olunmuyub" });
-    }
-
-    if (!sellPrice || !buyPrice) {
-      return res
-        .status(400)
-        .json({ error: "Alis ve Satis qiymetleri teyin olunmalidir!" });
-    }
-
-    // Unit’in geçerli bir ENUM değeri olduğundan emin ol
-    if (!["piece", "kg"].includes(unit)) {
-      return res.status(400).json({ error: 'Unit "piece" veya "kg" olmalı' });
-    }
-    if (category_id) {
-      const category = await getCategoryById(category_id);
-
-      if (!category) {
-        return res.status(404).json({ error: "Category Not Valid" });
-      }
-    }
-
-    // Barkodun uzunluğunu kontrol et (isteğe bağlı, 13 hane istiyorsanız)
-    if (
-      barcode &&
-      unit === "kg" &&
-      barcode.length !== 13 &&
-      !barcode.startsWith("22")
-    ) {
-      return res.status(400).json({
-        error:
-          "barokdunu teyin etmek ucun barkodun yanindaki boz knopkaya basin ve emeliyyati tekrarlayin ",
-      });
-    }
-
-    // Check if barcode already exists in Products table
-    const existingProduct = await Products.findOne({
-      where: { barcode: barcode },
-    });
-
-    if (existingProduct) {
-      return res.status(400).json({
-        error: "Bu barkod  başka bir mehsulda var ferqli barkod yaradin",
-      });
-    }
-
-    // Veri türlerini düzenle
-    const productData = {
-      name,
-      barcode: barcode || null,
-      sellPrice: sellPrice ? parseFloat(sellPrice) : null,
-      buyPrice: buyPrice ? parseFloat(buyPrice) : null,
-      unit,
-      category_id,
-    };
-
-    const product = await Products.create(productData);
-    await ProductStock.create({
-      product_id: product.product_id,
-      current_stock: newStock || 0,
-    });
-    res.status(201).json(product);
-  } catch (error) {
-    console.error("Hata:", error);
-    if (error.name === "SequelizeValidationError") {
-      return res.status(400).json({
-        message: "Doğrulama hatası",
-        errors: error.errors.map((e) => e.message),
-      });
-    } else if (error.name === "SequelizeUniqueConstraintError") {
-      return res.status(400).json({ message: "Bu barkod zaten kullanılıyor" });
-    }
-    res.status(400).json({ error: error.message });
-  }
-});
-router.post("/v2/", async (req, res, next) => {
+// Create a new product
+router.post("/", async (req, res, next) => {
   try {
     const product = await CreateProduct(req.body);
     if (product) {
@@ -115,60 +30,7 @@ router.post("/v2/", async (req, res, next) => {
 });
 
 // Get all products
-router.get("/", async (req, res) => {
-  try {
-    // Query parametreleri (Varsayılan: page=1, limit=20)
-    let { page, limit, sort = "A-Z" } = req.query;
-    const order =
-      sort === "Z-A" ? [["product_id", "DESC"]] : [["product_id", "ASC"]];
-    page = parseInt(page) || 1;
-    limit = 50;
-    const offset = (page - 1) * limit;
-
-    // Veriyi getir (SQL seviyesinde sıralama yaparak hızlandır)
-    const products = await Products.findAll({
-      order,
-      limit,
-      offset: offset,
-      attributes: [
-        "product_id",
-        "name",
-        "barcode",
-        "sellPrice",
-        "buyPrice",
-        "unit",
-      ],
-    });
-
-    // Tüm ürünlerin stoklarını ProductStock tablosundan çek
-    const productIds = products.map((p) => p.product_id);
-    const stocks = await ProductStock.findAll({
-      where: {
-        product_id: {
-          [Op.in]: productIds,
-        },
-      },
-      attributes: ["product_id", "current_stock"],
-    });
-
-    const stockMap = {};
-    stocks.forEach((s) => {
-      stockMap[String(s.product_id)] = s.current_stock;
-    });
-
-    const transformedProducts = products.map((product) => ({
-      ...product.get({ plain: true }),
-      buyPrice: parseFloat(product.buyPrice),
-      sellPrice: parseFloat(product.sellPrice),
-      stock: parseInt(stockMap[String(product.product_id)] ?? 0).toFixed(2),
-    }));
-
-    res.json(transformedProducts);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-router.get("/v2/", async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     const products = await GetAllProducts(req.query);
     if (products) {
@@ -177,12 +39,6 @@ router.get("/v2/", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
-
-router.get("/v2/", async (req, res) => {
-  try {
-    const products = await GetAllProducts(req.query);
-  } catch (error) {}
 });
 
 router.get("/search", async (req, res) => {
@@ -212,36 +68,22 @@ router.get("/search", async (req, res) => {
       },
       order: [["name", "ASC"]],
       limit: 50, // En fazla 20 ürün getir
-    });
-
-    // 2. Ürün ID'lerini al
-    const productIds = products.map((p) => p.product_id);
-
-    // 3. Stokları al
-    const stocks = await ProductStock.findAll({
-      where: {
-        product_id: {
-          [Op.in]: productIds,
+      include: [
+        {
+          model: ProductStock,
+          as: "stock",
+          attributes: ["current_stock"],
         },
-      },
-      attributes: ["product_id", "current_stock"],
+      ],
     });
 
-    // 4. Stokları map'e çevir
-    const stockMap = {};
-    stocks.forEach((s) => {
-      stockMap[s.product_id] = s.current_stock;
-    });
+    if (products.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No products found matching the query." });
+    }
 
-    // 5. Dönüştürülmüş ürün listesi
-    const transformedProducts = products.map((product) => ({
-      ...product.get({ plain: true }),
-      buyPrice: parseFloat(product.buyPrice),
-      sellPrice: parseFloat(product.sellPrice),
-      stock: stockMap[product.product_id] ?? 0,
-    }));
-
-    res.json(transformedProducts);
+    res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -321,7 +163,7 @@ router.get("/:id", async (req, res) => {
           barcode: productBarcode,
           quantity,
           unit,
-          stock: stock.current_stock,
+          stock: stock?.current_stock,
           category: category || 0,
         });
       } else {
@@ -412,7 +254,7 @@ router.post("/bulk", async (req, res) => {
 });
 
 // Update a product
-router.put("/:id", async (req, res) => {
+router.put("/:id", async (req, res, next) => {
   try {
     // Find product by ID or barcode
     let product = null;
@@ -470,16 +312,11 @@ router.put("/:id", async (req, res) => {
     await product.update(updateData);
 
     // Return the updated product with stock change information
-    const response = product.toJSON();
 
-    return res.json(response);
+    return res.json(product);
   } catch (error) {
     console.error("Error updating product:", error);
-    return res.status(500).json({
-      error: "Failed to update product",
-      details:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
+    next(error);
   }
 });
 
@@ -492,40 +329,7 @@ router.put("/v2/:id", async (req, res, next) => {
   }
 });
 // Delete a product
-router.delete(
-  "/:id",
-  // validateIdOrBarcode,
-
-  async (req, res) => {
-    try {
-      let product = null;
-      if (!isNaN(req.params.id)) {
-        product = await Products.findByPk(Number(req.params.id));
-      }
-
-      // If not found by ID, try barcode
-      if (!product) {
-        product = await Products.findOne({ where: { barcode: req.params.id } });
-      }
-
-      // If no product found, send error
-      if (!product) {
-        return res.status(404).json({ error: "Product not found" });
-      }
-
-      if (product) {
-        await product.destroy();
-        res.status(204).send();
-      } else {
-        res.status(404).json({ error: "Product not found" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-);
-
-router.delete("/v2/:id", async (req, res, next) => {
+router.delete("/:id", async (req, res, next) => {
   try {
     const message = await DeleteProduct(req.params.id);
     return res.json(message);
@@ -534,114 +338,7 @@ router.delete("/v2/:id", async (req, res, next) => {
   }
 });
 
-router.post("/generate-barcode", async (req, res) => {
-  try {
-    const { unit } = req.body;
-
-    if (!unit || !["piece", "kg"].includes(unit)) {
-      return res.status(400).json({
-        message: 'Geçersiz veya eksik unit değeri. "piece" veya "kg" olmalı.',
-      });
-    }
-
-    const existingBarcodes = (
-      await Products.findAll({ attributes: ["barcode"] })
-    ).map((p) => p.barcode);
-
-    let newBarcodeBase; // 12 haneli temel barkod
-    let newBarcode; // 13 haneli son barkod
-
-    const calculateCheckDigit = (barcode) => {
-      const digits = barcode.split("").map(Number);
-      const evenSum =
-        digits[1] + digits[3] + digits[5] + digits[7] + digits[9] + digits[11];
-      const oddSum =
-        digits[0] + digits[2] + digits[4] + digits[6] + digits[8] + digits[10];
-      const total = evenSum * 3 + oddSum;
-      const nextTen = Math.ceil(total / 10) * 10;
-      return (nextTen - total) % 10;
-    };
-
-    if (unit === "piece") {
-      do {
-        newBarcodeBase = Math.floor(
-          100000000000 + Math.random() * 900000000000,
-        ).toString(); // 12 haneli rastgele
-        const checkDigit = calculateCheckDigit(newBarcodeBase);
-        newBarcode = newBarcodeBase + checkDigit; // 13 haneli barkod
-      } while (existingBarcodes.includes(newBarcode));
-    } else if (unit === "kg") {
-      const kgProducts = await Products.findAll({
-        where: { unit: "kg", barcode: { [Op.like]: "22%" } },
-        attributes: ["barcode"],
-        order: [["barcode", "DESC"]],
-      });
-
-      let nextCode;
-      if (kgProducts.length === 0) {
-        nextCode = "00001"; // İlk kg ürünü için başlangıç
-      } else {
-        const lastKgBarcode = kgProducts[0].barcode;
-        const lastCode = parseInt(lastKgBarcode.slice(2, 7), 10); // 3-7. haneler
-        nextCode = String(lastCode + 1).padStart(5, "0"); // +1 ve 5 haneli sıfır dolgulu
-      }
-
-      newBarcodeBase = `22${nextCode}00000`; // 12 haneli: 2 + 5 + 5
-      const checkDigit = calculateCheckDigit(newBarcodeBase);
-      newBarcode = newBarcodeBase + checkDigit; // 13 haneli tam barkod
-
-      if (existingBarcodes.includes(newBarcode)) {
-        return res.status(500).json({
-          message: "Benzersiz barkod üretilemedi, tüm kodlar dolu olabilir.",
-        });
-      }
-    } else if (unit === "kg") {
-      const kgProducts = await Products.findAll({
-        where: { unit: "kg", barcode: { [Op.like]: "22%" } },
-        attributes: ["barcode"],
-        order: [["barcode", "DESC"]],
-      });
-
-      let nextCode;
-      if (kgProducts.length === 0) {
-        nextCode = "00001"; // İlk kg ürünü için başlangıç
-      } else {
-        const lastKgBarcode = kgProducts[0].barcode;
-        let lastCode = parseInt(
-          lastKgBarcode && lastKgBarcode.length >= 7
-            ? lastKgBarcode.slice(2, 7)
-            : "0",
-          10,
-        );
-        if (isNaN(lastCode)) lastCode = 0;
-        nextCode = String(lastCode + 1).padStart(5, "0");
-      }
-
-      newBarcodeBase = `22${nextCode}00000`; // 12 haneli: 2 + 5 + 5
-      const checkDigit = calculateCheckDigit(newBarcodeBase);
-      newBarcode = newBarcodeBase + checkDigit; // 13 haneli tam barkod
-
-      if (existingBarcodes.includes(newBarcode)) {
-        return res.status(500).json({
-          message: "Benzersiz barkod üretilemedi, tüm kodlar dolu olabilir.",
-        });
-      }
-    }
-
-    res.status(200).json({
-      message: "Yeni barkod başarıyla oluşturuldu",
-      barcode: newBarcode,
-    });
-  } catch (error) {
-    console.error("Hata:", error);
-    res.status(500).json({
-      message: "Barkod oluşturma hatası",
-      error: error.message,
-    });
-  }
-});
-
-router.post("/v2/generate-barcode", async (req, res, next) => {
+router.post("/generate-barcode", async (req, res, next) => {
   try {
     const barcode = await GenerateBarcode(req.body.unit);
     return res.json(barcode);

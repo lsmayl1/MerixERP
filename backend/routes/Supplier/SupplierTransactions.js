@@ -16,7 +16,7 @@ const {
   UpdateSupplierTransaction,
   UpdateSupplierInvoice,
 } = require("../../services/SupplierService");
-const { UpdateStockValue } = require("../../services/ProductService");
+const { UpdateStockValue } = require("../../services/Product/ProductService");
 router.get("/", async (req, res) => {
   try {
     const transactions = await SupplierTransactions.findAll({

@@ -4,7 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const AppError = require("../utils/AppError");
 const bwipjs = require("bwip-js");
-const { GetProductByIdOrBarcode } = require("../services/ProductService");
+const {
+  GetProductByIdOrBarcode,
+} = require("../services/Product/ProductService");
 const config = require("../database/config.json");
 async function generateBarcode(text) {
   return bwipjs.toBuffer({

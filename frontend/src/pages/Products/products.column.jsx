@@ -43,7 +43,7 @@ export const productColumn = ({
       header: t("buyPrice"),
       cell: (info) => (
         <div className="flex items-center justify-center gap-2">
-          <span>{info.getValue().toFixed(2)}</span>₼
+          <span>{info.getValue()}</span>₼
         </div>
       ),
       headerClassName: "text-center bg-gray-100",
@@ -53,13 +53,13 @@ export const productColumn = ({
       header: t("sellPrice"),
       cell: (info) => (
         <div className="flex items-center justify-center gap-2">
-          <span>{parseFloat(info.getValue())?.toFixed(2)}</span>₼
+          <span>{info.getValue()}</span>₼
         </div>
       ),
       headerClassName: "text-center bg-gray-100",
       cellClassName: "text-center",
     }),
-    columnHelper.accessor("stock", {
+    columnHelper.accessor("stock.current_stock", {
       header: t("stock"),
       cell: (info) => (
         <div className="flex items-center justify-center gap-2">
