@@ -77,7 +77,6 @@ export const Products = () => {
     }
   }, [editedProduct]);
 
-
   const handleEditProduct = async (id) => {
     try {
       if (editId === id) {
@@ -147,6 +146,7 @@ export const Products = () => {
         toast.success("Yazdırma işlemi başarılı!");
       }
     } catch (error) {
+      toast.error("Yazdırma işlemi başarısız!");
       console.error("Yazdırma hatası:", error);
     }
   };

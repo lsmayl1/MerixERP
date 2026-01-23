@@ -282,6 +282,9 @@ const PrintLabel = async (labelData) => {
       size: [width, height],
       margin: 0,
     });
+    const stream = fs.createWriteStream(pdfPath);
+
+    doc.pipe(stream);
 
     doc.registerFont("Inter", "./utils/fonts/Inter.ttf");
     doc.registerFont("Inter-Bold", "./utils/fonts/Inter-Bold.ttf");
@@ -370,11 +373,8 @@ const PrintLabel = async (labelData) => {
     doc.text(barcode, barcodeX + 5, barcodeY + 34);
 
     // Save PDF to file
-    const stream = fs.createWriteStream(pdfPath);
-    doc.pipe(stream);
     doc.end();
     const printerLabel = config.server.PRINTER_LABEL || "XP-360B";
-
     await new Promise((resolve, reject) => {
       stream.on("finish", async () => {
         const options = {

@@ -9,6 +9,7 @@ const { PrintReceipt, PrintLabel } = require("../services/PrinterService");
 router.post("/label-print", async (req, res, next) => {
   try {
     await PrintLabel(req.body);
+    res.json({ success: true, message: "Label sent to printer" });
   } catch (error) {
     next(error);
   }
