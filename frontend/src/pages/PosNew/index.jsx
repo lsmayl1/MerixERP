@@ -245,6 +245,7 @@ export const PosNew = () => {
         setData([]);
         return;
       }
+      if (previewLoading) return;
       const response = await postPreview({
         items: products,
         discount: discount,

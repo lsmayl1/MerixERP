@@ -25,12 +25,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-const port = config.server.PORT || 5000;
+const port = 5000;
 // Sequelize Sync ve Server Başlatma
 sequelize
   .sync()
   .then(() => {
-    app.listen(port, "0.0.0.0", () => {
+    app.listen(5000, "0.0.0.0", () => {
       console.log(`Server is running on http://localhost:${port || 5000}`);
     });
   })

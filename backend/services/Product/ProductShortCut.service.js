@@ -11,6 +11,9 @@ const getAllShortCuts = async () => {
         },
       ],
     });
+    if (!shortCuts) {
+      return [];
+    }
 
     return shortCuts;
   } catch (error) {
