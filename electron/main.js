@@ -22,7 +22,6 @@ function startBackend() {
   const backendPath = path.join(__dirname, "../backend/index.js");
 
   backendProcess = spawn("node", [backendPath], {
-    env: { ...process.env }, // 👈 Electron’daki tüm env’leri aktar
     cwd: path.join(__dirname, "../backend"),
     stdio: "pipe",
   });
