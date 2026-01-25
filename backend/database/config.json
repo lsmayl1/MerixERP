@@ -4,7 +4,7 @@
 	"DB_PORT":5432,
 	"DB_USER":"postgres",
 	"DB_PASSWORD":"ismo2006",
-	"DB_NAME":"Local"
+	"DB_NAME":"elioglu"
 },
 "server":{
 	"COMPANY_NAME":"Example Corp",

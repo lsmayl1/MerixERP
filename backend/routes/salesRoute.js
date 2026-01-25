@@ -194,7 +194,41 @@ router.post("/preview", async (req, res) => {
 
   try {
     const grouped = {};
+    const baseCodesForWeighted = new Set();
 
+    // Step 1: Identify all unique barcodes to fetch at once
+    const barcodesToFetch = new Set();
+    for (const { barcode } of items) {
+      barcodesToFetch.add(barcode);
+      if (barcode.length === 13 && barcode.startsWith("22")) {
+        const baseCode = barcode.substring(0, 7);
+        baseCodesForWeighted.add(`${baseCode}%`);
+      }
+    }
+
+    // Step 2: Fetch ALL products in 2 queries (batch instead of N queries)
+    const allProducts = await Products.findAll({
+      where: { barcode: Array.from(barcodesToFetch) },
+      attributes: ["barcode", "name", "sellPrice", "product_id"],
+    });
+
+    let weightedProducts = [];
+    if (baseCodesForWeighted.size > 0) {
+      weightedProducts = await Products.findAll({
+        where: {
+          [Op.or]: Array.from(baseCodesForWeighted).map((pattern) => ({
+            barcode: { [Op.like]: pattern },
+          })),
+        },
+        attributes: ["barcode"],
+      });
+    }
+
+    // Step 3: Create lookup maps for O(1) access
+    const productMap = new Map(allProducts.map((p) => [p.barcode, p]));
+    const weightedMap = new Map(weightedProducts.map((p) => [p.barcode.substring(0, 7), p]));
+
+    // Step 4: Process items without await loops
     for (const { barcode, quantity: sentQuantity } of items) {
       let productBarcode = barcode;
       let quantity = sentQuantity || 1;
@@ -202,31 +236,23 @@ router.post("/preview", async (req, res) => {
 
       // Tartım barkodu kontrolü
       if (barcode.length === 13 && barcode.startsWith("22")) {
-        const kgProduct = await Products.findOne({
-          where: { barcode: barcode },
-          attributes: ["barcode"],
-        });
+        const baseCode = barcode.substring(0, 7);
+        const kgProduct = productMap.get(barcode) || weightedMap.get(baseCode);
 
         if (kgProduct) {
-          // Tam barcode varsa, quantity olarak gönderileni kullan
           productBarcode = kgProduct.barcode;
           quantity = sentQuantity || 1;
           unit = "kg";
         } else {
           // Yoksa tartım barkodu olarak işle
-          const baseCode = barcode.substring(0, 7); // ilk 8 hane ürün kodu
-          const weightStr = barcode.substring(7, 12); // son 5 hane ağırlık
+          const weightStr = barcode.substring(7, 12);
           const weight = parseInt(weightStr, 10);
-          quantity = weight / 1000; // 3 ondalık hassasiyet
+          quantity = weight / 1000;
           unit = "kg";
-
-          const product = await Products.findOne({
-            where: { barcode: { [Op.like]: `${baseCode}%` } },
-            attributes: ["barcode"],
-          });
-
-          if (!product) continue;
-          productBarcode = product.barcode;
+          
+          const baseProduct = weightedMap.get(baseCode);
+          if (!baseProduct) continue;
+          productBarcode = baseProduct.barcode;
         }
       }
 
@@ -242,14 +268,10 @@ router.post("/preview", async (req, res) => {
       }
     }
 
-    // 🧮 Hesapla ve response oluştur
+    // 🧮 Hesapla ve response oluştur (using cached productMap)
     for (const productBarcode in grouped) {
       const { quantity, unit } = grouped[productBarcode];
-
-      const product = await Products.findOne({
-        where: { barcode: productBarcode },
-        attributes: ["name", "sellPrice", "barcode"],
-      });
+      const product = productMap.get(productBarcode);
 
       if (!product) continue;
 
@@ -257,7 +279,7 @@ router.post("/preview", async (req, res) => {
 
       resultItems.push({
         name: product.name,
-        barcode: product.barcode, // ✅ sadece ürünün gerçek barkodu
+        barcode: product.barcode,
         quantity,
         unit,
         sellPrice: parseFloat(product.sellPrice),
