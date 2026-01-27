@@ -7,6 +7,7 @@ import {
   useGetBarcodeMutation,
   useGetProductsByQueryQuery,
   useLazyGetProductByIdQuery,
+  usePrintProductLabelMutation,
 } from "../../redux/slices/ApiSlice";
 import { SearchModal } from "../Pos/SearchModal";
 import { Plus } from "../../assets/Plus";
@@ -23,6 +24,7 @@ import {
   updateMode,
   updateProducts,
 } from "../../redux/supplierTransactions/supplierTransaction.slice";
+import { PrintIcon } from "../../assets/PrintIcon";
 
 export const SupplierInvoiceModal = ({
   handleClose,
@@ -31,7 +33,7 @@ export const SupplierInvoiceModal = ({
 }) => {
   const { t } = useTranslation();
   const { products, transactionType, paymentMethod, date, mode } = useSelector(
-    (state) => state.supplierTransaction
+    (state) => state.supplierTransaction,
   );
   const dispatch = useDispatch();
   const [generateBarcode] = useGetBarcodeMutation();
@@ -44,14 +46,14 @@ export const SupplierInvoiceModal = ({
     { label: t("quantity"), key: "quantity" },
     { label: t("sellPrice"), key: "sellPrice" },
     { label: t("amount"), key: "amount" },
-    { label: t("delete"), key: "delete" },
+    { label: t("Sil / Çap et"), key: "delete" },
   ]);
   const [query, setQuery] = useState("");
   const { data } = useGetProductsByQueryQuery(query, {
     skip: !query,
   });
   const [trigger] = useLazyGetProductByIdQuery();
-
+  const [printLabel] = usePrintProductLabelMutation();
   const {
     handleSubmit,
     register,
@@ -62,6 +64,18 @@ export const SupplierInvoiceModal = ({
       description: "",
     },
   });
+
+  const handlePrintLabel = async (product) => {
+    try {
+      await printLabel({
+        barcode: product.barcode,
+        name: product.name,
+        sellPrice: product.sellPrice,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleSubmitInvoice = () => {
     onSubmit({
@@ -119,8 +133,8 @@ export const SupplierInvoiceModal = ({
     // 3. amount hesapla
     updated[index].amount = Number(
       ((updated[index].buyPrice || 0) * (updated[index].quantity || 0)).toFixed(
-        4
-      )
+        4,
+      ),
     );
 
     // 4. dispatch et
@@ -343,7 +357,7 @@ export const SupplierInvoiceModal = ({
                   updateProduct(
                     index,
                     "buyPrice",
-                    value === "" ? "" : parseFloat(value) || 0
+                    value === "" ? "" : parseFloat(value) || 0,
                   );
                 }}
               />
@@ -363,7 +377,7 @@ export const SupplierInvoiceModal = ({
                   updateProduct(
                     index,
                     "quantity",
-                    value === "" ? "" : parseFloat(value) || 0
+                    value === "" ? "" : parseFloat(value) || 0,
                   );
                 }}
               />
@@ -382,19 +396,27 @@ export const SupplierInvoiceModal = ({
                   updateProduct(
                     index,
                     "sellPrice",
-                    value === "" ? "" : parseFloat(value) || 0
+                    value === "" ? "" : parseFloat(value) || 0,
                   );
                 }}
               />
               <div className="p-2 border border-mainBorder h-full items-center flex">
                 {(product.quantity * product.buyPrice).toFixed(2)}
               </div>
-              <button
-                className="p-2 border flex items-center border-mainBorder text-red-500"
-                onClick={() => dispatch(deleteProduct(index))}
-              >
-                <TrashBin />
-              </button>
+              <div className="flex w-full border-mainBorder border  ">
+                <button
+                  className="p-2  flex items-center  "
+                  onClick={() => dispatch(deleteProduct(index))}
+                >
+                  <TrashBin />
+                </button>
+                <button
+                  className="p-2  flex items-center"
+                  onClick={() => handlePrintLabel(product)}
+                >
+                  <PrintIcon className="size-5 text-black" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -405,7 +427,7 @@ export const SupplierInvoiceModal = ({
           {products
             ?.reduce(
               (total, p) => total + (p.buyPrice || 0) * (p.quantity || 0),
-              0
+              0,
             )
             .toFixed(2)}
         </span>

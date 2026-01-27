@@ -12,6 +12,14 @@ export const SearchModal = ({
   const searchInput = React.useRef(null);
   const modalRef = React.useRef(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [input, setInput] = useState("");
+
+  const handleQuery = (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter") {
+      setQuery(input);
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -64,8 +72,9 @@ export const SearchModal = ({
           ref={searchInput}
           placeholder="Search for products"
           className="border border-mainBorder rounded-lg py-2 px-10 w-full"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => handleQuery(e)}
         />
         <SearchIcon className="absolute left-2" />
         <div className="flex absolute text-gray-400 right-1 gap-4">

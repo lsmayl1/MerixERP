@@ -256,13 +256,23 @@ const PrintReceipt = (data) => {
 
 const PrintLabel = async (labelData) => {
   try {
-    const { barcode } = labelData;
+    const { barcode, name, sellPrice } = labelData;
+
     if (!barcode) {
       throw new AppError("Barcode is required", 400);
     }
-    const product = await GetProductByIdOrBarcode(barcode);
-    if (!product) {
-      throw new AppError("Product not found", 404);
+    let productBarcode = barcode;
+    let productName = name;
+    let productSellPrice = sellPrice;
+    if (!name || !sellPrice) {
+      const ExistProduct = await GetProductByIdOrBarcode(barcode);
+      if (!ExistProduct) {
+        throw new AppError("Product not found", 404);
+      } else {
+        productBarcode = ExistProduct.barcode;
+        productName = ExistProduct.name;
+        productSellPrice = ExistProduct.sellPrice;
+      }
     }
 
     const mmToPt = (mm) => (mm / 25.4) * 72;
@@ -275,7 +285,7 @@ const PrintLabel = async (labelData) => {
       fs.mkdirSync(labelsDir, { recursive: true });
     }
 
-    const fileName = `label_${product.barcode}_${Date.now()}.pdf`;
+    const fileName = `label_${barcode}_${Date.now()}.pdf`;
     const pdfPath = path.join(labelsDir, fileName);
     // Create PDF
     const doc = new PDFDocument({
@@ -335,7 +345,6 @@ const PrintLabel = async (labelData) => {
     }
 
     // ...existing code...
-    const productName = product.name || "Ürün Adı";
 
     const leftMargin = 4; // small left margin for label text
     const maxTextWidth = width - leftMargin * 2; // available width for text
@@ -353,13 +362,13 @@ const PrintLabel = async (labelData) => {
 
     doc.fontSize(16);
 
-    const priceText = `${product.sellPrice} ₼`;
+    const priceText = `${productSellPrice} ₼`;
     const priceWidth = doc.widthOfString(priceText);
 
     doc.text(priceText, (width - priceWidth) / 2, currentY + 6);
 
     // Barcode
-    const barcodeBuffer = await generateBarcode(product.barcode);
+    const barcodeBuffer = await generateBarcode(productBarcode);
     const barcodeWidth = width; // %80 genişlik
     const barcodeX = (width - barcodeWidth) / 2;
 
@@ -370,40 +379,40 @@ const PrintLabel = async (labelData) => {
     });
 
     doc.fontSize(12);
-    doc.text(barcode, barcodeX + 5, barcodeY + 34);
+    doc.text(productBarcode, barcodeX + 5, barcodeY + 34);
 
     // Save PDF to file
     doc.end();
     const printerLabel = config.server.PRINTER_LABEL || "XP-360B";
-    await new Promise((resolve, reject) => {
-      stream.on("finish", async () => {
-        const options = {
-          printer: printerLabel, // Your thermal printer
-          pages: "1",
-          orientation: "landscape",
-          monochrome: false,
-          silent: true,
-          printDialog: false,
-          copies: 1,
-          paperSize: "Custom", // Use custom paper size
-        };
+    // await new Promise((resolve, reject) => {
+    //   stream.on("finish", async () => {
+    //     const options = {
+    //       printer: printerLabel, // Your thermal printer
+    //       pages: "1",
+    //       orientation: "landscape",
+    //       monochrome: false,
+    //       silent: true,
+    //       printDialog: false,
+    //       copies: 1,
+    //       paperSize: "Custom", // Use custom paper size
+    //     };
 
-        try {
-          await pdf2printer.print(pdfPath, options);
-          fs.unlinkSync(pdfPath);
-          resolve();
-        } catch (err) {
-          if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
-          reject(err);
-        }
-      });
+    //     try {
+    //       await pdf2printer.print(pdfPath, options);
+    //       fs.unlinkSync(pdfPath);
+    //       resolve();
+    //     } catch (err) {
+    //       if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
+    //       reject(err);
+    //     }
+    //   });
 
-      stream.on("error", (err) => {
-        reject(err);
-      });
-    });
+    //   stream.on("error", (err) => {
+    //     reject(err);
+    //   });
+    // });
   } catch (error) {
-    throw new AppError("Failed to print label", 500);
+    throw error;
   }
 };
 

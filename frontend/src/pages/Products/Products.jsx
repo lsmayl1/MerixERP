@@ -58,6 +58,15 @@ export const Products = () => {
 
   const [printProductLabel] = usePrintProductLabelMutation();
 
+  const [input, setInput] = useState("");
+
+  const handleQuery = (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter") {
+      setQuery(input);
+    }
+  };
+
   const handleClosePopUp = () => {
     setEditForm(null);
     setEditId(null);
@@ -191,8 +200,9 @@ export const Products = () => {
             <input
               type="text"
               placeholder="Search by name or barcode"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => handleQuery(e)}
               className="px-12 w-full max-md:px-8  py-2 rounded-lg bg-white focus:outline-blue-500 "
             />
             <SearchIcon className="absolute left-2 max-md:size-5" />
