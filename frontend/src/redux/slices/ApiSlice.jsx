@@ -7,8 +7,8 @@ export const ApiSlice = createApi({
   endpoints: (build) => ({
     // Product
     getProducts: build.query({
-      query: ({ page = 1, sort = "asc" }) =>
-        `/products?page=${page}&sort=${sort}`,
+      query: ({ page = 1, sort = "asc",limit }) =>
+        `/products?page=${page}&sort=${sort}&limit=${limit}`,
       keepUnusedDataFor: 0,
     }),
     getProductById: build.query({

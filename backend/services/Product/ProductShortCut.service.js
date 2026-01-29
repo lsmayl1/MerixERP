@@ -1,4 +1,4 @@
-const { ShortCut, Products } = require("../../models");
+const { ShortCut, Products, ProductStock } = require("../../models");
 const AppError = require("../../utils/AppError");
 
 const getAllShortCuts = async () => {
@@ -8,6 +8,12 @@ const getAllShortCuts = async () => {
         {
           model: Products,
           as: "product",
+          include: [
+            {
+              model: ProductStock,
+              as: "stock",
+            },
+          ],
         },
       ],
     });

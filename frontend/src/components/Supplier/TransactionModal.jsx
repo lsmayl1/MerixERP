@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import TrashBin from "../../assets/TrashBin";
@@ -37,6 +37,7 @@ export const SupplierInvoiceModal = ({
   );
   const dispatch = useDispatch();
   const [generateBarcode] = useGetBarcodeMutation();
+  const modalRef = useRef();
 
   const [columns] = useState([
     { label: t("product"), key: "name" },
@@ -78,6 +79,9 @@ export const SupplierInvoiceModal = ({
   };
 
   const handleSubmitInvoice = () => {
+    if (products.lenght === 0) {
+      return;
+    }
     onSubmit({
       products,
       transaction_id: invoiceData?.transaction?.id || null,
@@ -110,6 +114,12 @@ export const SupplierInvoiceModal = ({
       dispatch(addProduct(product));
       console.log(product);
     } catch (error) {
+      dispatch(
+        addProduct({
+          barcode: barcode,
+        }),
+      );
+
       console.log(error);
     }
   };
@@ -277,13 +287,14 @@ export const SupplierInvoiceModal = ({
             setQuery={setQuery}
             data={data}
             handleAdd={AddProductFromSearch}
+            modalRef={modalRef}
           />
           <BarcodeField handleBarcode={handleBarcode} />
           <div className="mt-4 flex justify-end">
             <button
               type="button"
               onClick={() => dispatch(addProduct())}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg text-nowrap"
             >
               + {t("addProduct")}
             </button>

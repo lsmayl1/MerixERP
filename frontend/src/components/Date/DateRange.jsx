@@ -18,7 +18,7 @@ export const DateRange = ({ handleRange }) => {
   ]);
   const [selectedRange, setSelectedRange] = useState(range[0]);
   const { start, end, startFormatted, endFormatted } = getDateRange(
-    selectedRange?.key
+    selectedRange?.key,
   );
 
   useEffect(() => {
@@ -35,14 +35,14 @@ export const DateRange = ({ handleRange }) => {
     setShowDateModal(false);
   };
   return (
-    <div className="flex w-full justify-between p-4 items-center">
+    <div className="flex w-full gap-4 justify-end p-2 items-center">
       {startFormatted && endFormatted ? (
-        <h1 className="text-3xl font-semibold">
+        <h1 className="text-xl font-semibold">
           {`${startFormatted.day} ${startFormatted.month} - ${endFormatted.day} ${endFormatted.month} `}
           {startFormatted.year === endFormatted.year ? (
-            <span className="text-lg text-mainText">{startFormatted.year}</span>
+            <span className="text-md text-mainText">{startFormatted.year}</span>
           ) : (
-            <span className="text-lg text-mainText">
+            <span className="text-md text-mainText">
               {startFormatted.year} - {endFormatted.year}
             </span>
           )}
@@ -54,21 +54,21 @@ export const DateRange = ({ handleRange }) => {
       <div className="flex items-center relative">
         <button
           onClick={() => setShowDateModal(!showDateModal)}
-          className="flex gap-4 items-center bg-white py-2 px-4 rounded-lg border border-mainBorder text-xl"
+          className="flex gap-4 items-center bg-white py-2 px-4 rounded-md border border-mainBorder text-md"
         >
           <Calendar />
 
           {selectedRange.name}
         </button>
         {showDateModal && (
-          <div className="flex bg-white shadow-2xl absolute top-12 z-50 rounded-lg w-[100%] right-24">
+          <div className="flex bg-white shadow-2xl absolute top-12 z-50 rounded-md w-[100%] right-24">
             <div className="flex flex-col gap-12 flex-1 justify-between border-r border-mainBorder">
-              <ul className="flex flex-col font-semibold">
+              <ul className="flex flex-col text-black">
                 {range.map((rg, index) => (
                   <li
                     onClick={() => handleSelect(rg)}
                     key={index}
-                    className="hover:bg-gray-100 p-3   rounded-lg cursor-pointer"
+                    className="hover:bg-gray-100 p-3 text-md  rounded-md cursor-pointer"
                   >
                     {rg.name}
                   </li>

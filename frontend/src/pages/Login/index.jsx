@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import LogoMain from "../../assets/Logo/LogoMain";
+import Logo from "../../assets/Logo/LogoMain.jsx";
 import { useNavigate } from "react-router-dom";
 export const Login = () => {
   const { t } = useTranslation();
@@ -34,7 +34,7 @@ export const Login = () => {
 
   return (
     <div className="flex flex-col h-screen justify-center gap-24 items-center ">
-      <LogoMain />
+      <Logo />
       <div className="flex items-center justify-center  gap-4 font-medium flex-col">
         <ul className="flex gap-8 text-3xl">
           {inputValue.split("").map((char, index) => (

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Plus } from "../../assets/Plus";
 import { SearchIcon } from "../../assets/SearchIcon";
+import { Table } from "../Table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Kart } from "../../assets/Sidebar/Kart";
 
 export const SearchModal = ({
   data,
@@ -8,12 +11,47 @@ export const SearchModal = ({
   setQuery,
   query,
   barcodeRef,
+  modalRef,
+  handleShortCut,
 }) => {
   const searchInput = React.useRef(null);
-  const modalRef = React.useRef(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [input, setInput] = useState("");
-
+  const columnHelper = createColumnHelper();
+  const columns = [
+    columnHelper.accessor("name", {
+      header: "Mehsul",
+    }),
+    columnHelper.accessor("stock.current_stock", {
+      header: "Stok",
+      cellClassName: "text-center",
+      cell: (info) => <span>{info.getValue() + " əd"}</span>,
+    }),
+    columnHelper.accessor("action", {
+      header: "Əlavə et",
+      cellClassName: "text-center",
+      cell: ({ row }) => (
+        <div className="flex gap-4 w-full items-center justify-center ">
+          {handleShortCut && (
+            <button
+              onClick={() =>
+                handleShortCut(row.original.product_id, row.original.procuct_id)
+              }
+              className="border border-mainBorder rounded-lg p-1 bg-white"
+            >
+              <Plus className={"size-5"} />
+            </button>
+          )}
+          <button
+            onClick={() => handleAdd(row.original.barcode, "increase")}
+            className="border border-mainBorder rounded-lg p-1 bg-white"
+          >
+            <Kart className={"size-5"} />
+          </button>
+        </div>
+      ),
+    }),
+  ];
   const handleQuery = (e) => {
     e.stopPropagation();
     if (e.key === "Enter") {
@@ -65,12 +103,12 @@ export const SearchModal = ({
   }, [data, focusedIndex]);
 
   return (
-    <div className="flex flex-col relative w-1/2">
-      <div className="flex items-center  relative w-full">
+    <div className="flex flex-col relative  bg-white w-full p-2 rounded-lg gap-2">
+      <div className="flex items-center  relative">
         <input
           type="text"
           ref={searchInput}
-          placeholder="Search for products"
+          placeholder="Məhsul axtar..."
           className="border border-mainBorder rounded-lg py-2 px-10 w-full"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -90,33 +128,11 @@ export const SearchModal = ({
         </div>
       </div>
       {data?.length > 0 && query && (
-        <div className="absolute w-full h-[400px] z-50 top-12 bg-white rounded-lg border border-mainBorder">
-          <ul
-            ref={modalRef}
-            className="overflow-auto h-full px-4 flex flex-col  "
-          >
-            {data?.map((item, index) => (
-              <li
-                key={item.product_id}
-                className={`${
-                  focusedIndex === index ? "bg-gray-300" : ""
-                } flex items-center justify-between hover:bg-gray-100 px-4 py-2`}
-              >
-                <div className="flex gap-4 w-1/2">
-                  <span className="flex-2">{item.name}</span>
-                  <span>{item?.stock.current_stock}</span>
-                </div>
-                <span>{item.sellPrice + " ₼" || 0.0} </span>
-
-                <button
-                  onClick={() => handleAdd(item.barcode, "increase")}
-                  className="p-1 mr-12 bg-white border border-mainBorder rounded-lg"
-                >
-                  <Plus className="size-6" />
-                </button>
-              </li>
-            ))}
-          </ul>
+        <div
+          ref={modalRef}
+          className="absolute w-full h-[400px] z-50 top-14 p-2 bg-white rounded-lg  pr-4"
+        >
+          <Table data={data} columns={columns} />
         </div>
       )}
     </div>

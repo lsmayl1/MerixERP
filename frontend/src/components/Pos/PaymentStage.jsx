@@ -176,37 +176,37 @@ export const PaymentStage = ({
             className="inline size-6 mr-2 cursor-pointer"
             onClick={handleBack}
           />
-          <h1 className="text-xl">
+          <h1 className="text-md">
             {type === "sale" ? "Ödəniş" : "Qayarılma"}
           </h1>
         </div>
       </div>
       <div className="flex flex-col gap-2 bg-gray-100 p-2 rounded-lg">
-        <div className="flex items-center justify-between text-xl gap-4 font-medium">
-          <span className=" text-nowrap  text-xl">Aralıq cəm</span>
+        <div className="flex items-center justify-between text-md gap-4 font-medium">
+          <span className=" text-nowrap  text-md">Aralıq cəm</span>
           <span className=" text-nowrap">
             {subtotal.toFixed(2) || "0.00"} ₼
           </span>
         </div>
         <div className="flex items-center justify-between border-b border-gray-300 pb-2">
           <div className="flex gap-4 items-center ">
-            <span className="text-xl font-medium">{t("Endirim")}</span>
+            <span className="text-md font-medium">{t("Endirim")}</span>
           </div>
-          <span className="text-xl font-medium">
+          <span className="text-md font-medium">
             - {computedDiscountAmount.toFixed(2)} ₼
           </span>
         </div>
 
         <div className="flex items-center justify-between py-2 text-gray-900">
-          <span className="text-xl">{t("Yekün Məbləğ")}</span>
-          <span className="text-xl font-semibold">
+          <span className="text-md">{t("Yekün Məbləğ")}</span>
+          <span className="text-md font-semibold">
             {finalTotal.toFixed(2)} ₼
           </span>
         </div>
       </div>
       {/* // Discount */}
       <div className="flex flex-col gap-2">
-        <span className="text-xl font-medium">Endirim</span>
+        <span className="text-md font-medium">Endirim</span>
         <div className="flex gap-2">
           {discountValues?.map((dv, i) => (
             <button
@@ -238,7 +238,7 @@ export const PaymentStage = ({
             <h1>{t("cash")}</h1>{" "}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xl">
+            <span className="text-md">
               {Number(cash).toFixed(2) || "0.00"} ₼
             </span>
           </div>
@@ -257,15 +257,15 @@ export const PaymentStage = ({
             <h1>{t("card")}</h1>{" "}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xl">
+            <span className="text-md">
               {Number(card).toFixed(2) || "0.00"} ₼
             </span>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-2xl gap-4 font-medium">
-        <span className=" text-nowrap  text-xl">Qaytarılacağ məbləğ</span>
+      <div className="flex items-center justify-between text-2md gap-4 font-medium">
+        <span className=" text-nowrap  text-md">Qaytarılacağ məbləğ</span>
         <span className=" text-nowrap text-red-600">
           {Number(change).toFixed(2)} ₼
         </span>
@@ -274,7 +274,7 @@ export const PaymentStage = ({
         <div className="flex items-end gap-2 w-full h-full">
           <button
             onClick={handleAllValue}
-            className="flex justify-center text-xl gap-2 items-center border border-gray-200 px-6 h-16 rounded-lg w-full"
+            className="flex justify-center text-md gap-2 items-center border border-gray-200 px-6 h-16 rounded-lg w-full"
           >
             <span className=""> {t("Bütün məbləğ")}</span>
           </button>
@@ -282,7 +282,7 @@ export const PaymentStage = ({
             onClick={() => submitSale(type, payments)}
             disabled={Number(cash) + Number(card) < finalTotal}
             aria-disabled={Number(cash) + Number(card) < finalTotal}
-            className={`flex justify-center text-xl gap-2 items-center border border-gray-200 px-6 h-16 rounded-lg w-full ${
+            className={`flex justify-center text-md gap-2 items-center border border-gray-200 px-6 h-16 rounded-lg w-full ${
               Number(cash) + Number(card) < finalTotal
                 ? "bg-gray-300 cursor-not-allowed text-[#0f172a]"
                 : "bg-[#00a63e] text-white"

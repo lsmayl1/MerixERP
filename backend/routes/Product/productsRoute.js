@@ -133,17 +133,9 @@ router.get("/:id", async (req, res) => {
     if (!product) {
       product = await Products.findOne({
         where: { barcode: param },
-        include: [
-          {
-            model: Category,
-            as: "category",
-          },
-        ],
       });
       if (product) productBarcode = product.barcode;
     }
-
-    const category = await Category.findByPk(product.category_id);
 
     if (product) {
       const stock = await ProductStock.findOne({
@@ -164,7 +156,6 @@ router.get("/:id", async (req, res) => {
           quantity,
           unit,
           stock: stock?.current_stock,
-          category: category || 0,
         });
       } else {
         // kg ise hem okutulan barkod hem veritabanı barkodu dön
@@ -177,11 +168,10 @@ router.get("/:id", async (req, res) => {
           quantity,
           unit,
           stock: stock.current_stock,
-          category: productData.category || 0,
         });
       }
     } else {
-      res.status(404).json({ error: "Product not found by ID or barcode" });
+      res.status(404).json({ error: "Məhsul Yoxdur!" });
     }
   } catch (error) {
     console.error("Product get error:", error.message);

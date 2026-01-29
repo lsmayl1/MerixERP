@@ -4,7 +4,7 @@ const AppError = require("../../utils/AppError");
 const GetAllProducts = async (data) => {
   try {
     const page = parseInt(data.page) || 1;
-    const limit = 2000;
+    const limit = data.limit || 100;
     const fields = data?.fields?.split(",") || [
       "product_id",
       "name",

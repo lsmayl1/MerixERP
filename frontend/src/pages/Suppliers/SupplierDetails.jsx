@@ -20,7 +20,7 @@ import { Invoice } from "../../assets/Navigation/Invoice";
 import { InvoiceView } from "../../components/Supplier/InvoiceView";
 import Receipt from "../../assets/Navigation/Receipt";
 import Edit from "../../assets/Edit";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { updateMode } from "../../redux/supplierTransactions/supplierTransaction.slice";
 
@@ -135,41 +135,16 @@ export const SupplierDetails = () => {
     }
   };
 
-  const handleUpdateTransaction = async (transactionId) => {
-    try {
-      dispatch(updateMode("update"));
-      const supplierInvoiceData = await getSupplierInvociceData({
-        supplier_id: id,
-        transaction_id: transactionId,
-      }).unwrap();
-      setInvoiceData(supplierInvoiceData);
-      setShowModal(true);
-    } catch (error) {
-      toast(error);
-    }
-  };
-
   const handleCreateSupplierInvoice = async (data) => {
-    // if(data.update){
-
-    // }
     try {
       if (mode === "create") {
-        await createSupplierInvoice({ ...data, supplier_id: id });
-      } else {
-        await updateInvoice({
-          transaction_id: data.transaction_id,
-          data: {
-            ...data,
-            supplier_id: id,
-          },
-        }).unwrap();
+        await createSupplierInvoice({ ...data, supplier_id: id }).unwrap();
       }
       dispatch(updateMode("create"));
       setShowModal(false);
       await refetch();
     } catch (error) {
-      console.log(error);
+      toast.error(error.data?.message);
     }
   };
 
@@ -206,7 +181,8 @@ export const SupplierDetails = () => {
           </span>
         </div>
       </div>
-      <div className="flex flex-col bg-white w-full h-full  rounded-lg  relative ">
+      <div className="flex flex-col bg-white w-full h-full  rounded-lg  relative min-h-0 ">
+        <ToastContainer />
         {showInvoice && (
           <InvoiceView
             handleClose={() => {
@@ -244,7 +220,7 @@ export const SupplierDetails = () => {
             {t("Faktura Əlavə Et")}
           </button>
         </div>
-        <div className="flex flex-col gap-4 px-4">
+        <div className=" px-4 min-h-0 ">
           <Table
             columns={columns}
             data={

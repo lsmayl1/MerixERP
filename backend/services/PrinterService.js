@@ -384,33 +384,33 @@ const PrintLabel = async (labelData) => {
     // Save PDF to file
     doc.end();
     const printerLabel = config.server.PRINTER_LABEL || "XP-360B";
-    // await new Promise((resolve, reject) => {
-    //   stream.on("finish", async () => {
-    //     const options = {
-    //       printer: printerLabel, // Your thermal printer
-    //       pages: "1",
-    //       orientation: "landscape",
-    //       monochrome: false,
-    //       silent: true,
-    //       printDialog: false,
-    //       copies: 1,
-    //       paperSize: "Custom", // Use custom paper size
-    //     };
+    await new Promise((resolve, reject) => {
+      stream.on("finish", async () => {
+        const options = {
+          printer: printerLabel, // Your thermal printer
+          pages: "1",
+          orientation: "landscape",
+          monochrome: false,
+          silent: true,
+          printDialog: false,
+          copies: 1,
+          paperSize: "Custom", // Use custom paper size
+        };
 
-    //     try {
-    //       await pdf2printer.print(pdfPath, options);
-    //       fs.unlinkSync(pdfPath);
-    //       resolve();
-    //     } catch (err) {
-    //       if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
-    //       reject(err);
-    //     }
-    //   });
+        try {
+          await pdf2printer.print(pdfPath, options);
+          fs.unlinkSync(pdfPath);
+          resolve();
+        } catch (err) {
+          if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
+          reject(err);
+        }
+      });
 
-    //   stream.on("error", (err) => {
-    //     reject(err);
-    //   });
-    // });
+      stream.on("error", (err) => {
+        reject(err);
+      });
+    });
   } catch (error) {
     throw error;
   }

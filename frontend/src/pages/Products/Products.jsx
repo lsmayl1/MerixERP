@@ -21,10 +21,11 @@ import { Table } from "../../components/Table";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast, ToastContainer } from "react-toastify";
-import { productColumn } from "./products.column";
+import { productColumn } from "../../components/Products/products.column";
 
 export const Products = () => {
   const { t } = useTranslation();
+  const [limit, setLimit] = useState(100);
   const { data: metricData } = useGetProductsMetricsQuery();
   const [searchParams] = useSearchParams();
   const sort = searchParams.get("name");
@@ -32,7 +33,7 @@ export const Products = () => {
     data,
     isLoading,
     refetch: ProductsRefetch,
-  } = useGetProductsQuery({ page: 1, sort });
+  } = useGetProductsQuery({ page: 1, sort, limit });
   const [showProductModal, setShowProductModal] = useState(false);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [query, setQuery] = useState("");
@@ -53,8 +54,7 @@ export const Products = () => {
   const [deleteProduct] = useDeleteProductByIdMutation();
 
   const [putProduct] = usePutProductByIdMutation();
-  const [postProduct, { isLoading: postLoading, isError: postError }] =
-    usePostProductMutation();
+  const [postProduct] = usePostProductMutation();
 
   const [printProductLabel] = usePrintProductLabelMutation();
 
@@ -199,7 +199,7 @@ export const Products = () => {
           <div className="flex items-center gap-2 w-full relative">
             <input
               type="text"
-              placeholder="Search by name or barcode"
+              placeholder="Məhsul axtar..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => handleQuery(e)}
@@ -208,6 +208,10 @@ export const Products = () => {
             <SearchIcon className="absolute left-2 max-md:size-5" />
           </div>
           <div className="flex  relative ">
+            <BarcodeField
+              handleBarcode={handleBarcode}
+              shouldFocus={!showProductModal}
+            />
             <button
               onClick={() => setShowFiltersModal(!showFiltersModal)}
               className="border bg-white border-gray-200 rounded-xl text-nowrap px-4 max-md:px-2 cursor-pointer flex max-md:text-xs items-center gap-2 py-1 max-md:py-0"
@@ -229,13 +233,9 @@ export const Products = () => {
             <Plus className="max-md:size-5" />
             {t("addProduct")}
           </button>
-          <BarcodeField
-            handleBarcode={handleBarcode}
-            shouldFocus={!showProductModal}
-          />
         </div>
 
-        <div className="min-h-0 w-full px-2">
+        <div className="min-h-0  w-full px-2  flex justify-center flex-col items-center gap-2">
           <Table
             columns={productColumn({
               t,
@@ -246,6 +246,12 @@ export const Products = () => {
             data={filteredProducts}
             isLoading={isLoading}
           />
+          <button
+            onClick={() => setLimit(limit + 100)}
+            className="border border-mainBorder rounded-lg text-xs px-2 py-1 w-fit"
+          >
+            Daha Cox
+          </button>
         </div>
       </div>
     </div>

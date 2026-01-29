@@ -15,7 +15,7 @@ import { SupplierDetails } from "./pages/Suppliers/SupplierDetails";
 import { Category } from "./pages/Category/Category";
 import { CategoryDetails } from "./pages/Category/CategoryDetails";
 import { Login } from "./pages/Login";
-import { PosNew } from "./pages/PosNew";
+import { Pos } from "./pages/Pos";
 export const App = () => {
   return (
     <Routes>
@@ -36,8 +36,8 @@ export const App = () => {
         </Route>
         <Route path="suppliers" element={<Suppliers />} />
         <Route path="suppliers/:id" element={<SupplierDetails />} />
+        <Route path="pos" element={<Pos />} />
       </Route>
-      <Route path="pos" element={<PosNew />} />
 
       <Route path="login" element={<Login />} />
     </Routes>

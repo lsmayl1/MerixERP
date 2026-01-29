@@ -1,27 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Plus } from "../../assets/Plus";
-import { Logout } from "../../assets/Logout";
-import { createColumnHelper } from "@tanstack/react-table";
 import { Table } from "../../components/Table";
-import TrashBin from "../../assets/TrashBin";
-import { Cash } from "../../assets/Cash";
-import { CreditCard } from "../../assets/CreditCard";
 import Payment from "../../assets/Payment";
 import {
-  useGetProductsByQueryQuery,
   useLazyGetProductByIdQuery,
   usePostSaleMutation,
   usePostSalePreviewMutation,
 } from "../../redux/slices/ApiSlice";
 import { BarcodeField } from "../../components/BarcodeField";
 import { ProductShortcuts } from "../../components/Pos/ProductShortcuts";
-import { NavLink } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { QtyInput } from "../../components/QtyInput";
 import { useTranslation } from "react-i18next";
-import { SearchModal } from "../../components/Pos/SearchModal";
-import { ChartPie } from "../../assets/chart-pie";
-import Return from "../../assets/Navigation/Return";
 import { PaymentStage } from "../../components/Pos/PaymentStage";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -37,81 +26,21 @@ import {
   selectOpenCarts,
 } from "../../redux/products/products.hook";
 import { CloseIcon } from "../../assets/Close";
-export const PosNew = () => {
+import { PosColumn } from "../../components/Pos/Pos.column";
+export const Pos = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { activeCartId } = useSelector((s) => s.products);
   const products = useSelector(selectActiveProducts) || [];
   const carts = useSelector((s) => selectOpenCarts(s)) || [];
-  const columnHelper = createColumnHelper();
   const [data, setData] = useState([]);
-  const [query, setQuery] = useState("");
   const [postPreview, { isLoading: previewLoading }] =
     usePostSalePreviewMutation();
-  const { data: searchData } = useGetProductsByQueryQuery(query, {
-    skip: !query || query.length < 3,
-  });
   const [trigger, { isLoading, isFetching }] = useLazyGetProductByIdQuery();
-  const columns = [
-    columnHelper.accessor("name", {
-      header: t("product"),
-      headerClassName: "text-start rounded-s-lg bg-gray-100",
-      cellClassName: "text-start",
-    }),
-    columnHelper.accessor("sellPrice", {
-      header: t("price"),
-      headerClassName: "text-center  bg-gray-100",
-      cellClassName: "text-center",
-      cell: ({ row }) => <span>{row.original?.sellPrice?.toFixed(2)} ₼</span>,
-    }),
-    columnHelper.accessor("quantity", {
-      header: t("quantity"),
-      cell: ({ row }) => (
-        <QtyInput
-          qty={row.original.quantity}
-          barcode={row.original.barcode}
-          handleQty={handleChangeQtyAndFocus}
-          allign={"justify-center"}
-        />
-      ),
-      headerClassName: "text-center  bg-gray-100",
-      cellClassName: "text-center",
-    }),
-    columnHelper.accessor("subtotal", {
-      header: t("subtotal"),
-      headerClassName: "text-center  bg-gray-100",
-      cellClassName: "text-center",
-      cell: ({ row }) => (
-        <div>
-          <span>{row.original?.subtotal?.toFixed(2)} ₼</span>
-        </div>
-      ),
-    }),
-    columnHelper.accessor("action", {
-      header: t("delete"),
-      headerClassName: "text-center rounded-e-lg bg-gray-100",
-      cellClassName: "text-center",
-      cell: ({ row }) => (
-        <button
-          onClick={() =>
-            dispatch(
-              removeProduct({
-                cartId: activeCartId,
-                barcode: row.original.barcode,
-              }),
-            )
-          }
-        >
-          <TrashBin className="size-6 text-red-500" />
-        </button>
-      ),
-    }),
-  ];
   const [paymentStage, setPaymentStage] = useState(false);
   const [type, setType] = useState("sale");
   const [discount, setDiscount] = useState(0);
   const [postSale, { isLoading: postLoading }] = usePostSaleMutation();
-  const searchInput = useRef();
   const modalRef = useRef();
   const barcodeRef = useRef();
 
@@ -119,40 +48,7 @@ export const PosNew = () => {
     if (carts.length === 0) {
       dispatch(createCart());
     }
-  }, []);
-  useEffect(() => {
-    document.title = "Kassa";
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const key = e.key.toLowerCase();
-
-      if (e.ctrlKey && key === "k") {
-        e.preventDefault();
-        searchInput.current?.focus();
-      } else if (key === "/") {
-        e.preventDefault();
-      } else if (key === "escape") {
-        setQuery("");
-        barcodeRef.current?.focus();
-      }
-    };
-
-    const handleClickOutside = (e) => {
-      if (modalRef.current && !modalRef.current.contains(e.target)) {
-        setQuery("");
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  }, [carts.length, dispatch]);
 
   const handleChangeQty = async (barcode, action, qty) => {
     const existProduct = products.find((x) => x.barcode == barcode);
@@ -235,9 +131,6 @@ export const PosNew = () => {
       console.log(error);
     }
   };
-  const handleChangeDiscount = (value) => {
-    setDiscount(value);
-  };
 
   useEffect(() => {
     const handlePreview = async () => {
@@ -270,11 +163,11 @@ export const PosNew = () => {
     <div className="flex flex-col  overflow-hidden h-screen  gap-2 w-full ">
       <ToastContainer />
 
-      <div className="flex gap-4 items-center justify-between px-8 py-4">
+      <div className="flex bg-white rounded-lg p-2 gap-4 items-center justify-between  ">
         <div className="flex gap-2 ">
           {carts.map((cart, index) => (
             <div
-              className={`px-3 rounded-lg flex items-center gap-2 py-3 pr-4 border border-mainBorder     ${
+              className={`px-3 text-xs rounded-lg flex items-center gap-2 py-3 pr-4 border border-mainBorder     ${
                 cart.isActive ? "bg-blue-600 text-white" : "bg-gray-200"
               }`}
               key={cart.cartId}
@@ -289,63 +182,69 @@ export const PosNew = () => {
                 onClick={() => dispatch(closeCart(cart.cartId))}
                 className="cursor-pointer"
               >
-                <CloseIcon className={"size-5"} />
+                <CloseIcon className={"size-4"} />
               </span>
             </div>
           ))}
           {carts.length < 3 && (
             <div>
               <button
-                className="flex gap-2 h-full border border-mainBorder  rounded-lg items-center py-2 p-4   "
+                className="flex gap-2 h-full text-md border border-mainBorder  rounded-lg items-center p-2"
                 onClick={(e) => {
                   e.stopPropagation();
-
                   dispatch(createCart());
                 }}
               >
-                <Plus className={"size-5"} />{" "}
+                <Plus className={"size-4"} />{" "}
                 <span className="">Yeni Səbət</span>
               </button>
             </div>
           )}
         </div>
-        <SearchModal
-          data={searchData}
-          setQuery={setQuery}
-          query={query}
-          barcodeRef={barcodeRef}
-          handleAdd={handleChangeQtyAndFocus}
-        />
+
         <div className="flex items-center gap-6">
-          <NavLink to={"/"}>
-            <Logout className="size-8 text-gray-500" />
-          </NavLink>
           <BarcodeField
             ref={barcodeRef}
             handleBarcode={(id) => handleChangeQty(id, "increase")}
           />
         </div>
       </div>
-      <div className="bg-[#F8F8F8] w-full flex h-full px-4  min-h-0">
+      <div className="bg-[#F8F8F8] w-full flex h-full gap-4   min-h-0">
         <ProductShortcuts
           data={data?.items}
-          // products={products}
           handleChangeQty={handleChangeQtyAndFocus}
+          barcodeRef={barcodeRef}
+          modalRef={modalRef}
         />
-        <div className="flex-1 min-h-0  bg-white px-4 gap-4 h-full flex flex-col justify-between pb-2 ">
+        <div className="flex-1 min-h-0 rounded-lg  bg-white p-2 gap-4 h-full flex flex-col justify-between pb-2 ">
           {paymentStage && products.length > 0 ? (
             <PaymentStage
               type={type}
               handleBack={() => setPaymentStage(false)}
               value={data?.total}
               data={data}
-              setDiscount={handleChangeDiscount}
+              setDiscount={(value) => setDiscount(value)}
               discount={discount}
               submitSale={handleSubmitSale}
             />
           ) : (
-            <div className="flex-1  px-4 gap-4  flex flex-col bg-white rounded-2xl  justify-between h-full  ">
-              <Table columns={columns} data={data?.items} pagination={false} />
+            <div className="flex-1   gap-4  flex flex-col bg-white rounded-2xl  justify-between h-full  ">
+              <Table
+                columns={PosColumn({
+                  t,
+                  handleChangeQty: handleChangeQtyAndFocus,
+                  removeProduct: (barcode) =>
+                    dispatch(
+                      removeProduct({
+                        cartId: activeCartId,
+                        barcode: barcode,
+                      }),
+                    ),
+                })}
+                data={data?.items}
+                pagination={false}
+                isLoading={isLoading}
+              />
               {products.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-end">
@@ -355,7 +254,7 @@ export const PosNew = () => {
                     </span>
                   </div>
 
-                  <div className="flex flex-row-reverse items-center gap-2 w-full h-full">
+                  <div className="flex flex-row-reverse items-center gap-4 w-full h-full">
                     <button
                       disabled={data.length == 0 || postLoading}
                       onClick={() => stageType("sale")}

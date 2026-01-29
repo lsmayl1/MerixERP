@@ -271,7 +271,7 @@ router.get("/bestSellers", async (req, res) => {
         "product.barcode",
       ],
       order: [[sequelize.literal("sold"), "DESC"]],
-      limit: 20,
+      limit: 10,
       include: [
         {
           model: Products,
@@ -382,9 +382,10 @@ router.get("/revenue", async (req, res) => {
           )} ${String(dateObj.getHours()).padStart(2, "0")}:00`;
           break;
         case "daily":
-          key = `${dateObj.getFullYear()}-${String(
-            dateObj.getMonth() + 1,
-          ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+          key = `${String(dateObj.getMonth() + 1).padStart(
+            2,
+            "0",
+          )}-${String(dateObj.getDate()).padStart(2, "0")}`;
           break;
         case "weekly":
           const weekStart = new Date(dateObj);

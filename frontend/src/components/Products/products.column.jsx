@@ -3,15 +3,9 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Edit from "../../assets/Edit";
 import { Details } from "../../assets/Details";
 import { PrintIcon } from "../../assets/PrintIcon";
-import TrashBin from "../../assets/TrashBin";
 import { NavLink } from "react-router-dom";
 
-export const productColumn = ({
-  t,
-  editProduct,
-  printProduct,
-  deleteProduct,
-}) => {
+export const productColumn = ({ t, editProduct, printProduct }) => {
   const columnHelper = createColumnHelper();
   return [
     columnHelper.accessor("product_id", {
@@ -74,32 +68,26 @@ export const productColumn = ({
       headerClassName: "text-center rounded-e-lg bg-gray-100",
       cellClassName: "text-center",
       cell: ({ row }) => (
-        <div className="flex justify-center  gap-6">
+        <div className="flex justify-center  gap-4">
           <button
             className="cursor-pointer"
             onClick={() => editProduct(row.original.product_id)}
           >
-            <Edit />
+            <Edit className={"size-4"} />
           </button>
 
           <NavLink
             to={`/products/${row.original.product_id}`}
             className="cursor-pointer"
           >
-            <Details className="size-5" />
+            <Details className={"size-4"} />
           </NavLink>
           <button
             onClick={() => printProduct(row.original.barcode)}
             className="cursor-pointer text-black"
           >
-            <PrintIcon className={"size-6"} />
+            <PrintIcon className={"size-4"} />
           </button>
-          {/* <button
-            className="cursor-pointer"
-            onClick={() => deleteProduct(row.original.product_id)}
-          >
-            <TrashBin className="size-5" />
-          </button> */}
         </div>
       ),
       enableSorting: false, // Action sütunu için sıralamayı devre dışı bırak

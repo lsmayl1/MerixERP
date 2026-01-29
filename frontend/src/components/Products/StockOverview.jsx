@@ -12,12 +12,17 @@ export const StockOverview = () => {
     }),
     columnHelper.accessor("sold", {
       header: "Satilan Miqdar",
-      headerClassName: "text-start",
+      headerClassName: "text-center",
+      cellClassName: "text-center",
     }),
     columnHelper.accessor("stock", {
       header: "Qaliq",
       headerClassName: "text-start",
     }),
   ];
-  return <Table columns={columns} data={data} />;
+  return (
+    <div className="overflow-auto min-h-0 h-full min-w-0 overflow-x-hidden">
+      <Table columns={columns} data={data} />
+    </div>
+  );
 };

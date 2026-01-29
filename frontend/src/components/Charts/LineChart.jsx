@@ -19,7 +19,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
 export const LineChart = ({ data, valueKey = "revenue" }) => {
@@ -31,11 +31,11 @@ export const LineChart = ({ data, valueKey = "revenue" }) => {
     labels: labels,
     datasets: [
       {
-        label: "Satış Miktarı",
+        label: "Dövriyyə",
         data: dataPoints,
         borderColor: "rgba(0, 0, 0)",
         backgroundColor: "rgba(0, 0, 0, 0.1)",
-        tension: 0.2 , // eğri çizgi için
+        tension: 0.2, // eğri çizgi için
         fill: true,
         pointRadius: 0,
       },
@@ -46,7 +46,7 @@ export const LineChart = ({ data, valueKey = "revenue" }) => {
 
   const options = {
     responsive: true, // Ekran boyutuna göre uyumlu olmasını sağlar
-    maintainAspectRatio: false, // Grafik boyutunu korur
+    maintainAspectRatio: true, // Grafik boyutunu korur
     plugins: {
       legend: {
         display: false, // Legend'ı gizler

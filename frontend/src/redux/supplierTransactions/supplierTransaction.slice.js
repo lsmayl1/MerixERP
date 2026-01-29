@@ -1,15 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
-
+const formatToYYYYMMDD = (dateString) => {
+  if (dateString) {
+    return new Date(dateString).toISOString().split("T")[0];
+  } else {
+    const date = new Date();
+    return new Date(date).toISOString().split("T")[0];
+  }
+};
 const initialState = {
   mode: "create",
   transactionType: "purchase",
   paymentMethod: "cash",
-  date: null,
+  date: formatToYYYYMMDD(),
   products: [],
-};
-
-const formatToYYYYMMDD = (dateString) => {
-  return new Date(dateString).toISOString().split("T")[0];
 };
 
 const supplierTransactionSlice = createSlice({
@@ -46,7 +49,7 @@ const supplierTransactionSlice = createSlice({
     },
     incrementQty: (state, action) => {
       const product = state.products.find(
-        (p) => String(p.barcode) === String(action.payload)
+        (p) => String(p.barcode) === String(action.payload),
       );
       if (product) {
         product.quantity += 1;
@@ -61,10 +64,10 @@ const supplierTransactionSlice = createSlice({
     updateMode: (state, action) => {
       state.mode = action.payload;
     },
-    resetState(state) {
+    resetState(state, action) {
       state.transactionType = "purchase";
       state.paymentMethod = "cash";
-      state.date = null;
+      state.date = formatToYYYYMMDD(action.payload);
       state.products = [];
     },
   },

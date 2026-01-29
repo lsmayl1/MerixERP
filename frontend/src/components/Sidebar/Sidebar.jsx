@@ -2,18 +2,21 @@ import React, { useEffect, useState } from "react";
 import Dashboard from "../../assets/Sidebar/Dashboard";
 import Box from "../../assets/Sidebar/Box";
 import Reports from "../../assets/Sidebar/Reports";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Kart } from "../../assets/Sidebar/Kart";
 import { CloseIcon } from "../../assets/Close";
 import { useTranslation } from "react-i18next";
 import Delivery from "../../assets/Navigation/Delivery";
-import StockBox from "../../assets/Navigation/StockBox";
+import StockBox from "../../assets/Sidebar/StockBox.jsx";
 import { Supplier } from "../../assets/Navigation/Supplier";
 import Category from "../../assets/Navigation/Category";
 import Suppliers from "../../assets/Sidebar/Suppliers";
+import Logo from "../../assets/Logo/LogoMain.jsx";
+import LogoName from "../../assets/Logo/LogoName.jsx";
 
 export const Sidebar = ({ className, handleClose }) => {
   const { t } = useTranslation();
+  const path = useLocation();
   const links = [
     { name: t("dashboard"), blank: false, path: "", icon: <Dashboard /> },
     { name: t("products"), blank: false, path: "products", icon: <Box /> },
@@ -23,12 +26,12 @@ export const Sidebar = ({ className, handleClose }) => {
       path: "stock-movements",
       icon: <StockBox />,
     },
-    {
-      name: t("Kateqoriyalar"),
-      blank: false,
-      path: "category",
-      icon: <Category />,
-    },
+    // {
+    //   name: t("Kateqoriyalar"),
+    //   blank: false,
+    //   path: "category",
+    //   icon: <Category />,
+    // },
 
     {
       name: t("reports"),
@@ -42,7 +45,7 @@ export const Sidebar = ({ className, handleClose }) => {
           path: "reports/products",
         },
         {
-          name: t("cashMovement"),
+          name: t("Ödənişlər"),
           path: "reports/cash-movements",
         },
       ],
@@ -56,11 +59,27 @@ export const Sidebar = ({ className, handleClose }) => {
 
     { name: t("pos"), blank: true, path: "pos", icon: <Kart /> },
   ];
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (path.pathname === "/pos") {
+      setCollapsed(true);
+    } else {
+      setCollapsed(false);
+    }
+  }, [path]);
   return (
     <div
-      className={`max-md:absolute bg-white border-r-gray-100 border-r z-50 max-md:left-0 max-md:bg-white  flex pt-8 flex-col px-4 ${className}
+      className={`max-md:absolute bg-white border-r-gray-100 border-r z-50 gap-8 max-md:left-0 max-md:bg-white  flex pt-8 flex-col px-4 ${className}
       `}
     >
+      <NavLink
+        to={"/"}
+        className={`flex items-center gap-2 ${collapsed ? "justify-center" : ""}`}
+      >
+        <Logo className="size-10" />
+        {!collapsed && <LogoName className="text-black w-14" />}
+      </NavLink>
       <ul className="flex flex-col  gap-2">
         {links.map((link, index) => (
           <div className="flex flex-col gap-1  " key={index}>
@@ -71,30 +90,32 @@ export const Sidebar = ({ className, handleClose }) => {
                   isActive
                     ? "bg-gray-200 border border-mainBorder"
                     : "hover:bg-white"
-                } px-4 rounded-lg transition-colors duration-200`
+                } px-2 rounded-lg transition-colors duration-200`
               }
             >
               {({ isActive }) => (
                 <>
                   {link.icon &&
                     React.cloneElement(link.icon, {
-                      className: ` size-8 max-md:size-6 ${
-                        !isActive ? "text-black" : "text-mainText"
+                      className: ` size-7 max-md:size-6 ${
+                        !isActive ? "text-black" : "text-black"
                       } `,
                     })}
-                  <span
-                    className={`${
-                      !isActive ? "text-black" : "text-mainText"
-                    } text-lg max-md:text-md font-medium`}
-                  >
-                    {link.name}
-                  </span>
+                  {!collapsed && (
+                    <span
+                      className={`${
+                        !isActive ? "text-black" : "text-black"
+                      } text-md max-md:text-md font-medium text-nowrap`}
+                    >
+                      {link.name}
+                    </span>
+                  )}
                 </>
               )}
             </NavLink>
 
-            {link.category && link.category.length > 0 && (
-              <ul className="border-l  border-mainBorder ml-7.5 pl-4 ">
+            {link.category && link.category.length > 0 && !collapsed && (
+              <ul className="pl-4 ">
                 {link.category.map((subLink, subIndex) => (
                   <NavLink
                     key={subIndex}
@@ -107,15 +128,17 @@ export const Sidebar = ({ className, handleClose }) => {
                       } px-4 rounded-lg transition-colors duration-200`
                     }
                   >
-                    {({ isActive }) => (
-                      <span
-                        className={` text-lg max-md:text-md font-medium text-nowrap ${
-                          !isActive ? "text-black" : "text-mainText"
-                        }`}
-                      >
-                        {subLink.name}
-                      </span>
-                    )}
+                    {({ isActive }) =>
+                      !collapsed && (
+                        <span
+                          className={` text-md max-md:text-md font-medium text-nowrap ${
+                            !isActive ? "text-black" : "text-mainText"
+                          }`}
+                        >
+                          {subLink.name}
+                        </span>
+                      )
+                    }
                   </NavLink>
                 ))}
               </ul>

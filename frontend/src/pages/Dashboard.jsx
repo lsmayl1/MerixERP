@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { KPI } from "../components/Metric/KPI.jsx";
-import { Table } from "../components/Table/index.jsx";
-import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 import { DateRange } from "../components/Date/DateRange.jsx";
 import {
-  useGetDailyProfitQuery,
   useGetDailyRevenueQuery,
   useGetDashboardMetricsMutation,
 } from "../redux/slices/ApiSlice.jsx";
@@ -14,8 +11,7 @@ import { StockOverview } from "../components/Products/StockOverview.jsx";
 
 export const Dashboard = () => {
   const { t } = useTranslation();
-  const [timeframeVariable, setTimeframeVariable] = useState([
-    { label: "Hourly", value: "hourly" },
+  const [timeframeVariable] = useState([
     { label: "Daily", value: "daily" },
     { label: "Weekly", value: "weekly" },
     { label: "Monthly", value: "monthly" },
@@ -25,9 +21,7 @@ export const Dashboard = () => {
   const { data: Revenue } = useGetDailyRevenueQuery(timeframe, {
     skip: !timeframe,
   });
-  const { data: Profit } = useGetDailyProfitQuery(timeframe, {
-    skip: !timeframe,
-  });
+
   const [getMetrics] = useGetDashboardMetricsMutation();
   const [metricData, setMetricData] = useState({});
   const [range, setRange] = useState({
@@ -49,7 +43,7 @@ export const Dashboard = () => {
   }, [range]);
 
   return (
-    <div className="w-full h-full  flex flex-col pr-2 gap-2 overflow-auto ">
+    <div className="w-full h-screen  flex flex-col pr-2 gap-2 min-h-0  ">
       <DateRange handleRange={setRange} />
       <div className="flex items-center gap-2 w-full">
         <KPI
@@ -73,36 +67,10 @@ export const Dashboard = () => {
           ]}
         />
       </div>
-      <div className="flex flex-col  bg-white w-full justify-end  p-4 h-full gap-4  rounded-lg  ">
-        <div className="flex justify-end gap-6  items-center ">
-          {timeframeVariable.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => setTimeframe(item.value)}
-              className={`${
-                timeframe === item.value ? "bg-blue-700 text-white" : "bg-white"
-              } border border-mainBorder px-4 py-1 rounded-lg`}
-            >
-              {t(item.value)}
-            </button>
-          ))}
-        </div>
-
-        <div className="w-full min-h-[400px] h-full min-w-0 transition-width duration-200  ">
-          <LineChart data={Revenue?.data} />
-        </div>
-      </div>
-      {/* <div className="flex flex-col bg-white w-full justify-end  p-4 h-full  rounded-lg  ">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex  items-center   gap-4">
-            <h1 className=" font-medium text-xl text-mainText">
-              Ortalama Qazanc
-            </h1>
-            <span className="text-3xl text-end font-semibold ">
-              {Profit?.average}
-            </span>
-          </div>
-          <div className="flex justify-end gap-6  items-center ">
+      <div className="flex w-full gap-2 h-full max-h-[600px]">
+        <div className="flex flex-col flex-2  bg-white w-full justify-end  p-2 h-full gap-4  rounded-lg  ">
+          <div className="flex justify-between gap-2  items-center ">
+            <div className="w-full text-mainText font-medium">Dövriyyə</div>
             {timeframeVariable.map((item, index) => (
               <button
                 key={index}
@@ -111,21 +79,28 @@ export const Dashboard = () => {
                   timeframe === item.value
                     ? "bg-blue-700 text-white"
                     : "bg-white"
-                } border border-mainBorder px-4 py-1 rounded-lg`}
+                } border text-xs border-mainBorder px-4 py-1 rounded-lg`}
               >
                 {t(item.value)}
               </button>
             ))}
           </div>
-        </div>
-        <LineChart valueKey={"profit"} data={Profit?.data} />
-      </div> */}
 
-      <div className="w-full flex flex-col gap-4 rounded-lg p-4 bg-white h-1/2">
-        <h1 className="text-2xl">En cox satilanlar</h1>
-        <div className=" overflow-auto">
-          <StockOverview />
+          <div className="w-full  h-full min-w-0  transition-width duration-200 relative">
+            <LineChart data={Revenue?.data} />
+          </div>
         </div>
+        <div className="w-full flex flex-1  flex-col gap-2 min-h-0 rounded-lg p-2 bg-white ">
+          <h1 className="text-md text-mainText font-medium">
+            Azalan məhsullar
+          </h1>
+          <div className="overflow-auto">
+            <StockOverview />
+          </div>
+        </div>
+      </div>
+      <div className="bg-white w-full h-full rounded-lg p-2">
+        <h1 className="text-lg text-mainText font-medium">Son ödənişlər</h1>
       </div>
     </div>
   );
