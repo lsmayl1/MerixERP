@@ -88,7 +88,7 @@ export const Sidebar = ({ className, handleClose }) => {
               className={({ isActive }) =>
                 `flex items-center gap-4 border-mainBorder py-2 ${
                   isActive
-                    ? "bg-gray-200 border border-mainBorder"
+                    ? "bg-[#0f172a] border border-mainBorder"
                     : "hover:bg-white"
                 } px-2 rounded-lg transition-colors duration-200`
               }
@@ -98,13 +98,13 @@ export const Sidebar = ({ className, handleClose }) => {
                   {link.icon &&
                     React.cloneElement(link.icon, {
                       className: ` size-7 max-md:size-6 ${
-                        !isActive ? "text-black" : "text-black"
+                        !isActive ? "text-black" : "text-white"
                       } `,
                     })}
                   {!collapsed && (
                     <span
                       className={`${
-                        !isActive ? "text-black" : "text-black"
+                        !isActive ? "text-black" : "text-white"
                       } text-md max-md:text-md font-medium text-nowrap`}
                     >
                       {link.name}
@@ -132,7 +132,7 @@ export const Sidebar = ({ className, handleClose }) => {
                       !collapsed && (
                         <span
                           className={` text-md max-md:text-md font-medium text-nowrap ${
-                            !isActive ? "text-black" : "text-mainText"
+                            !isActive ? "text-black" : "text-[#0f172a]"
                           }`}
                         >
                           {subLink.name}

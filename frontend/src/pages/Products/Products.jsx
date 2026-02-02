@@ -179,8 +179,8 @@ export const Products = () => {
             value: metricData?.pieceBasedProducts,
           },
           {
-            label: t("OutofStockProducts"),
-            value: metricData?.zeroOrNegativeStock,
+            label: t("Ümumi Anbar Dəyəri"),
+            value: metricData?.totalStock,
           },
         ]}
       />
@@ -235,7 +235,7 @@ export const Products = () => {
           </button>
         </div>
 
-        <div className="min-h-0  w-full px-2  flex justify-center flex-col items-center gap-2">
+        <div className="min-h-0  w-full px-2  flex justify-center flex-col items-center gap-1">
           <Table
             columns={productColumn({
               t,
@@ -246,12 +246,14 @@ export const Products = () => {
             data={filteredProducts}
             isLoading={isLoading}
           />
-          <button
-            onClick={() => setLimit(limit + 100)}
-            className="border border-mainBorder rounded-lg text-xs px-2 py-1 w-fit"
-          >
-            Daha Cox
-          </button>
+          {filteredProducts?.length > 50 && (
+            <button
+              onClick={() => setLimit(limit + 100)}
+              className="border border-mainBorder rounded-lg text-xs px-2 py-1 w-fit"
+            >
+              Daha Cox
+            </button>
+          )}
         </div>
       </div>
     </div>

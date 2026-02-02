@@ -1,0 +1,4 @@
+{
+	"JWT_SECRET":"sdu@u%09ujt3feij",
+"JWT_EXPIRES_IN":"1h"
+}

@@ -3,7 +3,7 @@ const {
   createShortCut,
   getShortCutByProductId,
   deleteShortCut,
-} = require("../../services/Product/ProductShortCut.service");
+} = require("../../services/Product/ProductShortcutService");
 const express = require("express");
 const router = express.Router();
 

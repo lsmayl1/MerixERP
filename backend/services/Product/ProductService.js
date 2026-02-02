@@ -11,7 +11,6 @@ const GetAllProducts = async (data) => {
       "barcode",
       "buyPrice",
       "sellPrice",
-      "category_id",
       "unit",
     ];
     const order =
@@ -30,7 +29,14 @@ const GetAllProducts = async (data) => {
         },
       ],
       limit: limit,
+      raw: true,
+      nest: true,
+      subQuery: false,
     });
+
+    if (products.length === 0) {
+      return [];
+    }
 
     return products;
   } catch (error) {

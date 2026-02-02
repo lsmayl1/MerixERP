@@ -57,7 +57,7 @@ export const productColumn = ({ t, editProduct, printProduct }) => {
       header: t("stock"),
       cell: (info) => (
         <div className="flex items-center justify-center gap-2">
-          <span>{info.getValue() + " əd"}</span>
+          <span>{Number(info.getValue()).toFixed(2) + " əd"}</span>
         </div>
       ),
       headerClassName: "text-center bg-gray-100",

@@ -1,163 +1,45 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { Plus } from "../../assets/Plus";
 import { Table } from "../../components/Table";
 import Payment from "../../assets/Payment";
-import {
-  useLazyGetProductByIdQuery,
-  usePostSaleMutation,
-  usePostSalePreviewMutation,
-} from "../../redux/slices/ApiSlice";
 import { BarcodeField } from "../../components/BarcodeField";
 import { ProductShortcuts } from "../../components/Pos/ProductShortcuts";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { PaymentStage } from "../../components/Pos/PaymentStage";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
-  addProduct,
-  changeQty,
   closeCart,
   createCart,
   removeProduct,
   switchCart,
 } from "../../redux/products/products.slice";
-import {
-  selectActiveProducts,
-  selectOpenCarts,
-} from "../../redux/products/products.hook";
 import { CloseIcon } from "../../assets/Close";
 import { PosColumn } from "../../components/Pos/Pos.column";
+import { usePos } from "../../hooks/usePos";
 export const Pos = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { activeCartId } = useSelector((s) => s.products);
-  const products = useSelector(selectActiveProducts) || [];
-  const carts = useSelector((s) => selectOpenCarts(s)) || [];
-  const [data, setData] = useState([]);
-  const [postPreview, { isLoading: previewLoading }] =
-    usePostSalePreviewMutation();
-  const [trigger, { isLoading, isFetching }] = useLazyGetProductByIdQuery();
-  const [paymentStage, setPaymentStage] = useState(false);
-  const [type, setType] = useState("sale");
-  const [discount, setDiscount] = useState(0);
-  const [postSale, { isLoading: postLoading }] = usePostSaleMutation();
-  const modalRef = useRef();
-  const barcodeRef = useRef();
 
-  useEffect(() => {
-    if (carts.length === 0) {
-      dispatch(createCart());
-    }
-  }, [carts.length, dispatch]);
-
-  const handleChangeQty = async (barcode, action, qty) => {
-    const existProduct = products.find((x) => x.barcode == barcode);
-
-    if (existProduct) {
-      // Adet bazlı ürünler için eski davranış
-      dispatch(
-        changeQty({
-          cartId: activeCartId,
-          product_id: existProduct.product_id,
-          barcode: existProduct.barcode,
-          qty: qty,
-          operation: action,
-        }),
-      );
-      return;
-    }
-
-    // Ürün yoksa ve artırma işlemi ise yeni ürün ekle
-    if (action === "increase") {
-      if (isFetching) return;
-      try {
-        const validProduct = await trigger(barcode).unwrap();
-        if (!validProduct) return null;
-
-        const existProduct = products.find(
-          (x) => x.barcode == validProduct.productBarcode,
-        );
-
-        if (existProduct) {
-          // Ürün zaten listede varsa, miktarı artır
-          dispatch(
-            changeQty({
-              cartId: activeCartId,
-              product_id: validProduct.product_id,
-              quantity: 1,
-              barcode: validProduct.barcode,
-            }),
-          );
-
-          return;
-        } else
-          dispatch(
-            addProduct({
-              cartId: activeCartId,
-              product: {
-                product_id: validProduct.product_id,
-                quantity: validProduct.quantity ? validProduct.quantity : 1,
-                barcode: validProduct.barcode,
-                unit: validProduct.unit,
-              },
-            }),
-          );
-      } catch (err) {
-        toast.error(err?.data?.error);
-        console.log(err);
-      }
-    }
-
-    barcodeRef.current?.focus();
-  };
-
-  const handleSubmitSale = async (type, payments) => {
-    if (postLoading) return;
-    try {
-      await postSale({
-        products: data?.items,
-        type: type || "sale",
-        discount: discount,
-        payments: payments,
-      }).unwrap();
-      setData([]);
-      setPaymentStage(false);
-      dispatch(closeCart(activeCartId));
-      setDiscount(0);
-      setTimeout(() => {
-        barcodeRef.current?.focus();
-      }, 100);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    const handlePreview = async () => {
-      if (products.length == 0) {
-        setData([]);
-        return;
-      }
-      if (previewLoading) return;
-      const response = await postPreview({
-        items: products,
-        discount: discount,
-      }).unwrap();
-      setData(response); // response = { subtotal, total, items }
-    };
-
-    handlePreview();
-  }, [products, discount]);
-
-  const handleChangeQtyAndFocus = (...args) => {
-    handleChangeQty(...args);
-    barcodeRef.current?.focus();
-  };
-
-  const stageType = (type) => {
-    setType(type);
-    setPaymentStage(true);
-  };
+  const {
+    handleSubmitSale,
+    carts,
+    barcodeRef,
+    data,
+    handleChangeQtyAndFocus,
+    handleChangeQty,
+    modalRef,
+    paymentStage,
+    isLoading,
+    products,
+    postLoading,
+    stageType,
+    type,
+    discount,
+    setDiscount,
+    setPaymentStage,
+    activeCartId,
+  } = usePos();
 
   return (
     <div className="flex flex-col  overflow-hidden h-screen  gap-2 w-full ">
@@ -248,7 +130,6 @@ export const Pos = () => {
               {products.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-end">
-                    {/* <span className="text-2xl font-medium">{t("Total")}</span> */}
                     <span className="text-3xl font-medium">
                       {data?.total?.toFixed(2) || "0.00"} ₼
                     </span>

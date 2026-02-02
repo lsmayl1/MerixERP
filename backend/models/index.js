@@ -13,7 +13,7 @@ const SupplierTransactionDetails = require("./Supplier/SupplierTransactionDetail
 const Category = require("./Product/category");
 const SyncQueue = require("./Sync/SyncQuene");
 const SalePayments = require("./Sale/salePayments");
-const User = require("./user/userModel");
+const User = require("./User/userModel");
 // 🔹 İlişkileri Tanımla
 Sales.hasMany(SalesDetails, { foreignKey: "sale_id", as: "details" });
 SalesDetails.belongsTo(Sales, { foreignKey: "sale_id", as: "sale" });

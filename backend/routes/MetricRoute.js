@@ -90,20 +90,22 @@ router.get("/products", async (req, res) => {
         "buyPrice",
         "unit",
       ],
+      include: [
+        {
+          model: ProductStock,
+          as: "stock",
+          attributes: ["current_stock"],
+        },
+      ],
+      order: [["name", "ASC"]],
+      raw: true,
+      nest: true,
+      subQuery: false,
     });
 
-    // Tüm ürünlerin stoklarını ProductStock tablosundan çek
-    const productIds = products.map((p) => p.product_id);
-    const stocks = await ProductStock.findAll({
-      where: { product_id: productIds },
-      attributes: ["product_id", "current_stock"],
-    });
-
-    // Stokları kolay erişim için objeye çevir
-    const stockMap = {};
-    stocks.forEach((s) => {
-      stockMap[s.product_id] = s.current_stock;
-    });
+    if (products.length === 0) {
+      return res.json([]);
+    }
 
     // Sayılar yoksa 0, varsa binlik ayraçlı string olarak döndürülür
     const totalProducts = products?.length || 0;
@@ -112,12 +114,12 @@ router.get("/products", async (req, res) => {
     const pieceBasedProducts =
       products?.filter((p) => p.unit === "piece").length || 0;
     const zeroOrNegativeStock =
-      products?.filter((p) => (stockMap[p.product_id] ?? 0) <= 0).length || 0;
+      products?.filter((p) => (p.stock.current_stock ?? 0) <= 0).length || 0;
 
     // Toplam stok miktarı (ProductStock tablosundaki current_stock alanı)
     const totalStock = products
       ? products.reduce(
-          (sum, p) => sum + Number(stockMap[p.product_id] ?? 0),
+          (sum, p) => sum + Number(p.stock.current_stock ?? 0) * p.buyPrice,
           0,
         )
       : 0;
@@ -127,7 +129,7 @@ router.get("/products", async (req, res) => {
       kgBasedProducts: kgBasedProducts.toLocaleString("tr-TR"),
       pieceBasedProducts: pieceBasedProducts.toLocaleString("tr-TR"),
       zeroOrNegativeStock: zeroOrNegativeStock.toLocaleString("tr-TR"),
-      totalStock: totalStock.toLocaleString("tr-TR"),
+      totalStock: totalStock.toFixed(2),
     });
   } catch (error) {
     console.log(error);

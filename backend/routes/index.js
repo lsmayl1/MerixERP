@@ -11,8 +11,12 @@ const categoryRoute = require("./Product/CategoryRoute");
 const supplierRoute = require("./Supplier/SupplierRoute");
 const supplierTransactionsRoute = require("./Supplier/SupplierTransactions");
 const productShortCutRoute = require("./Product/productShortCutRoute");
+const userRoute = require("./User/userRoute");
+const authRoute = require("./Auth/AuthRoute");
 const router = (app) => {
   app.use("/api/products", productsRoute);
+  app.use("/api/user", userRoute);
+  app.use("/api/auth", authRoute);
   app.use("/api/product-shortcuts", productShortCutRoute);
   app.use("/api/categories", categoriesRoute);
   app.use("/api/sales", salesRoute);
