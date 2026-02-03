@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Dashboard from "../../assets/Sidebar/Dashboard";
 import Box from "../../assets/Sidebar/Box";
 import Reports from "../../assets/Sidebar/Reports";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Kart } from "../../assets/Sidebar/Kart";
 import { CloseIcon } from "../../assets/Close";
 import { useTranslation } from "react-i18next";
@@ -13,10 +13,15 @@ import Category from "../../assets/Navigation/Category";
 import Suppliers from "../../assets/Sidebar/Suppliers";
 import Logo from "../../assets/Logo/LogoMain.jsx";
 import LogoName from "../../assets/Logo/LogoName.jsx";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/slices/auth/authService.js";
+import { Logout } from "../../assets/Logout.jsx";
 
 export const Sidebar = ({ className, handleClose }) => {
   const { t } = useTranslation();
   const path = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const links = [
     { name: t("dashboard"), blank: false, path: "", icon: <Dashboard /> },
     { name: t("products"), blank: false, path: "products", icon: <Box /> },
@@ -68,6 +73,11 @@ export const Sidebar = ({ className, handleClose }) => {
       setCollapsed(false);
     }
   }, [path]);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
   return (
     <div
       className={`max-md:absolute bg-white border-r-gray-100 border-r z-50 gap-8 max-md:left-0 max-md:bg-white  flex pt-8 flex-col px-4 ${className}
@@ -146,6 +156,14 @@ export const Sidebar = ({ className, handleClose }) => {
           </div>
         ))}
       </ul>
+      <div className="h-full flex items-end pb-4 ">
+        <button
+          onClick={handleLogout}
+          className=" bg-red-500 text-white text-sm px-4 py-2 rounded-lg text-nowrap flex gap-2 items-center"
+        >
+          <Logout />
+        </button>
+      </div>
     </div>
   );
 };

@@ -7,6 +7,8 @@ import { CategorySlice } from "./slices/CategorySlice";
 import supplierTransactionReducer from "./supplierTransactions/supplierTransaction.slice";
 import { productsSlice } from "./products/products.slice";
 import { ProductShortcutsApiSlice } from "./slices/productsShortcuts/ProductShortcutsSlice";
+import { AuthApi } from "./slices/auth/AuthSlice";
+import { authService } from "./slices/auth/authService";
 export const store = configureStore({
   reducer: {
     [ApiSlice.reducerPath]: ApiSlice.reducer,
@@ -15,8 +17,10 @@ export const store = configureStore({
     [SupplierSlice.reducerPath]: SupplierSlice.reducer,
     [CategorySlice.reducerPath]: CategorySlice.reducer,
     [ProductShortcutsApiSlice.reducerPath]: ProductShortcutsApiSlice.reducer,
+    [AuthApi.reducerPath]: AuthApi.reducer,
     supplierTransaction: supplierTransactionReducer,
     products: productsSlice.reducer,
+    authService: authService.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -27,5 +31,6 @@ export const store = configureStore({
       SupplierSlice.middleware,
       CategorySlice.middleware,
       ProductShortcutsApiSlice.middleware,
+      AuthApi.middleware,
     ),
 });

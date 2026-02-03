@@ -14,32 +14,40 @@ import { Suppliers } from "./pages/Suppliers";
 import { SupplierDetails } from "./pages/Suppliers/SupplierDetails";
 import { Category } from "./pages/Category/Category";
 import { CategoryDetails } from "./pages/Category/CategoryDetails";
-import { Login } from "./pages/Login";
+import { Login } from "./pages/auth/login";
 import { Pos } from "./pages/Pos";
+import { Register } from "./pages/auth/register";
+import { PrivateRoute } from "./routes/privateRoute";
+import { CashierLogin } from "./pages/auth/Cashier";
 export const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="products" element={<Products />} />
-        <Route path="products/:id" element={<ProductDetails />} />
-        <Route path="category" element={<Category />} />
-        <Route path="category/:id" element={<CategoryDetails />} />
+      <Route element={<PrivateRoute />}>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<Products />} />
+          <Route path="products/:id" element={<ProductDetails />} />
+          <Route path="category" element={<Category />} />
+          <Route path="category/:id" element={<CategoryDetails />} />
 
-        <Route path="stock-movements" element={<StockMovements />} />
+          <Route path="stock-movements" element={<StockMovements />} />
 
-        <Route path="reports" element={<ReportsLayout />}>
-          <Route index element={<Navigate to="sale" replace />} />
-          <Route index path="sale" element={<SalesReports />} />
-          <Route path="products" element={<ProductReports />} />
-          <Route path="cash-movements" element={<DailyCashMovements />} />
+          <Route path="reports" element={<ReportsLayout />}>
+            <Route index element={<Navigate to="sale" replace />} />
+            <Route index path="sale" element={<SalesReports />} />
+            <Route path="products" element={<ProductReports />} />
+            <Route path="cash-movements" element={<DailyCashMovements />} />
+          </Route>
+          <Route path="suppliers" element={<Suppliers />} />
+          <Route path="suppliers/:id" element={<SupplierDetails />} />
+          <Route path="pos" element={<Pos />} />
         </Route>
-        <Route path="suppliers" element={<Suppliers />} />
-        <Route path="suppliers/:id" element={<SupplierDetails />} />
-        <Route path="pos" element={<Pos />} />
       </Route>
 
       <Route path="login" element={<Login />} />
+      <Route path="cashier-login" element={<CashierLogin />} />
+
+      <Route path="register" element={<Register />} />
     </Routes>
   );
 };
