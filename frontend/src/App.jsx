@@ -7,7 +7,9 @@ import { SalesReports } from "./pages/Reports/SalesReports";
 import { Products } from "./pages/Products/Products";
 import { ProductReports } from "./pages/Reports/ProductReports";
 import { ReportsLayout } from "./components/layout/ReportsLayout";
-import { DailyCashMovements } from "./pages/Reports/DailyCashMovements";
+import {
+  CashMovements,
+} from "./pages/Reports/CashMovements";
 import { StockMovements } from "./pages/Stock/StockMovements";
 import { ProductDetails } from "./pages/Products/ProductDetails";
 import { Suppliers } from "./pages/Suppliers";
@@ -19,6 +21,7 @@ import { Pos } from "./pages/Pos";
 import { Register } from "./pages/auth/register";
 import { PrivateRoute } from "./routes/privateRoute";
 import { CashierLogin } from "./pages/auth/Cashier";
+import { Employee } from "./pages/Employee";
 export const App = () => {
   return (
     <Routes>
@@ -36,10 +39,11 @@ export const App = () => {
             <Route index element={<Navigate to="sale" replace />} />
             <Route index path="sale" element={<SalesReports />} />
             <Route path="products" element={<ProductReports />} />
-            <Route path="cash-movements" element={<DailyCashMovements />} />
+            <Route path="cash-movements" element={<CashMovements />} />
           </Route>
           <Route path="suppliers" element={<Suppliers />} />
           <Route path="suppliers/:id" element={<SupplierDetails />} />
+          <Route path="employee" element={<Employee />} />
           <Route path="pos" element={<Pos />} />
         </Route>
       </Route>

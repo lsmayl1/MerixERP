@@ -10,6 +10,8 @@ import {
   useGetProductsReportMutation,
 } from "../../redux/slices/ApiSlice";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
 
 export const ProductReports = () => {
   const { t } = useTranslation();
@@ -18,10 +20,7 @@ export const ProductReports = () => {
   const [data, setData] = useState([]);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const columnHelper = createColumnHelper();
-  const [range, setRange] = useState({
-    from: "",
-    to: "",
-  });
+  const range = useSelector((state) => state.dateRangeSlice);
   const [getProductsReport] = useGetProductsReportMutation();
   const columns = [
     columnHelper.accessor("productName", {
@@ -90,7 +89,8 @@ export const ProductReports = () => {
 
   return (
     <div className="flex flex-col gap-2  w-full h-full">
-      <DateRange handleRange={setRange} />
+      <ToastContainer />
+
       <KPI
         data={[
           {

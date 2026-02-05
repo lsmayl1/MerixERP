@@ -1,6 +1,5 @@
 export const getDateRange = (filter) => {
   const now = new Date();
-
   const months = [
     "yanvar",
     "fevral",

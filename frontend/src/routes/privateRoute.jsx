@@ -1,10 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 export const PrivateRoute = () => {
-  const { token } = useSelector((state) => state.authService);
-
+  const { token, role } = useSelector((state) => state.authService);
   if (!token) {
     return (
       <div>

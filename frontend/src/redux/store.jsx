@@ -9,6 +9,7 @@ import { productsSlice } from "./products/products.slice";
 import { ProductShortcutsApiSlice } from "./slices/productsShortcuts/ProductShortcutsSlice";
 import { AuthApi } from "./slices/auth/AuthSlice";
 import { authService } from "./slices/auth/authService";
+import { dateRangeSlice } from "./dateRange/dateRangeSlice";
 export const store = configureStore({
   reducer: {
     [ApiSlice.reducerPath]: ApiSlice.reducer,
@@ -18,6 +19,7 @@ export const store = configureStore({
     [CategorySlice.reducerPath]: CategorySlice.reducer,
     [ProductShortcutsApiSlice.reducerPath]: ProductShortcutsApiSlice.reducer,
     [AuthApi.reducerPath]: AuthApi.reducer,
+    dateRangeSlice: dateRangeSlice.reducer,
     supplierTransaction: supplierTransactionReducer,
     products: productsSlice.reducer,
     authService: authService.reducer,

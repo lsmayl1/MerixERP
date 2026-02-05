@@ -3,9 +3,12 @@ import { useTranslation } from "react-i18next";
 import Logo from "../../../assets/Logo/LogoMain.jsx";
 import { useNavigate } from "react-router-dom";
 import LogoName from "../../../assets/Logo/LogoName.jsx";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../../redux/slices/auth/authService.js";
 export const CashierLogin = () => {
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState("");
+  const dispatch = useDispatch();
   const buttons = ["7", "8", "9", "4", "5", "6", "1", "2", "3", "", "0", "⌫"];
   const [error, setError] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +24,13 @@ export const CashierLogin = () => {
 
   useEffect(() => {
     if (inputValue.length === 6) {
-      if (inputValue === "191919") {
+      if (inputValue === "000000") {
+        dispatch(
+          setCredentials({
+            token: "cashier",
+            role: "cashier",
+          }),
+        );
         navigate("/pos");
       } else {
         setError(true);
@@ -57,16 +66,13 @@ export const CashierLogin = () => {
             ))}
             {Array.from({ length: 6 - inputValue.length }).map((_, index) => (
               <li
+                key={index}
                 className={`rounded-full ${
                   error ? "border-red-500" : "border-gray-200"
                 }  border p-8 size-18 flex items-center justify-center`}
               >
                 {inputValue.slice(_, index + inputValue.length + 1).length ===
-                0 ? (
-                  <span className="text-gray-300"></span>
-                ) : (
-                  ""
-                )}
+                  0 && <span key={index} className="text-gray-300"></span>}
               </li>
             ))}
           </ul>
@@ -75,9 +81,9 @@ export const CashierLogin = () => {
         <div className="flex flex-col gap-2 w-full justify-center items-center">
           <div className="w-full">
             <div className="grid grid-cols-3 gap-2 ">
-              {buttons.map((btn) => (
+              {buttons.map((btn, index) => (
                 <button
-                  key={btn}
+                  key={index}
                   onClick={() => applyValue(btn)}
                   className="h-24 text-2xl font-medium border border-gray-200  rounded hover:bg-gray-300 active:scale-95"
                 >

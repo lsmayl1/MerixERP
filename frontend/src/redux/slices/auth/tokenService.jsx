@@ -23,3 +23,14 @@ export const deleteCookie = (name) => {
 export const saveToken = (token) => {
   setCookie("token", token, 7); // Save token for 7 days
 };
+
+export const saveRole = (role) => {
+  localStorage.setItem("role", role);
+};
+
+export const getRole = () => {
+  const role = localStorage.getItem("role");
+  if (role) {
+    return role;
+  }
+};

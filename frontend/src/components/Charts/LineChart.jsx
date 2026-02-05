@@ -46,7 +46,7 @@ export const LineChart = ({ data, valueKey = "revenue" }) => {
 
   const options = {
     responsive: true, // Ekran boyutuna göre uyumlu olmasını sağlar
-    maintainAspectRatio: true, // Grafik boyutunu korur
+    maintainAspectRatio: false, // Grafik boyutunu korur
     plugins: {
       legend: {
         display: false, // Legend'ı gizler

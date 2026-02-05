@@ -13,13 +13,12 @@ import { Plus } from "../../assets/Plus";
 import { TransactionModal } from "../../components/CashMovement/TransactionModal";
 import { useTranslation } from "react-i18next";
 import { DateRange } from "../../components/Date/DateRange";
+import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
 
-export const DailyCashMovements = () => {
+export const CashMovements = () => {
   const { t } = useTranslation();
-  const [range, setRange] = useState({
-    from: "",
-    to: "",
-  });
+  const range = useSelector((state) => state.dateRangeSlice);
   const [getCashMovements, { data, refetch }] =
     useGetCashMovementsMutation(range);
   const [createTransaction, { isLoading }] = useCreateCashMovementMutation();
@@ -110,7 +109,7 @@ export const DailyCashMovements = () => {
 
   return (
     <div className="w-full h-full flex flex-col  gap-2 relative">
-      <DateRange handleRange={setRange} />
+      <ToastContainer />
       {showTransactionModal && (
         <TransactionModal
           handleClose={() => setShowTransactionModal(false)}

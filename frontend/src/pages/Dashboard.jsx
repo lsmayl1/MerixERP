@@ -8,6 +8,7 @@ import {
 } from "../redux/slices/ApiSlice.jsx";
 import { LineChart } from "../components/Charts/LineChart.jsx";
 import { StockOverview } from "../components/Products/StockOverview.jsx";
+import { useSelector } from "react-redux";
 
 export const Dashboard = () => {
   const { t } = useTranslation();
@@ -21,13 +22,9 @@ export const Dashboard = () => {
   const { data: Revenue } = useGetDailyRevenueQuery(timeframe, {
     skip: !timeframe,
   });
-
   const [getMetrics] = useGetDashboardMetricsMutation();
   const [metricData, setMetricData] = useState({});
-  const [range, setRange] = useState({
-    from: "",
-    to: "",
-  });
+  const range = useSelector((state) => state.dateRangeSlice);
 
   const getDashboardMetrics = async () => {
     try {
@@ -44,7 +41,9 @@ export const Dashboard = () => {
 
   return (
     <div className="w-full h-screen  flex flex-col pr-2 gap-2 min-h-0  ">
-      <DateRange handleRange={setRange} />
+      <div className="bg-white rounded-lg p-4 flex gap-4 items-center">
+        <DateRange />
+      </div>
       <div className="flex items-center gap-2 w-full">
         <KPI
           data={[
@@ -86,7 +85,7 @@ export const Dashboard = () => {
             ))}
           </div>
 
-          <div className="w-full  h-full min-w-0  transition-width duration-200 relative">
+          <div className="w-full  h-full min-w-0 min-h-0  transition-width duration-200 relative">
             <LineChart data={Revenue?.data} />
           </div>
         </div>

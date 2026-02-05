@@ -32,9 +32,12 @@ export const Login = () => {
         setCredentials({
           token: response.data.token,
           refreshToken: response.data.refreshToken,
+          role: "admin",
         }),
       );
-      navigate("/");
+      if (response.data.user.role === "user") {
+        navigate("/");
+      }
     } catch (error) {
       toast.error(error.data.message);
       console.log(error);

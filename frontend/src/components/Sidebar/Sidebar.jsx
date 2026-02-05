@@ -13,9 +13,10 @@ import Category from "../../assets/Navigation/Category";
 import Suppliers from "../../assets/Sidebar/Suppliers";
 import Logo from "../../assets/Logo/LogoMain.jsx";
 import LogoName from "../../assets/Logo/LogoName.jsx";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/auth/authService.js";
 import { Logout } from "../../assets/Logout.jsx";
+import { Employee } from "../../assets/Sidebar/Employee.jsx";
 
 export const Sidebar = ({ className, handleClose }) => {
   const { t } = useTranslation();
@@ -23,46 +24,54 @@ export const Sidebar = ({ className, handleClose }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const links = [
-    { name: t("dashboard"), blank: false, path: "", icon: <Dashboard /> },
-    { name: t("products"), blank: false, path: "products", icon: <Box /> },
+    {
+      name: t("dashboard"),
+      blank: false,
+      path: "",
+      icon: <Dashboard />,
+      roles: ["admin"],
+    },
+    {
+      name: t("products"),
+      blank: false,
+      path: "products",
+      icon: <Box />,
+      roles: ["admin"],
+    },
     {
       name: t("stockMovements"),
       blank: false,
       path: "stock-movements",
       icon: <StockBox />,
+      roles: ["admin"],
     },
-    // {
-    //   name: t("Kateqoriyalar"),
-    //   blank: false,
-    //   path: "category",
-    //   icon: <Category />,
-    // },
-
     {
       name: t("reports"),
       blank: false,
       icon: <Reports />,
       path: "reports",
-      category: [
-        { name: t("saleReport"), path: "reports/sale" },
-        {
-          name: t("productReport"),
-          path: "reports/products",
-        },
-        {
-          name: t("Ödənişlər"),
-          path: "reports/cash-movements",
-        },
-      ],
+      roles: ["admin", "user"],
     },
     {
       name: t("supplier"),
       blank: true,
       path: "suppliers",
       icon: <Suppliers />,
+      roles: ["admin"],
+    },
+    {
+      name: "Employee",
+      path: "employee",
+      icon: <Employee />,
     },
 
-    { name: t("pos"), blank: true, path: "pos", icon: <Kart /> },
+    {
+      name: t("pos"),
+      blank: true,
+      path: "pos",
+      icon: <Kart />,
+      roles: ["admin", "user"],
+    },
   ];
   const [collapsed, setCollapsed] = useState(false);
 
@@ -80,7 +89,7 @@ export const Sidebar = ({ className, handleClose }) => {
   };
   return (
     <div
-      className={`max-md:absolute bg-white border-r-gray-100 border-r z-50 gap-8 max-md:left-0 max-md:bg-white  flex pt-8 flex-col px-4 ${className}
+      className={`max-md:absolute bg-white border-r-gray-100 border-r z-50 gap-8 max-md:left-0 max-md:bg-white  flex  pt-8 h-screen   flex-col px-4 ${className}
       `}
     >
       <NavLink
@@ -90,7 +99,7 @@ export const Sidebar = ({ className, handleClose }) => {
         <Logo className="size-10" />
         {!collapsed && <LogoName className="text-black w-14" />}
       </NavLink>
-      <ul className="flex flex-col  gap-2">
+      <ul className={`flex   flex-col gap-2`}>
         {links.map((link, index) => (
           <div className="flex flex-col gap-1  " key={index}>
             <NavLink
@@ -123,43 +132,13 @@ export const Sidebar = ({ className, handleClose }) => {
                 </>
               )}
             </NavLink>
-
-            {link.category && link.category.length > 0 && !collapsed && (
-              <ul className="pl-4 ">
-                {link.category.map((subLink, subIndex) => (
-                  <NavLink
-                    key={subIndex}
-                    to={subLink.path}
-                    className={({ isActive }) =>
-                      `flex items-center gap-4 py-2 ${
-                        isActive
-                          ? "bg-gray-200 border border-mainBorder"
-                          : "hover:bg-white"
-                      } px-4 rounded-lg transition-colors duration-200`
-                    }
-                  >
-                    {({ isActive }) =>
-                      !collapsed && (
-                        <span
-                          className={` text-md max-md:text-md font-medium text-nowrap ${
-                            !isActive ? "text-black" : "text-[#0f172a]"
-                          }`}
-                        >
-                          {subLink.name}
-                        </span>
-                      )
-                    }
-                  </NavLink>
-                ))}
-              </ul>
-            )}
           </div>
         ))}
       </ul>
       <div className="h-full flex items-end pb-4 ">
         <button
           onClick={handleLogout}
-          className=" bg-red-500 text-white text-sm px-4 py-2 rounded-lg text-nowrap flex gap-2 items-center"
+          className=" bg-red-500 text-white text-sm p-2 rounded-lg text-nowrap flex gap-2 items-center"
         >
           <Logout />
         </button>

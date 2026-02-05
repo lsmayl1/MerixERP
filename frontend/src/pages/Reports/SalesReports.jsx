@@ -19,9 +19,11 @@ import { Cash } from "../../assets/Cash";
 import { CreditCard } from "../../assets/CreditCard";
 import { PrintIcon } from "../../assets/PrintIcon";
 import { toast, ToastContainer } from "react-toastify";
+import { useSelector } from "react-redux";
 
 export const SalesReports = () => {
   const { t } = useTranslation();
+  const range = useSelector((state) => state.dateRangeSlice);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [getSales, { refetch }] = useGetAllSalesMutation();
   const [getSaleMetrics] = useGetSaleMetricsMutation();
@@ -29,10 +31,7 @@ export const SalesReports = () => {
   const [data, setData] = useState([]);
   const [metrics, setMetrics] = useState({});
   const columnHelper = createColumnHelper();
-  const [range, setRange] = useState({
-    from: "",
-    to: "",
-  });
+
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const columns = [
@@ -123,7 +122,7 @@ export const SalesReports = () => {
     try {
       await triggerPrintReceipt(id).unwrap();
       toast.success(
-        t("receiptPrintedSuccessfully") || "Receipt printed successfully"
+        t("receiptPrintedSuccessfully") || "Receipt printed successfully",
       );
     } catch (error) {
       console.error("Failed to print receipt:", error);
@@ -178,7 +177,6 @@ export const SalesReports = () => {
   return (
     <div className="flex flex-col gap-2  w-full h-full relative">
       <ToastContainer />
-      <DateRange handleRange={setRange} />
       <KPI
         data={[
           {
