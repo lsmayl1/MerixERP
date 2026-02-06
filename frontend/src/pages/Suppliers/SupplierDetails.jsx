@@ -13,13 +13,13 @@ import {
   useUpdateSupplierInvoiceMutation,
 } from "../../redux/slices/SupplierSlice";
 import { SupplierInvoiceModal } from "../../components/Supplier/TransactionModal";
-import { Plus } from "../../assets/Plus";
-import TrashBin from "../../assets/TrashBin";
+import { Plus } from "../../assets/Buttons/Plus";
+import TrashBin from "../../assets/Buttons/TrashBin";
 import { DebtModal } from "../../components/Supplier/DebtModal";
 import { Invoice } from "../../assets/Navigation/Invoice";
 import { InvoiceView } from "../../components/Supplier/InvoiceView";
 import Receipt from "../../assets/Navigation/Receipt";
-import Edit from "../../assets/Edit";
+import Edit from "../../assets/Buttons/Edit";
 import { toast, ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { updateMode } from "../../redux/supplierTransactions/supplierTransaction.slice";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Plus } from "../../assets/Plus";
-import { SearchIcon } from "../../assets/SearchIcon";
+import { Plus } from "../../assets/Buttons/Plus";
+import { SearchIcon } from "../../assets/Navigation/SearchIcon";
 import { Table } from "../Table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Kart } from "../../assets/Sidebar/Kart";

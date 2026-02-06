@@ -17,8 +17,7 @@
   "build": {
     "appId": "com.ismayil.merix",
     "productName": "Merix",
-    "asar": false,
-    
+    "asar": true,
     "files": [
       "backend/**/*",
       "package.json",

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { SearchIcon } from "../../assets/SearchIcon";
-import { Setting } from "../../assets/Setting";
-import { Bell } from "../../assets/Bell";
-import Profile from "../../assets/Profile";
+import { Setting } from "../../assets/Buttons/Setting";
+import { Bell } from "../../assets/Buttons/Bell";
+import Profile from "../../assets/Navigation/Profile";
 import { useTranslation } from "react-i18next";
 import { UsaFlag } from "../../assets/Languages/en";
 import { AzerbaijanFlag } from "../../assets/Languages/az";

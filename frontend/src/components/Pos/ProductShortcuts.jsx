@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useGetProductsByQueryQuery } from "../../redux/slices/ApiSlice";
-import TrashBin from "../../assets/TrashBin";
+import TrashBin from "../../assets/Buttons/TrashBin";
 import { QtyInput } from "../QtyInput";
 import { useTranslation } from "react-i18next";
 import {

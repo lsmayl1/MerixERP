@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Cash } from "../../assets/Cash";
-import { CreditCard } from "../../assets/CreditCard";
+import { Cash } from "../../assets/Buttons/Cash";
+import { CreditCard } from "../../assets/Buttons/CreditCard";
 
-import Collapse from "../../assets/Collapse";
-import Payment from "../../assets/Payment";
+import Collapse from "../../assets/Navigation/Collapse";
+import Payment from "../../assets/Buttons/Payment";
 export const PaymentStage = ({
   data = {},
   handleBack,

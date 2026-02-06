@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import TrashBin from "../../assets/TrashBin";
+import TrashBin from "../../assets/Buttons/TrashBin";
 import { BarcodeField } from "../BarcodeField";
 import {
   useGetBarcodeMutation,
@@ -10,7 +10,7 @@ import {
   usePrintProductLabelMutation,
 } from "../../redux/slices/ApiSlice";
 import { SearchModal } from "../Pos/SearchModal";
-import { Plus } from "../../assets/Plus";
+import { Plus } from "../../assets/Buttons/Plus";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addProduct,
@@ -24,7 +24,7 @@ import {
   updateMode,
   updateProducts,
 } from "../../redux/supplierTransactions/supplierTransaction.slice";
-import { PrintIcon } from "../../assets/PrintIcon";
+import { PrintIcon } from "../../assets/Buttons/PrintIcon";
 
 export const SupplierInvoiceModal = ({
   handleClose,

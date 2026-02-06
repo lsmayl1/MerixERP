@@ -7,9 +7,9 @@ import {
   useDeleteCashMovementMutation,
   useGetCashMovementsMutation,
 } from "../../redux/slices/CashMovementSlice";
-import Edit from "../../assets/Edit";
-import TrashBin from "../../assets/TrashBin";
-import { Plus } from "../../assets/Plus";
+import Edit from "../../assets/Buttons/Edit";
+import TrashBin from "../../assets/Buttons/TrashBin";
+import { Plus } from "../../assets/Buttons/Plus";
 import { TransactionModal } from "../../components/CashMovement/TransactionModal";
 import { useTranslation } from "react-i18next";
 import { DateRange } from "../../components/Date/DateRange";

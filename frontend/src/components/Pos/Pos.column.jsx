@@ -1,6 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { QtyInput } from "../QtyInput";
-import TrashBin from "../../assets/TrashBin";
+import TrashBin from "../../assets/Buttons/TrashBin";
 
 export const PosColumn = ({ t, handleChangeQty, removeProduct }) => {
   const columnHelper = createColumnHelper();

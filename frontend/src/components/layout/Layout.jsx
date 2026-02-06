@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-
-import { Header } from "../Header";
 import { Sidebar } from "../Sidebar/Sidebar";
 import { useSelector } from "react-redux";
 import { CashierHeader } from "../Header/CashierHeader";
@@ -13,9 +11,7 @@ export const Layout = () => {
     <div
       className={` h-screen min-h-0  w-full flex overflow-hidden  relative bg-MaingBg`}
     >
-      <div
-        className={`flex ${role !== "admin" ? "flex-col " : "flex-row"} w-full h-full overflow-hidden min-h-0`}
-      >
+      <div className={`flex  w-full h-full overflow-hidden min-h-0 gap-2`}>
         {showSideBar && role === "admin" ? (
           <Sidebar
             handleClose={() => setShowSidebar(false)}
@@ -25,7 +21,7 @@ export const Layout = () => {
           <CashierHeader />
         )}
 
-        <div className="px-2 w-full h-full min-h-0 flex flex-col">
+        <div className="w-full  py-2 h-full min-h-0 flex flex-col overflow-auto">
           <Outlet />
         </div>
       </div>

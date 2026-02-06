@@ -4,18 +4,14 @@ import Box from "../../assets/Sidebar/Box";
 import Reports from "../../assets/Sidebar/Reports";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Kart } from "../../assets/Sidebar/Kart";
-import { CloseIcon } from "../../assets/Close";
 import { useTranslation } from "react-i18next";
-import Delivery from "../../assets/Navigation/Delivery";
 import StockBox from "../../assets/Sidebar/StockBox.jsx";
-import { Supplier } from "../../assets/Navigation/Supplier";
-import Category from "../../assets/Navigation/Category";
 import Suppliers from "../../assets/Sidebar/Suppliers";
 import Logo from "../../assets/Logo/LogoMain.jsx";
 import LogoName from "../../assets/Logo/LogoName.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slices/auth/authService.js";
-import { Logout } from "../../assets/Logout.jsx";
+import { Logout } from "../../assets/Buttons/Logout.jsx";
 import { Employee } from "../../assets/Sidebar/Employee.jsx";
 
 export const Sidebar = ({ className, handleClose }) => {
@@ -38,13 +34,13 @@ export const Sidebar = ({ className, handleClose }) => {
       icon: <Box />,
       roles: ["admin"],
     },
-    {
-      name: t("stockMovements"),
-      blank: false,
-      path: "stock-movements",
-      icon: <StockBox />,
-      roles: ["admin"],
-    },
+    // {
+    //   name: t("stockMovements"),
+    //   blank: false,
+    //   path: "stock-movements",
+    //   icon: <StockBox />,
+    //   roles: ["admin"],
+    // },
     {
       name: t("reports"),
       blank: false,

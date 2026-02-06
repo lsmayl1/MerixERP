@@ -66,7 +66,7 @@ export const Dashboard = () => {
           ]}
         />
       </div>
-      <div className="flex w-full gap-2 h-full max-h-[600px]">
+      <div className="flex w-full gap-2 h-full min-h-[400px]  overflow-hidden">
         <div className="flex flex-col flex-2  bg-white w-full justify-end  p-2 h-full gap-4  rounded-lg  ">
           <div className="flex justify-between gap-2  items-center ">
             <div className="w-full text-mainText font-medium">Dövriyyə</div>
@@ -97,6 +97,9 @@ export const Dashboard = () => {
             <StockOverview />
           </div>
         </div>
+      </div>
+      <div className="bg-white w-full h-full rounded-lg p-2">
+        <h1 className="text-lg text-mainText font-medium">Son ödənişlər</h1>
       </div>
       <div className="bg-white w-full h-full rounded-lg p-2">
         <h1 className="text-lg text-mainText font-medium">Son ödənişlər</h1>

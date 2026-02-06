@@ -14,6 +14,7 @@ const Category = require("./Product/category");
 const SyncQueue = require("./Sync/SyncQuene");
 const SalePayments = require("./Sale/salePayments");
 const User = require("./User/userModel");
+const Shifts = require("./Shifts/shifts");
 // 🔹 İlişkileri Tanımla
 Sales.hasMany(SalesDetails, { foreignKey: "sale_id", as: "details" });
 SalesDetails.belongsTo(Sales, { foreignKey: "sale_id", as: "sale" });
@@ -96,6 +97,9 @@ Category.hasMany(Products, {
   as: "products",
 });
 
+Shifts.belongsTo(User, { foreignKey: "userId", as: "user" });
+Shifts.hasMany(Sales, { foreignKey: "shiftId", as: "shift" });
+
 module.exports = {
   sequelize,
   Sequelize,
@@ -114,4 +118,5 @@ module.exports = {
   SyncQueue,
   ShortCut,
   User,
+  Shifts,
 };

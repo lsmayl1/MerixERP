@@ -1,13 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getCookie, setCookie, deleteCookie, saveRole, getRole } from "./tokenService";
+import {
+  deleteCookie,
+  saveRole,
+  getRole,
+  saveLocalToken,
+  getToken,
+  deleteLocalToken,
+} from "./tokenService";
 
 export const authService = createSlice({
   name: "authService",
   initialState: {
-    token: getCookie("token") || null,
+    token: getToken() || null,
     role: getRole() || null,
-    refreshToken: getCookie("refreshToken") || null,
-    isAuthenticated: !!getCookie("token"),
+    // refreshToken: getToken() || null,
+    isAuthenticated: !!getToken(),
   },
   reducers: {
     setCredentials: (state, action) => {
@@ -16,16 +23,14 @@ export const authService = createSlice({
       state.refreshToken = refreshToken;
       state.role = role;
       saveRole(role);
-      setCookie("token", token, 1);
-      setCookie("refreshToken", refreshToken, 7);
+      saveLocalToken(token);
       state.isAuthenticated = true;
     },
     logout: (state) => {
       state.token = null;
       state.refreshToken = null;
       state.isAuthenticated = false;
-      deleteCookie("token");
-      deleteCookie("refreshToken");
+      deleteLocalToken();
     },
   },
 });

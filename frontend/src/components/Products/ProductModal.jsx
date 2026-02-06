@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { useMediaQuery } from "react-responsive";
 import { useForm } from "react-hook-form";
 import { useGetBarcodeMutation } from "../../redux/slices/ApiSlice";
-import Generate from "../../assets/Generate";
+import Generate from "../../assets/Buttons/Generate";
 import { useTranslation } from "react-i18next";
-import { RightArrow } from "../../assets/Arrows";
-import { useGetCategoriesQuery } from "../../redux/slices/CategorySlice";
 export const ProductModal = ({
   handleClose,
   isEditMode,

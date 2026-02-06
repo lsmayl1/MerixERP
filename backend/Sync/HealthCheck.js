@@ -1,11 +1,10 @@
-const axios = require("axios");
-const { Client } = require("pg");
+// const axios = require("axios");
 
 let isOnline = false;
 
 const checkHealth = async () => {
   try {
-    await axios.get("https://www.google.com");
+    // await axios.get("https://www.google.com");
 
     isOnline = true;
     return true;

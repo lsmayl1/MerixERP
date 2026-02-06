@@ -1,7 +1,7 @@
 import React from "react";
-import { Plus } from "../../assets/Plus";
+import { Plus } from "../../assets/Buttons/Plus";
 import { Table } from "../../components/Table";
-import Payment from "../../assets/Payment";
+import Payment from "../../assets/Buttons/Payment";
 import { BarcodeField } from "../../components/BarcodeField";
 import { ProductShortcuts } from "../../components/Pos/ProductShortcuts";
 import { ToastContainer } from "react-toastify";
@@ -14,13 +14,12 @@ import {
   removeProduct,
   switchCart,
 } from "../../redux/products/products.slice";
-import { CloseIcon } from "../../assets/Close";
+import { CloseIcon } from "../../assets/Buttons/Close";
 import { PosColumn } from "../../components/Pos/Pos.column";
 import { usePos } from "../../hooks/usePos";
 export const Pos = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
   const {
     handleSubmitSale,
     carts,
@@ -42,9 +41,7 @@ export const Pos = () => {
   } = usePos();
 
   return (
-    <div className="flex flex-col  overflow-hidden h-screen  gap-2 w-full ">
-      <ToastContainer />
-
+    <div className="flex flex-col  overflow-hidden gap-2 h-screen w-full ">
       <div className="flex bg-white rounded-lg p-2 gap-4 items-center justify-between  ">
         <div className="flex gap-2 ">
           {carts.map((cart, index) => (
@@ -83,6 +80,7 @@ export const Pos = () => {
             </div>
           )}
         </div>
+        <div></div>
 
         <div className="flex items-center gap-6">
           <BarcodeField
@@ -159,6 +157,7 @@ export const Pos = () => {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

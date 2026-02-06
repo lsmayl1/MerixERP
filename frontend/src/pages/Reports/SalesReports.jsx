@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { KPI } from "../../components/Metric/KPI";
-import { Filters } from "../../assets/Filters";
+import { Filters } from "../../assets/Buttons/Filters";
 import { FiltersModal } from "../../components/Filters/FiltersModal";
 import { Table } from "../../components/Table";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Details } from "../../assets/Details";
+import { Details } from "../../assets/Buttons/Details";
 import {
   useDeleteSaleMutation,
   useGetAllSalesMutation,
@@ -12,12 +12,11 @@ import {
   useLazyPrintSaleReceiptQuery,
 } from "../../redux/slices/ApiSlice";
 import { SaleDetailsModal } from "../../components/Reports/SaleDetailsModal";
-import { DateRange } from "../../components/Date/DateRange";
 import { useTranslation } from "react-i18next";
-import TrashBin from "../../assets/TrashBin";
-import { Cash } from "../../assets/Cash";
-import { CreditCard } from "../../assets/CreditCard";
-import { PrintIcon } from "../../assets/PrintIcon";
+import TrashBin from "../../assets/Buttons/TrashBin";
+import { Cash } from "../../assets/Buttons/Cash";
+import { CreditCard } from "../../assets/Buttons/CreditCard";
+import { PrintIcon } from "../../assets/Buttons/PrintIcon";
 import { toast, ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 

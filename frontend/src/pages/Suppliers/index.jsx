@@ -9,8 +9,8 @@ import {
   useGetTotalPaymentsMetricQuery,
 } from "../../redux/slices/SupplierSlice";
 import { Modal } from "../../components/Supplier/Modal";
-import { Plus } from "../../assets/Plus";
-import { SearchIcon } from "../../assets/SearchIcon";
+import { Plus } from "../../assets/Buttons/Plus";
+import { SearchIcon } from "../../assets/Navigation/SearchIcon";
 
 export const Suppliers = () => {
   const { data: AllSuppliers, refetch } = useGetSuppliersQuery();

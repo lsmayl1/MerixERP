@@ -3,7 +3,7 @@ import CloseSquare from "../../assets/Navigation/CloseSquare";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useGetProductsByQueryQuery } from "../../redux/slices/ApiSlice";
-import TrashBin from "../../assets/TrashBin";
+import TrashBin from "../../assets/Buttons/TrashBin";
 
 export const StockMovementModal = ({ handleClose, onSubmit }) => {
   const { t } = useTranslation();

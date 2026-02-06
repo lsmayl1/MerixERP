@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Table } from "../../components/Table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
-import { Plus } from "../../assets/Plus";
+import { Plus } from "../../assets/Buttons/Plus";
 import { StockMovementModal } from "../../components/StockMovement/StockMovementModal";
 import {
   useCreateStockMovementMutation,
   useDeleteStockMovementMutation,
   useGetStockMovementsMutation,
 } from "../../redux/slices/StockMovementsSlice";
-import TrashBin from "../../assets/TrashBin";
+import TrashBin from "../../assets/Buttons/TrashBin";
 import { DateRange } from "../../components/Date/DateRange";
 
 export const StockMovements = () => {

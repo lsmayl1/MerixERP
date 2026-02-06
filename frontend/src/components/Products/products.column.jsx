@@ -1,8 +1,8 @@
 import React from "react";
 import { createColumnHelper } from "@tanstack/react-table";
-import Edit from "../../assets/Edit";
-import { Details } from "../../assets/Details";
-import { PrintIcon } from "../../assets/PrintIcon";
+import Edit from "../../assets/Buttons/Edit";
+import { Details } from "../../assets/Buttons/Details";
+import { PrintIcon } from "../../assets/Buttons/PrintIcon";
 import { NavLink } from "react-router-dom";
 
 export const productColumn = ({ t, editProduct, printProduct }) => {

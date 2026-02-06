@@ -13,8 +13,11 @@ const supplierTransactionsRoute = require("./Supplier/SupplierTransactions");
 const productShortCutRoute = require("./Product/productShortCutRoute");
 const userRoute = require("./User/userRoute");
 const authRoute = require("./Auth/AuthRoute");
+const shiftRoute = require("./Shift/shiftRoute");
+const authMiddleware = require("../services/Jwt/autMiddleware");
 const router = (app) => {
   app.use("/api/products", productsRoute);
+  app.use("/api/shift", authMiddleware, shiftRoute);
   app.use("/api/user", userRoute);
   app.use("/api/auth", authRoute);
   app.use("/api/product-shortcuts", productShortCutRoute);

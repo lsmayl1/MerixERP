@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { KPI } from "../../components/Metric/KPI";
-import { Filters } from "../../assets/Filters";
+import { Filters } from "../../assets/Buttons/Filters";
 import { FiltersModal } from "../../components/Filters/FiltersModal";
 import { Table } from "../../components/Table";
 import { createColumnHelper } from "@tanstack/react-table";
-import { DateRange } from "../../components/Date/DateRange";
 import {
   useGetProductSoldMetricsMutation,
   useGetProductsReportMutation,

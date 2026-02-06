@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Minus } from "../assets/Minus";
-import { Plus } from "../assets/Plus";
+import { Minus } from "../assets/Buttons/Minus";
+import { Plus } from "../assets/Buttons/Plus";
 
 export const QtyInput = ({ barcode, handleQty, qty, className, allign }) => {
   const [newQty, setNewQty] = useState(parseFloat(qty).toFixed(2) || 0);

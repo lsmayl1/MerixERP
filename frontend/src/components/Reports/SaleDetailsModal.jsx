@@ -3,7 +3,7 @@ import { Table } from "../Table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useGetSaleByIdQuery } from "../../redux/slices/ApiSlice";
 import { useTranslation } from "react-i18next";
-import { CloseIcon } from "../../assets/Close";
+import { CloseIcon } from "../../assets/Buttons/Close";
 
 export const SaleDetailsModal = ({ saleId, handleClose }) => {
   const { t } = useTranslation();

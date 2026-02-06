@@ -1,7 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import React from "react";
 import { Table } from "../Table";
-import { CloseIcon } from "../../assets/Close";
+import { CloseIcon } from "../../assets/Buttons/Close";
 import { useTranslation } from "react-i18next";
 
 export const InvoiceView = ({ handleClose, data }) => {

@@ -16,6 +16,20 @@ export const getCookie = (name) => {
   }, "");
 };
 
+export const saveLocalToken = (token) => {
+  const localToken = localStorage.setItem("token", token);
+  return localToken;
+};
+
+export const getToken = () => {
+  const token = localStorage.getItem("token");
+  return token;
+};
+
+export const deleteLocalToken = ()=>{
+  localStorage.removeItem("token")
+}
+
 export const deleteCookie = (name) => {
   setCookie(name, "", -1);
 };

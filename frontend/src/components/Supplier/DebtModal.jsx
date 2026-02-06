@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { CreditCard } from "../../assets/CreditCard";
-import { Cash } from "../../assets/Cash";
+import { CreditCard } from "../../assets/Buttons/CreditCard";
+import { Cash } from "../../assets/Buttons/Cash";
 import CloseSquare from "../../assets/Navigation/CloseSquare";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
