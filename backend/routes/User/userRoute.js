@@ -1,12 +1,21 @@
 const express = require("express");
-const { createUser } = require("../../services/User/userService");
+const { createUser, getAllUsers } = require("../../services/User/userService");
 
 const router = express.Router();
 
-router.post("/", async (req, res, next) => {
+router.get("/", async (req, res, next) => {
+  try {
+    const users = await getAllUsers();
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/create", async (req, res, next) => {
   try {
     const user = await createUser(req.body);
-    return user;
+    res.json(user);
   } catch (error) {
     next(error);
   }

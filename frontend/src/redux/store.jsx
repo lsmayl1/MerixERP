@@ -10,6 +10,7 @@ import { ProductShortcutsApiSlice } from "./slices/productsShortcuts/ProductShor
 import { AuthApi } from "./slices/auth/AuthSlice";
 import { authService } from "./slices/auth/authService";
 import { dateRangeSlice } from "./dateRange/dateRangeSlice";
+import { userApiSlice } from "./slices/user/userApiSlice";
 export const store = configureStore({
   reducer: {
     [ApiSlice.reducerPath]: ApiSlice.reducer,
@@ -19,6 +20,7 @@ export const store = configureStore({
     [CategorySlice.reducerPath]: CategorySlice.reducer,
     [ProductShortcutsApiSlice.reducerPath]: ProductShortcutsApiSlice.reducer,
     [AuthApi.reducerPath]: AuthApi.reducer,
+    [userApiSlice.reducerPath]:userApiSlice.reducer,
     dateRangeSlice: dateRangeSlice.reducer,
     supplierTransaction: supplierTransactionReducer,
     products: productsSlice.reducer,
@@ -34,5 +36,6 @@ export const store = configureStore({
       CategorySlice.middleware,
       ProductShortcutsApiSlice.middleware,
       AuthApi.middleware,
+      userApiSlice.middleware
     ),
 });

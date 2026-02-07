@@ -3,11 +3,12 @@ const AppError = require("../../utils/AppError");
 
 const createUser = async (userData) => {
   try {
-    const { username, email, password, role } = userData;
+    const { username, email, password, phoneNumber, role } = userData;
     if (!username || !password) {
       throw new AppError("Username and password are required", 400);
     }
-    const existingUser = await getUserById(username);
+    // Doğrudan findOne kullan, error throw etme
+    const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
       throw new AppError("Username already exists", 409);
     }
@@ -15,6 +16,7 @@ const createUser = async (userData) => {
       username,
       email,
       password,
+      phoneNumber,
       role: role || "user",
     });
     return newUser;
