@@ -1,11 +1,11 @@
 import React from "react";
 
-export const KPI = ({ data }) => {
+export const KPI = ({ data, children }) => {
   return (
     <div
       className={`grid  max-md:grid-cols-2  gap-2 w-full`}
       style={{
-        gridTemplateColumns: `repeat(${data?.length || 1}, minmax(0, 1fr))`,
+        gridTemplateColumns: `repeat(${children ? data?.length + 1 : data?.length || 1}, minmax(0, 1fr))`,
       }}
     >
       {data.map((item, index) => (
@@ -21,6 +21,7 @@ export const KPI = ({ data }) => {
           </span>
         </div>
       ))}
+      {children}
     </div>
   );
 };

@@ -55,7 +55,7 @@ export const Login = () => {
       >
         <div className="flex flex-col gap-1">
           <input
-            className="border border-border rounded-lg p-2"
+            className="border border-mainBorder rounded-lg p-2"
             {...register("email")}
             type="text"
             placeholder="Email"
@@ -66,7 +66,7 @@ export const Login = () => {
         </div>
         <div className="flex flex-col gap-1">
           <input
-            className="border border-border rounded-lg p-2"
+            className="border border-mainBorder rounded-lg p-2"
             {...register("password")}
             type="password"
             placeholder="Password"

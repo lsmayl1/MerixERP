@@ -12,6 +12,13 @@ export const AuthApi = createApi({
         body: data,
       }),
     }),
+    cashierLogin: builder.mutation({
+      query: (data) => ({
+        url: "/auth/cashier-login",
+        method: "POST",
+        body: data,
+      }),
+    }),
     register: builder.mutation({
       query: (data) => ({
         url: "/auth/register",
@@ -22,4 +29,8 @@ export const AuthApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = AuthApi;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useCashierLoginMutation,
+} = AuthApi;

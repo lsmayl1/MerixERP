@@ -5,13 +5,18 @@ import { BaseModal } from "../../components/Modal";
 import { useForm } from "react-hook-form";
 import {
   useCreateUserMutation,
+  useDeleteUserMutation,
   useGetAllUsersQuery,
 } from "../../redux/slices/user/userApiSlice";
 import { toast, ToastContainer } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import TrashBin from "../../assets/Buttons/TrashBin";
+import Edit from "../../assets/Buttons/Edit";
 export const Employee = () => {
+  const { t } = useTranslation();
   const columnHelper = createColumnHelper();
   const [modal, setModal] = useState(false);
-  const { data } = useGetAllUsersQuery();
+  const { data, refetch } = useGetAllUsersQuery();
   const columns = [
     columnHelper.accessor("id", {
       header: "ID",
@@ -19,22 +24,34 @@ export const Employee = () => {
       cellClassName: "text-center",
     }),
     columnHelper.accessor("username", {
-      header: "Name",
+      header: t("name"),
       headerClassName: "text-start",
     }),
     columnHelper.accessor("role", {
-      header: "Role",
+      header: t("role"),
       cellClassName: "text-center",
+      cell: ({ getValue }) => <span>{t(getValue())}</span>,
     }),
     columnHelper.accessor("phoneNumber", {
-      header: "Phone",
+      header: t("phone"),
       cellClassName: "text-center",
     }),
     columnHelper.accessor("action", {
-      header: "Action",
+      header: t("update"),
+      cell: ({ row }) => (
+        <div className="flex gap-4 items-center justify-center">
+          <button>
+            <Edit />
+          </button>
+          {/* <button onClick={() => handleDeleteUser(row.original.id)}>
+            <TrashBin />
+          </button> */}
+        </div>
+      ),
     }),
   ];
   const [createUser] = useCreateUserMutation();
+  const [deleteUser] = useDeleteUserMutation();
   const {
     register,
     handleSubmit,
@@ -45,13 +62,23 @@ export const Employee = () => {
     try {
       await createUser({ ...data, role: "cashier" }).unwrap();
       setModal(false);
-      console.log("first");
+      await refetch();
     } catch (error) {
       toast.error(error.data.message);
       console.log(error);
     }
   };
 
+  const handleDeleteUser = async (id) => {
+    try {
+      await deleteUser(id).unwrap();
+      setModal(false);
+      await refetch();
+    } catch (error) {
+      toast.error(error.data.message);
+      console.log(error);
+    }
+  };
   return (
     <div className="flex w-full h-full rounded-xl bg-white p-4 flex-col gap-4 relative">
       <ToastContainer />
@@ -86,9 +113,25 @@ export const Employee = () => {
                 <span className="text-mainText">Pin code</span>
                 <input
                   type="text"
-                  {...register("password")}
+                  maxLength={6}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 digits",
+                    },
+                    maxLength: {
+                      value: 6,
+                      message: "Password must be at least 6 digits",
+                    },
+                  })}
                   className="px-2 py-1 border rounded-lg border-mainText/50 "
                 />
+                {errors?.password && (
+                  <span className="text-red-500">
+                    {errors.password.message}
+                  </span>
+                )}
               </div>
             </form>
           </div>
@@ -110,7 +153,7 @@ export const Employee = () => {
           className="bg-blue-600 text-white p-2 rounded-lg"
           onClick={() => setModal(true)}
         >
-          Create User{" "}
+          {t("createUser")}
         </button>
       </div>
       <div className="p-4">

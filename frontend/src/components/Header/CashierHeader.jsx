@@ -6,6 +6,7 @@ import { logout } from "../../redux/slices/auth/authService";
 import Reports from "../../assets/Sidebar/Reports";
 import { Kart } from "../../assets/Sidebar/Kart";
 import Logo from "../../assets/Logo/LogoMain";
+import { Logout } from "../../assets/Buttons/Logout";
 
 export const CashierHeader = ({ className }) => {
   const { t } = useTranslation();
@@ -40,12 +41,11 @@ export const CashierHeader = ({ className }) => {
       className={`max-md:absolute flex-col bg-white h-full items-center border-r-gray-100 py-4 border-r z-50 gap-8 max-md:left-0 max-md:bg-white  flex  px-4 ${className}
       `}
     >
-      <NavLink
-        to={"/"}
+      <div
         className={`flex items-center gap-2 ${collapsed ? "justify-center" : ""}`}
       >
         <Logo className="size-10" />
-      </NavLink>
+      </div>
       <ul className={`flex flex-col   gap-2 w-full`}>
         {links
           .filter((item) => item.roles.includes(role))
@@ -75,6 +75,14 @@ export const CashierHeader = ({ className }) => {
             </div>
           ))}
       </ul>
+      <div className="h-full flex items-end pb-4 ">
+        <button
+          onClick={handleLogout}
+          className=" bg-red-500 text-white text-sm p-2 rounded-lg text-nowrap flex gap-2 items-center"
+        >
+          <Logout />
+        </button>
+      </div>
     </div>
   );
 };

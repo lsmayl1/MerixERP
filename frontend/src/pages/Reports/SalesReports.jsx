@@ -177,6 +177,25 @@ export const SalesReports = () => {
     <div className="flex flex-col gap-2  w-full h-full relative">
       <ToastContainer />
       <KPI
+        children={
+          <div className="flex bg-white rounded-lg px-6   gap-4 items-center justify-between">
+            <div className="flex gap-2 items-center text-xl ">
+              <Cash />
+              {/* <span>Nagd</span> */}
+              <span className="text-nowrap font-semibold text-2xl">
+                {data?.paymentTotals?.cash}
+              </span>
+            </div>
+            <span className="text-semibold text-3xl">/</span>
+            <div className="flex gap-2 items-center text-xl ">
+              <CreditCard />
+              {/* <span>Kart</span> */}
+              <span className="text-nowrap font-semibold text-2xl">
+                {data?.paymentTotals?.card}
+              </span>
+            </div>
+          </div>
+        }
         data={[
           {
             label: t("revenue"),
@@ -190,10 +209,6 @@ export const SalesReports = () => {
             label: t("profit"),
             value: metrics.totalProfit || 0,
           },
-          {
-            label: t("Maya Dəyəri"),
-            value: metrics.totalStockCost || 0,
-          },
         ]}
       />
       {showDetailsModal && (
@@ -204,16 +219,6 @@ export const SalesReports = () => {
       )}
       <div className="flex flex-col gap-2 w-full h-full min-h-0  bg-white rounded-lg px-4 py-2 relative">
         <div className="flex gap-2 items-center justify-between w-full px-2">
-          <div className="flex items-center gap-6">
-            <div className="flex gap-2 items-center text-xl font-semibold">
-              <Cash />
-              <span>{data?.paymentTotals?.cash}</span>
-            </div>
-            <div className="flex gap-2 items-center text-xl font-semibold">
-              <CreditCard />
-              <span>{data?.paymentTotals?.card}</span>
-            </div>
-          </div>
           <div className="flex  relative ">
             <button
               onClick={() => setShowFiltersModal(!showFiltersModal)}

@@ -56,7 +56,7 @@ export const Sidebar = ({ className, handleClose }) => {
       roles: ["admin"],
     },
     {
-      name: "Employee",
+      name: t("employye"),
       path: "employee",
       icon: <Employee />,
     },

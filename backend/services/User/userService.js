@@ -1,6 +1,6 @@
 const { User } = require("../../models");
 const AppError = require("../../utils/AppError");
-
+const bcrypt = require("bcryptjs");
 const createUser = async (userData) => {
   try {
     const { username, email, password, phoneNumber, role } = userData;
@@ -12,10 +12,11 @@ const createUser = async (userData) => {
     if (existingUser) {
       throw new AppError("Username already exists", 409);
     }
+    const passwordHash = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       username,
       email,
-      password,
+      password: passwordHash,
       phoneNumber,
       role: role || "user",
     });
@@ -49,8 +50,22 @@ const getAllUsers = async () => {
   }
 };
 
+const deleteUserById = async (userId) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+    await user.destroy();
+    return { message: "User deleted success" };
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   createUser,
   getUserById,
   getAllUsers,
+  deleteUserById,
 };

@@ -100,4 +100,37 @@ const LoginUser = async (userData) => {
   }
 };
 
-module.exports = { CreateUser, LoginUser };
+const LoginCashier = async (userData) => {
+  try {
+    const { userId, password } = userData;
+    if (!userId || !password) {
+      throw new AppError("All fields required", 404);
+    }
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    // Password alanı boş/null kontrolü
+    if (!user.password) {
+      throw new AppError("User password not set in database", 500);
+    }
+    console.log(user);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new AppError("Invalid password", 401);
+    }
+    const token = generateToken({ userId: user.id, role: "cashier" });
+    const refreshToken = signRefreshToken(
+      { userId: user.id, role: "cashier" },
+      "7d",
+    );
+    user.refreshToken = refreshToken;
+    await user.save();
+    return { user, token, refreshToken };
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = { CreateUser, LoginUser, LoginCashier };

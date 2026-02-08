@@ -32,8 +32,12 @@
    "filters":"Filtrlər",
    "addProduct":"Məhsul Əlavə Et",
    "add":"Əlavə Et",
-   
-
+   "employye":"İstifadəçilər",
+"role":"Rol",
+  "phone":"Telefon Nömrəsi",
+  "cashier":"Kassir",
+  "user":"Admin",
+   "createUser":"İstifadəçi Yarat",
 
    
   "product": "Məhsul",

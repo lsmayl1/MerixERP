@@ -7,8 +7,12 @@ export const ReportsLayout = () => {
   const { t } = useTranslation();
   const taskbar = [
     {
-      name: "Satis",
+      name: "Satışlar",
       path: "/reports/sale",
+    },
+    {
+      name: "Növbələr üzrə hesabat",
+      path: "/reports/shifts",
     },
     {
       name: t("productReport"),

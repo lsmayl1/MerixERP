@@ -64,11 +64,14 @@
   "saleAmount":"Sale Amount",
   "paymentMethod":"Payment Method",
   "details":"Details",
-
+  "employee":"Employee",
   "cash":"Cash",
   "card":"Card",
-
-    "receivedAmount": "Received Amount",
+  "role":"Role",
+  "phone":"Phone",
+  "cashier":"Cashier",
+  "admin":"Admin",
+  "receivedAmount": "Received Amount",
   "amountToReturn": "Amount to Return",
 
   "makePayment":"Make Payment",

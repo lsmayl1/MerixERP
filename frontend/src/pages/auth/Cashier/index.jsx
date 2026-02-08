@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Logo from "../../../assets/Logo/LogoMain.jsx";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import LogoName from "../../../assets/Logo/LogoName.jsx";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../../redux/slices/auth/authService.js";
 import Collapse from "../../../assets/Navigation/Collapse.jsx";
+import { useCashierLoginMutation } from "../../../redux/slices/auth/AuthSlice.jsx";
+import { toast, ToastContainer } from "react-toastify";
+import { useGetAllUsersQuery } from "../../../redux/slices/user/userApiSlice.jsx";
 
 export const CashierLogin = () => {
   const { t } = useTranslation();
@@ -24,45 +27,53 @@ export const CashierLogin = () => {
     },
   ];
   const [dropDown, setDropDown] = useState(false);
-  const [selectedCashier, setSelectedCashier] = useState("Select cashier");
+  const [selectedCashier, setSelectedCashier] = useState({});
   const [inputValue, setInputValue] = useState("");
   const dispatch = useDispatch();
+  const { data: users } = useGetAllUsersQuery();
+  const [cashierLogin] = useCashierLoginMutation();
   const buttons = ["7", "8", "9", "4", "5", "6", "1", "2", "3", "", "0", "⌫"];
   const [error, setError] = useState(false);
   const navigate = useNavigate();
-  const applyValue = (btn) => {
+
+  // Auto-login when 6 digits are entered
+  useEffect(() => {
+    if (inputValue.length === 6) {
+      handleLogin();
+    }
+  }, [inputValue]);
+
+  const applyValue = async (btn) => {
     if (btn === "⌫") {
       setInputValue((prev) => prev.slice(0, -1));
-    } else if (inputValue.length >= 6) {
-      return;
-    } else {
+    } else if (inputValue.length < 6) {
       setInputValue((prev) => prev + btn);
     }
   };
 
-  useEffect(() => {
-    if (inputValue.length === 6) {
-      if (inputValue === "000000") {
-        dispatch(
-          setCredentials({
-            token: "cashier",
-            role: "cashier",
-          }),
-        );
-        navigate("/pos");
-      } else {
-        setError(true);
-        setTimeout(() => {
-          setInputValue("");
-          setError(false);
-        }, 500);
-      }
+  const handleLogin = async () => {
+    try {
+      const user = await cashierLogin({
+        userId: selectedCashier.id,
+        password: inputValue,
+      }).unwrap();
+      (dispatch(
+        setCredentials({
+          token: user.data.token,
+          refreshToken: user.data.refreshToken,
+          role: "cashier",
+        }),
+      ),
+        navigate("/pos"));
+    } catch (error) {
+      toast.error(error.data.message);
+      console.log(error);
     }
-  }, [inputValue, navigate]);
-
+  };
   return (
     <div className="flex  w-full h-screen">
       <div className="w-full  rounded-lg p-4">
+        <ToastContainer />
         <div className="bg-gray-200  w-full h-full rounded-xl flex items-center justify-center">
           <img
             src={"./CashierLogin.jpg"}
@@ -72,28 +83,34 @@ export const CashierLogin = () => {
         </div>
       </div>
       <div className="flex flex-col w-full p-10  justify-between items-center ">
-        <div className="flex justify-between w-full flex-col items-center">
-          <h1 className="w-full font-medium text-nowrap text-xl">
-            Cashier Login
-          </h1>
+        <div className="flex justify-between gap-4 w-full flex-col items-center">
+          <div className="flex justify-between w-full">
+            <h1 className="w-full font-medium text-nowrap text-xl">
+              Cashier Login
+            </h1>
+            <NavLink to={"/login"} className=" font-medium text-nowrap text-xl">
+              Admin Login
+            </NavLink>
+          </div>
           <div className="flex flex-col w-1/2 relative">
             <div className="border flex items-center justify-between px-4 p-2 border-mainBorder rounded-lg w-full text-nowrap gap-4">
-              {selectedCashier}
+              {selectedCashier.username || "Select Cashier"}
               <button onClick={() => setDropDown(!dropDown)}>
                 <Collapse className={"rotate-270 size-6"} />
               </button>
             </div>
-            {dropDown && (
+            {dropDown && users.length > 0 && (
               <div className="bg-white border absolute w-full top-12 border-mainBorder rounded-lg flex flex-col gap-2 ">
-                {data.map((dt) => (
+                {users?.map((dt, i) => (
                   <span
+                    key={i}
                     onClick={() => {
-                      setSelectedCashier(dt.name);
+                      setSelectedCashier(dt);
                       setDropDown(false);
                     }}
                     className="hover:bg-gray-300 hover:text-white cursor-pointer p-2 rounded-lg"
                   >
-                    {dt.name}
+                    {dt.username}
                   </span>
                 ))}
               </div>

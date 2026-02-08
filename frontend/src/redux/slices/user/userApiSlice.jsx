@@ -7,6 +7,7 @@ export const userApiSlice = createApi({
   endpoints: (build) => ({
     getAllUsers: build.query({
       query: () => "/user/",
+      keepUnusedDataFor: 0,
     }),
     createUser: build.mutation({
       query: (data) => ({
@@ -15,7 +16,17 @@ export const userApiSlice = createApi({
         method: "POST",
       }),
     }),
+    deleteUser: build.mutation({
+      query: (id) => ({
+        url: `user/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { useCreateUserMutation, useGetAllUsersQuery } = userApiSlice;
+export const {
+  useCreateUserMutation,
+  useGetAllUsersQuery,
+  useDeleteUserMutation,
+} = userApiSlice;
